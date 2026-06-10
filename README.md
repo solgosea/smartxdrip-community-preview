@@ -6,11 +6,18 @@ SmartXDrip is a companion app for CGM review, analysis, and local helper reminde
 
 SmartXDrip does not replace either project. xDrip+ and Nightscout remain the source of truth for CGM data. SmartXDrip reads from the user's configured source and adds a focused workspace for daily review, historical context, statistics, insights, episode review, and local alerting experiments.
 
-View the product documentation site:
+## Download the Android preview
 
-```text
-https://solgosea.github.io/smartxdrip-docs/
-```
+The first community preview APK is available here:
+
+**[Download SmartXDrip Community Preview v0.1.0 for Android](https://github.com/solgosea/smartxdrip-community-preview/releases/download/v0.1.0-community-preview/smartxdrip-community-preview-v0.1.0-android.apk)**
+
+This is an early community preview for feedback and discussion. Please keep using your existing xDrip+, Nightscout, CGM manufacturer app, alert, and diabetes management workflows.
+
+Useful links:
+
+- **Release page:** [v0.1.0-community-preview](https://github.com/solgosea/smartxdrip-community-preview/releases/tag/v0.1.0-community-preview)
+- **Documentation:** [https://solgosea.github.io/smartxdrip-docs/](https://solgosea.github.io/smartxdrip-docs/)
 
 ## First public scope
 
