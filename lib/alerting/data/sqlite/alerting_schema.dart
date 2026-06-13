@@ -257,9 +257,8 @@ class AlertingSchema {
     final rows = await database.rawQuery('PRAGMA table_info($table)');
     final exists = rows.any((row) => row['name'] == column);
     if (!exists) {
-      await database.execute(
-        'ALTER TABLE $table ADD COLUMN $column $definition',
-      );
+      await database
+          .execute('ALTER TABLE $table ADD COLUMN $column $definition');
     }
   }
 }

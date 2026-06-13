@@ -1,13 +1,11 @@
 import '../../application/data_source_runtime/data_source_runtime_coordinator.dart';
 import '../../application/polling/polling_context_builder.dart';
 import '../../application/polling/polling_decision_service.dart';
-import '../../application/sync/glucose_sync_coordinator.dart';
 import '../../application/sync/glucose_sync_result.dart';
 import '../../application/sync_status/sync_status_formatter.dart';
 import '../../application/sync_status/sync_status_service.dart';
 import '../../application/sync_strategy/data_source_sync_strategy_coordinator.dart';
 import '../../application/sync_target/glucose_sync_target_registry.dart';
-import '../../application/sync_target/glucose_sync_target_runner.dart';
 import '../../application/sync_target/providers/self_data_source_sync_target_provider.dart';
 import '../../data/local/glucose_database.dart';
 import '../../data/local/settings_store.dart';
@@ -50,13 +48,12 @@ class BackgroundSyncCoordinator {
     this.strategyCoordinator = const DataSourceSyncStrategyCoordinator(),
     this.syncStatusService = const SyncStatusService(),
     this.formatter = const SyncStatusFormatter(),
-  }) : syncTargetRegistry =
-           syncTargetRegistry ??
-           GlucoseSyncTargetRegistry(
-             providers: const [SelfDataSourceSyncTargetProvider()],
-           ),
-       postTaskRegistry =
-           postTaskRegistry ?? BackgroundSyncPostTaskRegistry(tasks: postTasks);
+  })  : syncTargetRegistry = syncTargetRegistry ??
+            GlucoseSyncTargetRegistry(
+              providers: const [SelfDataSourceSyncTargetProvider()],
+            ),
+        postTaskRegistry = postTaskRegistry ??
+            BackgroundSyncPostTaskRegistry(tasks: postTasks);
 
   factory BackgroundSyncCoordinator.create({required bool xdripSupported}) {
     final database = GlucoseDatabase();
@@ -103,21 +100,18 @@ class BackgroundSyncCoordinator {
     final enabledKinds = _enabledKinds(settings);
     final runtimes = <DataSourceRuntimeSnapshot>[];
     for (final kind in enabledKinds) {
-      runtimes.add(
-        await runtimeCoordinator.refreshOne(kind, settings: settings),
-      );
+      runtimes
+          .add(await runtimeCoordinator.refreshOne(kind, settings: settings));
     }
 
     final results = await _runTargets(settings);
     final refreshed = <DataSourceRuntimeSnapshot>[];
     for (final kind in enabledKinds) {
-      refreshed.add(
-        await runtimeCoordinator.refreshOne(kind, settings: settings),
-      );
+      refreshed
+          .add(await runtimeCoordinator.refreshOne(kind, settings: settings));
     }
-    final primaryRuntime = _primaryRuntime(
-      refreshed.isEmpty ? runtimes : refreshed,
-    );
+    final primaryRuntime =
+        _primaryRuntime(refreshed.isEmpty ? runtimes : refreshed);
     final syncStatus = _syncStatusFor(
       settings: settings,
       runtimeSnapshot: primaryRuntime,
@@ -132,32 +126,24 @@ class BackgroundSyncCoordinator {
       ),
     );
     return BackgroundSyncSnapshot(
-      status:
-          syncStatus.lastError == null
-              ? BackgroundSyncStatus.synced
-              : BackgroundSyncStatus.failed,
+      status: syncStatus.lastError == null
+          ? BackgroundSyncStatus.synced
+          : BackgroundSyncStatus.failed,
       sourceLabel: syncStatus.sourceLabel,
       checkedAt: DateTime.now(),
       lastSuccessAt: syncStatus.lastSuccessAt,
       message: formatter.compactText(syncStatus),
-      nextSyncInterval:
-          (await pollingDecisionService.decide(
-            settings: settings,
-            mode: PollingMode.background,
-          )).nextInterval,
+      nextSyncInterval: (await pollingDecisionService.decide(
+        settings: settings,
+        mode: PollingMode.background,
+      ))
+          .nextInterval,
     );
   }
 
   Future<List<GlucoseSyncResult>> _runTargets(AppSettings settings) async {
-    final runner = GlucoseSyncTargetRunner(
-      syncCoordinator: GlucoseSyncCoordinator(database: database),
-    );
-    final targets = await syncTargetRegistry.targetsFor(settings);
-    final results = <GlucoseSyncResult>[];
-    for (final target in targets) {
-      results.add(await runner.run(target: target, settings: settings));
-    }
-    return results;
+    await repository.applySettings(settings);
+    return (await repository.syncWithResult()).sourceResults;
   }
 
   SyncStatusSnapshot _syncStatusFor({
@@ -179,6 +165,14 @@ class BackgroundSyncCoordinator {
         active: true,
         lastSuccessAt: DateTime.now(),
         lastAttemptAt: DateTime.now(),
+        lastFetchedCount: success.fold<int>(
+          0,
+          (total, result) => total + result.fetchedCount,
+        ),
+        lastStoredCount: success.fold<int>(
+          0,
+          (total, result) => total + result.storedCount,
+        ),
       );
     }
     return SyncStatusSnapshot(
@@ -199,7 +193,7 @@ class BackgroundSyncCoordinator {
       try {
         await task.run(context);
       } catch (_) {
-        // Post-sync tasks must not break glucose data synchronization.
+        // Post-sync tasks are isolated from glucose synchronization.
       }
     }
   }
@@ -237,11 +231,11 @@ class BackgroundSyncCoordinator {
   ) {
     return switch (kind) {
       DataSourceKind.xdripLocal => database.getSourceState(
-        DataSource.xdripHttp.name,
-      ),
+          DataSource.xdripHttp.name,
+        ),
       DataSourceKind.nightscout => database.getSourceState(
-        DataSource.nightscout.name,
-      ),
+          DataSource.nightscout.name,
+        ),
     };
   }
 }

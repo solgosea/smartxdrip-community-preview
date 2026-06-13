@@ -42,13 +42,12 @@ void smartXdripBackgroundServiceOnStart(ServiceInstance service) async {
       postTaskRegistry: postTaskRegistry,
     ),
   );
-  final coordinator =
-      BackgroundSyncCoordinatorFactory(
-        database: database,
-        syncTargetRegistry: syncTargetRegistry,
-        postTaskRegistry: postTaskRegistry,
-        xdripSupported: Platform.isAndroid,
-      ).create();
+  final coordinator = BackgroundSyncCoordinatorFactory(
+    database: database,
+    syncTargetRegistry: syncTargetRegistry,
+    postTaskRegistry: postTaskRegistry,
+    xdripSupported: Platform.isAndroid,
+  ).create();
 
   Timer? timer;
   var running = false;
@@ -62,10 +61,9 @@ void smartXdripBackgroundServiceOnStart(ServiceInstance service) async {
         await service.setAsForegroundService();
         await service.setForegroundNotificationInfo(
           title: notificationBuilder.initial.title,
-          content:
-              reason == 'start'
-                  ? notificationBuilder.initial.content
-                  : 'Sync requested by $reason...',
+          content: reason == 'start'
+              ? notificationBuilder.initial.content
+              : 'Sync requested by $reason...',
         );
       }
 

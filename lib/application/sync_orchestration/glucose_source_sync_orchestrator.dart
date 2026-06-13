@@ -20,15 +20,14 @@ class GlucoseSourceSyncOrchestrator {
     GlucoseSourceSelectionPolicy? sourceSelectionPolicy,
     GlucoseSyncCoordinator? syncCoordinator,
     GlucoseSyncTargetRegistry? targetRegistry,
-  }) : sourceSelectionPolicy =
-           sourceSelectionPolicy ?? const GlucoseSourceSelectionPolicy(),
-       syncCoordinator =
-           syncCoordinator ?? GlucoseSyncCoordinator(database: database),
-       targetRegistry =
-           targetRegistry ??
-           GlucoseSyncTargetRegistry(
-             providers: const [SelfDataSourceSyncTargetProvider()],
-           );
+  })  : sourceSelectionPolicy =
+            sourceSelectionPolicy ?? const GlucoseSourceSelectionPolicy(),
+        syncCoordinator =
+            syncCoordinator ?? GlucoseSyncCoordinator(database: database),
+        targetRegistry = targetRegistry ??
+            GlucoseSyncTargetRegistry(
+              providers: const [SelfDataSourceSyncTargetProvider()],
+            );
 
   Future<GlucoseSourceSyncResult> syncConfiguredSources({
     required AppSettings settings,
@@ -37,8 +36,15 @@ class GlucoseSourceSyncOrchestrator {
     final results = <GlucoseSyncResult>[];
     final runner = GlucoseSyncTargetRunner(syncCoordinator: syncCoordinator);
     for (final target in targets) {
-      results.add(await runner.run(target: target, settings: settings));
+      results.add(
+        await runner.run(
+          target: target,
+          settings: settings,
+        ),
+      );
     }
-    return GlucoseSourceSyncResult(sourceResults: results);
+    return GlucoseSourceSyncResult(
+      sourceResults: results,
+    );
   }
 }

@@ -5,7 +5,10 @@ import '../models/statistics_view_model.dart';
 class StatisticsLegendDot extends StatelessWidget {
   final StatisticsLegendItemViewModel viewModel;
 
-  const StatisticsLegendDot({super.key, required this.viewModel});
+  const StatisticsLegendDot({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

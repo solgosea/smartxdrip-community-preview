@@ -3,7 +3,9 @@ import 'plugin_bundle.dart';
 class PluginBundleCatalog {
   final List<PluginBundle> bundles;
 
-  const PluginBundleCatalog({required this.bundles});
+  const PluginBundleCatalog({
+    required this.bundles,
+  });
 
   Set<String> pluginIdsFor(Set<String> bundleKeys) {
     final ids = <String>{};
@@ -43,7 +45,11 @@ const homeDashboardBundle = PluginBundle(
 
 const profileBasicsBundle = PluginBundle(
   key: 'profile_basics',
-  pluginIds: {'profile.data_source', 'profile.target_range'},
+  pluginIds: {
+    'datasource.core',
+    'profile.target_range',
+    'glance.layer',
+  },
 );
 
 const settingsBasicsBundle = PluginBundle(
@@ -60,7 +66,10 @@ const settingsBasicsBundle = PluginBundle(
 
 const analysisBasicBundle = PluginBundle(
   key: 'analysis_basic',
-  pluginIds: {'explore.high_episode', 'explore.low_episode'},
+  pluginIds: {
+    'explore.high_episode',
+    'explore.low_episode',
+  },
 );
 
 const analysisAdvancedBundle = PluginBundle(
@@ -70,12 +79,17 @@ const analysisAdvancedBundle = PluginBundle(
 
 const connectedCareBundle = PluginBundle(
   key: 'connected_care',
-  pluginIds: {'core.alerting'},
+  pluginIds: {
+    'core.alerting',
+  },
 );
 
 const backgroundSyncBundle = PluginBundle(
   key: 'background_sync',
-  pluginIds: {'background.source_health', 'background.glucose_sync'},
+  pluginIds: {
+    'background.source_health',
+    'background.glucose_sync',
+  },
 );
 
 const defaultPluginBundleCatalog = PluginBundleCatalog(

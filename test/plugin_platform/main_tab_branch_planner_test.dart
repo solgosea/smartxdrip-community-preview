@@ -6,13 +6,10 @@ void main() {
   test('main tab branch plan is the single source for shell tabs', () {
     final plan = MainTabBranchPlanner(builtInPluginRegistry).build();
 
-    expect(plan.branches.map((branch) => branch.entry.route), [
-      '/home',
-      '/history',
-      '/stats',
-      '/explore',
-      '/profile',
-    ]);
+    expect(
+      plan.branches.map((branch) => branch.entry.route),
+      ['/home', '/history', '/stats', '/explore', '/profile'],
+    );
     expect(
       plan.tabs.map((tab) => tab.route),
       plan.branches.map((branch) => branch.entry.route),
@@ -24,12 +21,15 @@ void main() {
     final keys = plan.branches.map((branch) => branch.navigatorKey).toList();
 
     expect(keys.toSet(), hasLength(keys.length));
-    expect(plan.branches.map((branch) => branch.pluginId), [
-      'core.home',
-      'core.history',
-      'core.statistics',
-      'core.explore',
-      'core.profile',
-    ]);
+    expect(
+      plan.branches.map((branch) => branch.pluginId),
+      [
+        'core.home',
+        'core.history',
+        'core.statistics',
+        'core.explore',
+        'core.profile'
+      ],
+    );
   });
 }

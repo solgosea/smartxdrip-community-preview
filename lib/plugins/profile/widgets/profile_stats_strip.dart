@@ -6,7 +6,10 @@ import '../models/profile_view_model.dart';
 class ProfileStatsStrip extends StatelessWidget {
   final List<ProfileStatViewModel> stats;
 
-  const ProfileStatsStrip({super.key, required this.stats});
+  const ProfileStatsStrip({
+    super.key,
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {

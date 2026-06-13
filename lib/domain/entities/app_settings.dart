@@ -53,28 +53,30 @@ class AppSettings {
     bool? dataHealthCheckEnabled,
     int? retentionDays,
     int? initialSyncDays,
-  }) => AppSettings(
-    unit: unit ?? this.unit,
-    lowThreshold: lowThreshold ?? this.lowThreshold,
-    highThreshold: highThreshold ?? this.highThreshold,
-    veryHighThreshold: veryHighThreshold ?? this.veryHighThreshold,
-    xdripBaseUrl: clearXdrip ? null : xdripBaseUrl ?? this.xdripBaseUrl,
-    xdripApiSecret: clearXdrip ? null : xdripApiSecret ?? this.xdripApiSecret,
-    xdripSyncEnabled:
-        clearXdrip ? false : xdripSyncEnabled ?? this.xdripSyncEnabled,
-    nightscoutBaseUrl:
-        clearNightscout ? null : nightscoutBaseUrl ?? this.nightscoutBaseUrl,
-    nightscoutToken:
-        clearNightscout ? null : nightscoutToken ?? this.nightscoutToken,
-    nightscoutSyncEnabled:
-        clearNightscout
+  }) =>
+      AppSettings(
+        unit: unit ?? this.unit,
+        lowThreshold: lowThreshold ?? this.lowThreshold,
+        highThreshold: highThreshold ?? this.highThreshold,
+        veryHighThreshold: veryHighThreshold ?? this.veryHighThreshold,
+        xdripBaseUrl: clearXdrip ? null : xdripBaseUrl ?? this.xdripBaseUrl,
+        xdripApiSecret:
+            clearXdrip ? null : xdripApiSecret ?? this.xdripApiSecret,
+        xdripSyncEnabled:
+            clearXdrip ? false : xdripSyncEnabled ?? this.xdripSyncEnabled,
+        nightscoutBaseUrl: clearNightscout
+            ? null
+            : nightscoutBaseUrl ?? this.nightscoutBaseUrl,
+        nightscoutToken:
+            clearNightscout ? null : nightscoutToken ?? this.nightscoutToken,
+        nightscoutSyncEnabled: clearNightscout
             ? false
             : nightscoutSyncEnabled ?? this.nightscoutSyncEnabled,
-    dailyBriefEnabled: dailyBriefEnabled ?? this.dailyBriefEnabled,
-    weeklyReviewEnabled: weeklyReviewEnabled ?? this.weeklyReviewEnabled,
-    dataHealthCheckEnabled:
-        dataHealthCheckEnabled ?? this.dataHealthCheckEnabled,
-    retentionDays: retentionDays ?? this.retentionDays,
-    initialSyncDays: initialSyncDays ?? this.initialSyncDays,
-  );
+        dailyBriefEnabled: dailyBriefEnabled ?? this.dailyBriefEnabled,
+        weeklyReviewEnabled: weeklyReviewEnabled ?? this.weeklyReviewEnabled,
+        dataHealthCheckEnabled:
+            dataHealthCheckEnabled ?? this.dataHealthCheckEnabled,
+        retentionDays: retentionDays ?? this.retentionDays,
+        initialSyncDays: initialSyncDays ?? this.initialSyncDays,
+      );
 }

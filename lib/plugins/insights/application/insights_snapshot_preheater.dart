@@ -11,8 +11,8 @@ class InsightsSnapshotPreheater {
     required this.hostServices,
     InsightsViewModelMapper? mapper,
     DateTime Function()? now,
-  }) : mapper = mapper ?? InsightsViewModelMapper(),
-       now = now ?? DateTime.now;
+  })  : mapper = mapper ?? InsightsViewModelMapper(),
+        now = now ?? DateTime.now;
 
   Future<InsightsRuntimeSnapshot> preheat() async {
     final facade = hostServices.facadeProvider();

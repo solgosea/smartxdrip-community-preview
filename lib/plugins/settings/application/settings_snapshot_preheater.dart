@@ -24,7 +24,10 @@ class SettingsSnapshotPreheater {
       readingsForDays: hostServices.readingsForDays,
     );
     return SettingsRuntimeSnapshot(
-      viewModel: mapper.map(analysis: analysis, saving: false),
+      viewModel: mapper.map(
+        analysis: analysis,
+        saving: false,
+      ),
       analysis: analysis,
       updatedAt: now(),
     );

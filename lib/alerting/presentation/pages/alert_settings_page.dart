@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../app/di/app_container.dart';
+import '../../runtime/alert_runtime_coordinator.dart';
 import '../../../foundation/theme/app_colors.dart';
 import '../../../presentation/common/widgets/section_label.dart';
 import '../controllers/alert_settings_controller.dart';
+import '../widgets/alert_runtime_notice.dart';
 import '../widgets/alert_settings_card.dart';
 import '../widgets/alert_sound_selector_sheet.dart';
 
@@ -44,15 +46,17 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
           animation: _controller,
           builder: (context, _) {
             final snapshot = _controller.snapshot;
+            final container = context.read<AppContainer>();
+            final alertRuntimeStatus = AlertRuntimeCoordinator(
+              platformCapabilities: container.platformRuntimeCapabilities,
+            ).status;
             return ListView(
               padding: const EdgeInsets.only(bottom: 28),
               children: [
                 _Header(
-                  onBack:
-                      () =>
-                          context.canPop()
-                              ? context.pop()
-                              : context.go('/settings'),
+                  onBack: () => context.canPop()
+                      ? context.pop()
+                      : context.go('/settings'),
                 ),
                 if (_controller.loading)
                   const Padding(
@@ -63,11 +67,13 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                   )
                 else ...[
                   const SectionLabel('Alert System'),
+                  AlertRuntimeNotice(
+                    status: alertRuntimeStatus,
+                  ),
                   AlertSettingsCard(
                     icon: Icons.power_settings_new_rounded,
                     title: 'Enable alerts',
-                    subtitle:
-                        'Master switch for glucose safety alerts and future alert sources.',
+                    subtitle: 'Master switch for local glucose alerts.',
                     enabled: snapshot.globalEnabled,
                     onChanged: _controller.toggleGlobal,
                     details: [

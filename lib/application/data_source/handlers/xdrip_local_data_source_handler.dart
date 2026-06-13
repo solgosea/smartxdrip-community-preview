@@ -54,19 +54,17 @@ class XdripLocalDataSourceHandler implements DataSourceHandler {
       final fresh = _isFresh(syncState);
       return DataSourceConnectionSnapshot(
         kind: DataSourceKind.xdripLocal,
-        status:
-            !detected
-                ? DataSourceConnectionStatus.failed
-                : fresh
+        status: !detected
+            ? DataSourceConnectionStatus.failed
+            : fresh
                 ? DataSourceConnectionStatus.syncing
                 : DataSourceConnectionStatus.connected,
         action: DataSourceConnectionAction.sync,
         strategyAction: DataSourceSyncStrategyAction.disable,
         title: 'xDrip+ Local',
-        subtitle:
-            detected
-                ? 'Sync enabled'
-                : 'Enabled, but local web service is not reachable',
+        subtitle: detected
+            ? 'Sync enabled'
+            : 'Enabled, but local web service is not reachable',
         trailing: 'Sync',
         strategyTrailing: 'Disable',
         active: true,
@@ -80,39 +78,34 @@ class XdripLocalDataSourceHandler implements DataSourceHandler {
 
     return DataSourceConnectionSnapshot(
       kind: DataSourceKind.xdripLocal,
-      status:
-          configured
-              ? detected
-                  ? DataSourceConnectionStatus.configured
-                  : DataSourceConnectionStatus.failed
-              : detected
+      status: configured
+          ? detected
+              ? DataSourceConnectionStatus.configured
+              : DataSourceConnectionStatus.failed
+          : detected
               ? DataSourceConnectionStatus.detected
               : DataSourceConnectionStatus.notDetected,
-      action:
-          !strategyEnabled
-              ? DataSourceConnectionAction.none
-              : configured
+      action: !strategyEnabled
+          ? DataSourceConnectionAction.none
+          : configured
               ? DataSourceConnectionAction.none
               : DataSourceConnectionAction.connect,
-      strategyAction:
-          strategyEnabled
-              ? DataSourceSyncStrategyAction.disable
-              : DataSourceSyncStrategyAction.enable,
+      strategyAction: strategyEnabled
+          ? DataSourceSyncStrategyAction.disable
+          : DataSourceSyncStrategyAction.enable,
       title: 'xDrip+ Local',
-      subtitle:
-          !strategyEnabled
-              ? 'Strategy is off - enable before connecting'
-              : configured
+      subtitle: !strategyEnabled
+          ? 'Strategy is off - enable before connecting'
+          : configured
               ? detected
                   ? 'Connected - strategy is disabled'
                   : 'Configured, but local web service is not reachable'
               : detected
-              ? 'Detected - connect to save this local endpoint'
-              : 'Not detected - enable xDrip+ web service',
-      trailing:
-          !strategyEnabled
-              ? 'Connect'
-              : configured
+                  ? 'Detected - connect to save this local endpoint'
+                  : 'Not detected - enable xDrip+ web service',
+      trailing: !strategyEnabled
+          ? 'Connect'
+          : configured
               ? 'Connected'
               : 'Connect',
       strategyTrailing: strategyEnabled ? 'Disable' : 'Enable',
@@ -130,8 +123,7 @@ class XdripLocalDataSourceHandler implements DataSourceHandler {
     required AppSettings settings,
     DataSourceConnectionConfig config = const DataSourceConnectionConfig(),
   }) async {
-    final baseUrl =
-        config.baseUrl ??
+    final baseUrl = config.baseUrl ??
         settings.xdripBaseUrl ??
         DataSourceConnectionService.defaultXdripUrl;
     final apiSecret = config.apiSecret ?? settings.xdripApiSecret;
@@ -161,7 +153,9 @@ class XdripLocalDataSourceHandler implements DataSourceHandler {
     }
     return DataSourceConnectionResult.success(
       message: 'xDrip+ Local disconnected',
-      nextSettings: settings.copyWith(clearXdrip: true),
+      nextSettings: settings.copyWith(
+        clearXdrip: true,
+      ),
     );
   }
 

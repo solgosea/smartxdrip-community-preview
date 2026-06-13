@@ -12,36 +12,33 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../_support/test_database.dart';
 
 void main() {
-  test(
-    'default self subject keeps existing glucose data flow working',
-    () async {
-      final db = TestDatabase.create();
-      final now = DateTime(2026, 6, 5, 12);
+  test('default self subject keeps existing glucose data flow working',
+      () async {
+    final db = TestDatabase.create();
+    final now = DateTime(2026, 6, 5, 12);
 
-      await db.upsertMany([
-        GlucoseReading(timestamp: now, value: 6.1),
-      ], source: 'nightscout');
+    await db.upsertMany([
+      GlucoseReading(timestamp: now, value: 6.1),
+    ], source: 'nightscout');
 
-      expect(await db.count(), 1);
-      expect((await db.latest())?.value, 6.1);
-      expect(
-        await db.range(
-          now.subtract(const Duration(minutes: 1)),
-          now.add(const Duration(minutes: 1)),
-        ),
-        hasLength(1),
-      );
+    expect(await db.count(), 1);
+    expect((await db.latest())?.value, 6.1);
+    expect(
+        await db.range(now.subtract(const Duration(minutes: 1)),
+            now.add(const Duration(minutes: 1))),
+        hasLength(1));
 
-      await db.close();
-    },
-  );
+    await db.close();
+  });
 
   test('readings with the same timestamp are isolated by subject id', () async {
     final db = TestDatabase.create();
     final now = DateTime(2026, 6, 5, 12);
-    const childSubject = 'external_child_1';
+    const childSubject = 'remote_child_1';
 
-    await db.upsertMany([GlucoseReading(timestamp: now, value: 6.1)]);
+    await db.upsertMany([
+      GlucoseReading(timestamp: now, value: 6.1),
+    ]);
     await db.upsertMany([
       GlucoseReading(timestamp: now, value: 4.2),
     ], subjectId: childSubject);
@@ -61,7 +58,7 @@ void main() {
     final db = TestDatabase.create();
     final now = DateTime(2026, 6, 5, 12);
     final bucket = now.millisecondsSinceEpoch;
-    const childSubject = 'external_child_1';
+    const childSubject = 'remote_child_1';
 
     await db.upsertRawReadings([
       RawGlucoseReading(
@@ -88,9 +85,9 @@ void main() {
 
     expect(await db.rawReadingsByBuckets({bucket}), hasLength(1));
     expect(
-      (await db.rawReadingsByBuckets({
-        bucket,
-      }, subjectId: childSubject)).single.value,
+      (await db.rawReadingsByBuckets({bucket}, subjectId: childSubject))
+          .single
+          .value,
       4.2,
     );
 
@@ -125,7 +122,7 @@ void main() {
 
   test('source sync state is scoped by subject id', () async {
     final db = TestDatabase.create();
-    const childSubject = 'external_child_1';
+    const childSubject = 'remote_child_1';
 
     await db.recordSourceSuccess('nightscout', cursor: 'self-cursor');
     await db.recordSourceSuccess(
@@ -134,12 +131,13 @@ void main() {
       subjectId: childSubject,
     );
 
-    expect((await db.getSourceState('nightscout'))?.lastCursor, 'self-cursor');
     expect(
-      (await db.getSourceState(
-        'nightscout',
-        subjectId: childSubject,
-      ))?.lastCursor,
+      (await db.getSourceState('nightscout'))?.lastCursor,
+      'self-cursor',
+    );
+    expect(
+      (await db.getSourceState('nightscout', subjectId: childSubject))
+          ?.lastCursor,
       'child-cursor',
     );
 
@@ -148,66 +146,62 @@ void main() {
     await db.close();
   });
 
-  test(
-    'v5 database migration keeps existing data under self subject',
-    () async {
-      sqfliteFfiInit();
-      final dir = await Directory.systemTemp.createTemp('smart_xdrip_subject_');
-      final path = '${dir.path}/legacy.db';
-      final legacy = await databaseFactoryFfi.openDatabase(
-        path,
-        options: OpenDatabaseOptions(
-          version: 5,
-          onCreate: (db, _) async {
-            await _createLegacyV5Schema(db);
-            await db.insert(GlucoseTables.readings, {
-              'ts_ms': DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
-              'value': 6.7,
-              'rate_per_min': null,
-              'source': 'nightscout',
-              'source_priority': 10,
-              'raw_id': 'raw_legacy',
-              'updated_at_ms': DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
-            });
-            await db.insert(GlucoseTables.sourceState, {
-              'source_key': 'nightscout',
-              'last_success_at_ms':
-                  DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
-              'last_attempt_at_ms':
-                  DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
-              'last_cursor': 'legacy-cursor',
-              'last_error': null,
-              'updated_at_ms': DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
-            });
-          },
-        ),
-      );
-      await legacy.close();
+  test('v5 database migration keeps existing data under self subject',
+      () async {
+    sqfliteFfiInit();
+    final dir = await Directory.systemTemp.createTemp('smart_xdrip_subject_');
+    final path = '${dir.path}/legacy.db';
+    final legacy = await databaseFactoryFfi.openDatabase(
+      path,
+      options: OpenDatabaseOptions(
+        version: 5,
+        onCreate: (db, _) async {
+          await _createLegacyV5Schema(db);
+          await db.insert(GlucoseTables.readings, {
+            'ts_ms': DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
+            'value': 6.7,
+            'rate_per_min': null,
+            'source': 'nightscout',
+            'source_priority': 10,
+            'raw_id': 'raw_legacy',
+            'updated_at_ms': DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
+          });
+          await db.insert(GlucoseTables.sourceState, {
+            'source_key': 'nightscout',
+            'last_success_at_ms':
+                DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
+            'last_attempt_at_ms':
+                DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
+            'last_cursor': 'legacy-cursor',
+            'last_error': null,
+            'updated_at_ms': DateTime(2026, 6, 5, 12).millisecondsSinceEpoch,
+          });
+        },
+      ),
+    );
+    await legacy.close();
 
-      final migrated = GlucoseDatabase(
-        databaseFactoryOverride: databaseFactoryFfi,
-        databasePathOverride: path,
-      );
+    final migrated = GlucoseDatabase(
+      databaseFactoryOverride: databaseFactoryFfi,
+      databasePathOverride: path,
+    );
 
-      expect((await migrated.latest())?.value, 6.7);
-      expect(
-        (await migrated.getSourceState('nightscout'))?.lastCursor,
-        'legacy-cursor',
-      );
+    expect((await migrated.latest())?.value, 6.7);
+    expect((await migrated.getSourceState('nightscout'))?.lastCursor,
+        'legacy-cursor');
 
-      await migrated.upsertMany([
-        GlucoseReading(timestamp: DateTime(2026, 6, 5, 12), value: 4.4),
-      ], subjectId: 'external_child_1');
-      expect((await migrated.latest())?.value, 6.7);
-      expect(
-        (await migrated.latest(subjectId: 'external_child_1'))?.value,
-        4.4,
-      );
+    await migrated.upsertMany([
+      GlucoseReading(
+        timestamp: DateTime(2026, 6, 5, 12),
+        value: 4.4,
+      ),
+    ], subjectId: 'remote_child_1');
+    expect((await migrated.latest())?.value, 6.7);
+    expect((await migrated.latest(subjectId: 'remote_child_1'))?.value, 4.4);
 
-      await migrated.close();
-      await dir.delete(recursive: true);
-    },
-  );
+    await migrated.close();
+    await dir.delete(recursive: true);
+  });
 }
 
 Future<void> _createLegacyV5Schema(Database db) async {

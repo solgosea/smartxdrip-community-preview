@@ -22,14 +22,19 @@ GoRouter createRouter(PluginRegistry registry) {
     initialLocation: '/home',
     routes: [
       StatefulShellRoute.indexedStack(
-        builder:
-            (ctx, state, shell) =>
-                BottomNavShell(shell: shell, tabs: mainTabPlan.tabs),
+        builder: (ctx, state, shell) => BottomNavShell(
+          shell: shell,
+          tabs: mainTabPlan.tabs,
+        ),
         branches: [
           for (final branch in mainTabPlan.branches)
             StatefulShellBranch(
               navigatorKey: branch.navigatorKey,
-              routes: [_routeBinder.bind(branch.route)],
+              routes: [
+                _routeBinder.bind(
+                  branch.route,
+                ),
+              ],
             ),
         ],
       ),

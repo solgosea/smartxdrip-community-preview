@@ -7,6 +7,7 @@ import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
 import 'package:smart_xdrip/engine/detection/dawn_phenomenon_detector.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 import 'package:smart_xdrip/presentation/common/widgets/charts/agp_chart.dart';
+import '../analysis/statistics_agp_text_renderer.dart';
 import '../models/statistics_view_model.dart';
 
 class StatisticsViewModelMapper {
@@ -14,10 +15,12 @@ class StatisticsViewModelMapper {
   static const _veryHighColor = Color(0xFFA03030);
   final GlucoseUnitFormatService glucoseFormatter;
   final GlucoseThresholdFormatService thresholdFormatter;
+  final StatisticsAgpTextRenderer agpTextRenderer;
 
   const StatisticsViewModelMapper({
     this.glucoseFormatter = const GlucoseUnitFormatService(),
     this.thresholdFormatter = const GlucoseThresholdFormatService(),
+    this.agpTextRenderer = const StatisticsAgpTextRenderer(),
   });
 
   StatisticsViewModel map({
@@ -37,16 +40,15 @@ class StatisticsViewModelMapper {
 
     return StatisticsViewModel(
       selectedPeriod: selectedPeriod,
-      periodOptions:
-          _periods
-              .map(
-                (days) => StatisticsPeriodOptionViewModel(
-                  days: days,
-                  label: '${days}d',
-                  selected: days == selectedPeriod,
-                ),
-              )
-              .toList(),
+      periodOptions: _periods
+          .map(
+            (days) => StatisticsPeriodOptionViewModel(
+              days: days,
+              label: '${days}d',
+              selected: days == selectedPeriod,
+            ),
+          )
+          .toList(),
       metricsHeader: 'KEY METRICS - LAST $selectedPeriod DAYS',
       metrics: _metrics(tir, previousTir, selectedPeriod, settings),
       tirBreakdown: _tirBreakdown(tir, settings),
@@ -73,10 +75,9 @@ class StatisticsViewModelMapper {
     int period,
     AppSettings settings,
   ) {
-    final tirColor =
-        current.tir >= 70
-            ? AppColors.green
-            : current.tir >= 50
+    final tirColor = current.tir >= 70
+        ? AppColors.green
+        : current.tir >= 50
             ? AppColors.amber
             : AppColors.rose;
     final cvColor = current.cv < 36 ? AppColors.green : AppColors.amber;
@@ -144,25 +145,15 @@ class StatisticsViewModelMapper {
         '<${glucoseFormatter.value(3.0, settings.unit).valueLabel}';
     final veryHighLabel = thresholdFormatter.veryHighLabel(settings);
 
-    final segments =
-        [
-          StatisticsTirSegmentViewModel(
-            color: AppColors.blue,
-            fraction: lowPct,
-          ),
-          StatisticsTirSegmentViewModel(
-            color: AppColors.green,
-            fraction: inRangePct,
-          ),
-          StatisticsTirSegmentViewModel(
-            color: AppColors.rose,
-            fraction: highOnlyPct,
-          ),
-          StatisticsTirSegmentViewModel(
-            color: _veryHighColor,
-            fraction: veryHighPct,
-          ),
-        ].where((segment) => segment.fraction > 0).toList();
+    final segments = [
+      StatisticsTirSegmentViewModel(color: AppColors.blue, fraction: lowPct),
+      StatisticsTirSegmentViewModel(
+          color: AppColors.green, fraction: inRangePct),
+      StatisticsTirSegmentViewModel(
+          color: AppColors.rose, fraction: highOnlyPct),
+      StatisticsTirSegmentViewModel(
+          color: _veryHighColor, fraction: veryHighPct),
+    ].where((segment) => segment.fraction > 0).toList();
 
     return StatisticsTirBreakdownViewModel(
       segments: segments,
@@ -213,17 +204,16 @@ class StatisticsViewModelMapper {
       unit: settings.unit,
       lowThreshold: settings.lowThreshold,
       highThreshold: settings.highThreshold,
-      annotations:
-          dawn.consistent
-              ? const [
-                AgpAnnotation(
-                  minuteOfDay: 300,
-                  labels: ['Dawn', 'phenomenon'],
-                  color: AppColors.amber,
-                  opacity: 0.5,
-                ),
-              ]
-              : const [],
+      annotations: dawn.consistent
+          ? const [
+              AgpAnnotation(
+                minuteOfDay: 300,
+                labels: ['Dawn', 'phenomenon'],
+                color: AppColors.amber,
+                opacity: 0.5,
+              ),
+            ]
+          : const [],
       note: _agpNote(
         readings: readings,
         slots: slots,
@@ -234,8 +224,12 @@ class StatisticsViewModelMapper {
     );
   }
 
-  ({bool consistent, double averageRise, int significantDays, int observedDays})
-  _dawnAnalysis(List<GlucoseReading> readings) {
+  ({
+    bool consistent,
+    double averageRise,
+    int significantDays,
+    int observedDays,
+  }) _dawnAnalysis(List<GlucoseReading> readings) {
     final rises = DawnPhenomenonDetector.detectDailyRises(readings);
     if (rises.isEmpty) {
       return (
@@ -246,7 +240,9 @@ class StatisticsViewModelMapper {
       );
     }
 
-    final significantDays = rises.where((rise) => rise >= 1.2).length;
+    final significantDays = rises
+        .where((rise) => rise >= DawnPhenomenonDetector.significantRiseMmol)
+        .length;
     final requiredDays = (rises.length * 0.65).ceil().clamp(2, 10).toInt();
     final averageRise =
         rises.reduce((value, element) => value + element) / rises.length;
@@ -267,13 +263,12 @@ class StatisticsViewModelMapper {
       double averageRise,
       int significantDays,
       int observedDays,
-    })
-    dawn,
+    }) dawn,
     required AnalysisFacade facade,
     required AppSettings settings,
   }) {
     if (readings.isEmpty || slots.isEmpty) {
-      return 'Not enough CGM data yet to draw an AGP profile.';
+      return agpTextRenderer.renderEmpty();
     }
 
     final variablePeriods = _periodVariability(facade, readings);
@@ -282,37 +277,57 @@ class StatisticsViewModelMapper {
     final peak = _medianPeak(slots);
     final peakTime = _formatMinute(peak.minuteOfDay);
     final unit = settings.unit;
+    final riseThreshold = glucoseFormatter.value(
+        DawnPhenomenonDetector.significantRiseMmol, unit);
 
     final parts = <String>[];
     if (dawn.consistent) {
-      parts.add(
-        'A consistent pre-dawn rise between 04:00-07:00 appears on ${dawn.significantDays} of ${dawn.observedDays} observed days, with glucose climbing roughly ${glucoseFormatter.value(dawn.averageRise, unit).fullLabel} over that window.',
-      );
+      final rise = glucoseFormatter.value(dawn.averageRise, unit);
+      parts.add(agpTextRenderer.renderDawn({
+        'dawnConsistent': true,
+        'windowLabel': DawnPhenomenonDetector.windowLabel,
+        'significantDays': dawn.significantDays,
+        'observedDays': dawn.observedDays,
+        'averageRise': rise.valueLabel,
+        'glucoseUnit': rise.unitLabel,
+      }));
     } else if (dawn.observedDays == 0) {
-      parts.add(
-        'The selected period does not contain enough paired 04:00-07:00 readings to evaluate a pre-dawn rise pattern.',
-      );
+      parts.add(agpTextRenderer.renderDawn({
+        'dawnNotEnough': true,
+        'windowLabel': DawnPhenomenonDetector.windowLabel,
+      }));
     } else {
-      parts.add(
-        'The selected period does not show a consistent pre-dawn rise pattern; only ${dawn.significantDays} of ${dawn.observedDays} observed days crossed the rise threshold.',
-      );
+      parts.add(agpTextRenderer.renderDawn({
+        'dawnObserved': true,
+        'significantDays': dawn.significantDays,
+        'observedDays': dawn.observedDays,
+        'riseThreshold': riseThreshold.valueLabel,
+        'glucoseUnit': riseThreshold.unitLabel,
+      }));
     }
 
-    parts.add(
-      'The median curve peaks near ${glucoseFormatter.value(peak.value, unit).fullLabel} around $peakTime.',
-    );
+    final peakValue = glucoseFormatter.value(peak.value, unit);
+    parts.add(agpTextRenderer.renderPeak({
+      'peakValue': peakValue.valueLabel,
+      'glucoseUnit': peakValue.unitLabel,
+      'peakTime': peakTime,
+    }));
 
     if (topPeriod != null && secondPeriod != null) {
-      parts.add(
-        '${topPeriod.label} is the most variable period by CV (${topPeriod.cv.toStringAsFixed(0)}%), followed by ${secondPeriod.label.toLowerCase()} (${secondPeriod.cv.toStringAsFixed(0)}%).',
-      );
+      parts.add(agpTextRenderer.renderVariability({
+        'topPeriod': topPeriod.label,
+        'topCv': topPeriod.cv.toStringAsFixed(0),
+        'secondPeriod': secondPeriod.label.toLowerCase(),
+        'secondCv': secondPeriod.cv.toStringAsFixed(0),
+      }));
     } else if (topPeriod != null) {
-      parts.add(
-        '${topPeriod.label} is the most variable period by CV (${topPeriod.cv.toStringAsFixed(0)}%).',
-      );
+      parts.add(agpTextRenderer.renderVariability({
+        'topPeriod': topPeriod.label,
+        'topCv': topPeriod.cv.toStringAsFixed(0),
+      }));
     } else {
       parts.add(
-        'More period-level data is needed before identifying the most variable time window.',
+        agpTextRenderer.renderVariability({'notEnoughData': true}),
       );
     }
 
@@ -339,14 +354,11 @@ class StatisticsViewModelMapper {
     ];
     final rows = <({String label, double cv})>[];
     for (final period in periods) {
-      final periodReadings =
-          readings
-              .where(
-                (reading) =>
-                    reading.timestamp.hour >= period.start &&
-                    reading.timestamp.hour < period.end,
-              )
-              .toList();
+      final periodReadings = readings
+          .where((reading) =>
+              reading.timestamp.hour >= period.start &&
+              reading.timestamp.hour < period.end)
+          .toList();
       if (periodReadings.isEmpty) continue;
       rows.add((
         label: period.label,
@@ -362,10 +374,29 @@ class StatisticsViewModelMapper {
       title: 'Hourly TIR heatmap',
       cells: List.generate(24, (hour) {
         final value = hourlyTir.isNotEmpty ? hourlyTir[hour] : 0.0;
-        return StatisticsHeatmapCellViewModel(color: _cellColor(value));
+        final tag = _heatmapTag(value);
+        return StatisticsHeatmapCellViewModel(
+          hour: hour,
+          tirPct: value,
+          color: _cellColor(value),
+          timeLabel: '${hour.toString().padLeft(2, '0')}:00',
+          tirLabel: '${value.toStringAsFixed(0)}%',
+          tagLabel: tag.label,
+          tagColor: tag.color,
+        );
       }),
       labels: const ['00:00', '06:00', '12:00', '18:00', '24:00'],
     );
+  }
+
+  ({String label, Color color}) _heatmapTag(double tirPct) {
+    if (tirPct >= 70) {
+      return (label: 'in target', color: AppColors.green);
+    }
+    if (tirPct >= 55) {
+      return (label: 'below target', color: AppColors.amber);
+    }
+    return (label: 'needs attention', color: AppColors.rose);
   }
 
   Color _cellColor(double tirPct) {

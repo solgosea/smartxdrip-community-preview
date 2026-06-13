@@ -7,7 +7,11 @@ class SettingsRow extends StatelessWidget {
   final SettingsRowViewModel row;
   final VoidCallback? onTap;
 
-  const SettingsRow({super.key, required this.row, required this.onTap});
+  const SettingsRow({
+    super.key,
+    required this.row,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

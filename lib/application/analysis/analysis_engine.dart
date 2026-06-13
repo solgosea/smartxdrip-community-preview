@@ -45,7 +45,10 @@ class AnalysisEngine {
     final daily = await dailySummaryModule.run(context);
     final periods = await periodSummaryModule.run(context);
     final events = await eventAnalysisModule.run(context);
-    final gaps = GlucoseGapDetector.detect(readings, source: 'canonical');
+    final gaps = GlucoseGapDetector.detect(
+      readings,
+      source: 'canonical',
+    );
 
     await database.upsertDailyStats(daily, subjectId: subjectId);
     await database.upsertPeriodStats(
@@ -56,7 +59,11 @@ class AnalysisEngine {
     await database.upsertEvents(events, subjectId: subjectId);
     await database.upsertGaps(gaps, subjectId: subjectId);
     await _persistAgp(context, subjectId: subjectId);
-    await _persistPatternSnapshot(context, events.length, subjectId: subjectId);
+    await _persistPatternSnapshot(
+      context,
+      events.length,
+      subjectId: subjectId,
+    );
 
     return AnalysisSnapshot(
       generatedAt: DateTime.now(),
@@ -71,8 +78,8 @@ class AnalysisEngine {
 
   Future<AnalysisWindow> _defaultWindow(String subjectId) async {
     final latest = await database.latest(subjectId: subjectId);
-    final anchor =
-        latest?.timestamp.add(const Duration(minutes: 1)) ?? DateTime.now();
+    final anchor = latest?.timestamp.add(const Duration(minutes: 1)) ??
+        DateTime.now();
     return AnalysisWindow.lastDays(14, now: anchor);
   }
 
@@ -89,19 +96,16 @@ class AnalysisEngine {
       end: context.window.end,
       subjectId: subjectId,
       payload: {
-        'slots':
-            slots
-                .map(
-                  (s) => {
-                    'minuteOfDay': s.minuteOfDay,
-                    'p10': s.p10,
-                    'p25': s.p25,
-                    'p50': s.p50,
-                    'p75': s.p75,
-                    'p90': s.p90,
-                  },
-                )
-                .toList(),
+        'slots': slots
+            .map((s) => {
+                  'minuteOfDay': s.minuteOfDay,
+                  'p10': s.p10,
+                  'p25': s.p25,
+                  'p50': s.p50,
+                  'p75': s.p75,
+                  'p90': s.p90,
+                })
+            .toList(),
       },
     );
   }

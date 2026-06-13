@@ -6,7 +6,10 @@ import '../models/settings_view_model.dart';
 class SettingsAboutBlock extends StatelessWidget {
   final SettingsAboutViewModel viewModel;
 
-  const SettingsAboutBlock({super.key, required this.viewModel});
+  const SettingsAboutBlock({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

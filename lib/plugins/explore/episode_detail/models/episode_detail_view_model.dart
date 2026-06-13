@@ -55,6 +55,8 @@ class EpisodeChartViewModel {
   final DateTime onsetTime;
   final DateTime peakOrNadirTime;
   final DateTime? recoveryTime;
+  final DateTime timeRangeStart;
+  final DateTime timeRangeEnd;
   final Color themeColor;
   final ChartEpisode episode;
 
@@ -66,6 +68,8 @@ class EpisodeChartViewModel {
     required this.onsetTime,
     required this.peakOrNadirTime,
     required this.recoveryTime,
+    required this.timeRangeStart,
+    required this.timeRangeEnd,
     required this.themeColor,
     required this.episode,
   });

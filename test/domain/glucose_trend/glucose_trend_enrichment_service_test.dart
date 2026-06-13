@@ -8,8 +8,14 @@ void main() {
     test('fills missing trend rates from adjacent glucose values', () {
       const service = GlucoseTrendEnrichmentService();
       final readings = [
-        GlucoseReading(timestamp: DateTime(2026, 6, 9, 10), value: 5.8),
-        GlucoseReading(timestamp: DateTime(2026, 6, 9, 10, 5), value: 6.3),
+        GlucoseReading(
+          timestamp: DateTime(2026, 6, 9, 10),
+          value: 5.8,
+        ),
+        GlucoseReading(
+          timestamp: DateTime(2026, 6, 9, 10, 5),
+          value: 6.3,
+        ),
       ];
 
       final enriched = service.enrichReadings(readings);
@@ -19,24 +25,23 @@ void main() {
     });
 
     test(
-      'uses direction fallback only when adjacent calculation is unavailable',
-      () {
-        const service = GlucoseTrendEnrichmentService();
-        final samples = [
-          GlucoseTrendSample(
-            reading: GlucoseReading(
-              timestamp: DateTime(2026, 6, 9, 10),
-              value: 5.8,
-            ),
-            direction: 'SingleDown',
+        'uses direction fallback only when adjacent calculation is unavailable',
+        () {
+      const service = GlucoseTrendEnrichmentService();
+      final samples = [
+        GlucoseTrendSample(
+          reading: GlucoseReading(
+            timestamp: DateTime(2026, 6, 9, 10),
+            value: 5.8,
           ),
-        ];
+          direction: 'SingleDown',
+        ),
+      ];
 
-        final enriched = service.enrichSamples(samples);
+      final enriched = service.enrichSamples(samples);
 
-        expect(enriched.single.ratePerMin, -0.10);
-      },
-    );
+      expect(enriched.single.ratePerMin, -0.10);
+    });
 
     test('does not overwrite an existing trend rate', () {
       const service = GlucoseTrendEnrichmentService();

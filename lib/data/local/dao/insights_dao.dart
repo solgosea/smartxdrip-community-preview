@@ -104,10 +104,9 @@ class InsightsDao {
     String subjectId = GlucoseSubject.selfId,
   }) async {
     final database = await _db();
-    final where =
-        module == null
-            ? 'subject_id = ?'
-            : 'subject_id = ? AND module_code = ?';
+    final where = module == null
+        ? 'subject_id = ?'
+        : 'subject_id = ? AND module_code = ?';
     final whereArgs = module == null ? [subjectId] : [subjectId, module.code];
     final rows = await database.query(
       GlucoseTables.generatedInsights,
@@ -120,46 +119,47 @@ class InsightsDao {
   }
 
   InsightTemplate _toTemplate(Map<String, Object?> row) => InsightTemplate(
-    code: row['code'] as String,
-    module: AnalysisModuleCode.values.firstWhere(
-      (m) => m.code == row['module_code'],
-      orElse: () => AnalysisModuleCode.insights,
-    ),
-    slot: InsightSlotCode.fromCode(row['slot_code'] as String?),
-    type: InsightTypeCode.fromCode(row['insight_type'] as String?),
-    locale: row['locale'] as String? ?? 'en',
-    version: row['version'] as int? ?? 1,
-    iconKey: row['icon_key'] as String?,
-    tone: row['tone'] as String?,
-    titleTemplate: row['title_template'] as String?,
-    eyebrowTemplate: row['eyebrow_template'] as String?,
-    bodyTemplate: row['body_template'] as String,
-    footerTemplate: row['footer_template'] as String?,
-    requiredFacts: _decodeRequiredFacts(row['required_facts_json'] as String?),
-    fallbackCode: row['fallback_code'] as String?,
-    priority: row['priority'] as int,
-    enabled: row['enabled'] == 1,
-  );
+        code: row['code'] as String,
+        module: AnalysisModuleCode.values.firstWhere(
+          (m) => m.code == row['module_code'],
+          orElse: () => AnalysisModuleCode.insights,
+        ),
+        slot: InsightSlotCode.fromCode(row['slot_code'] as String?),
+        type: InsightTypeCode.fromCode(row['insight_type'] as String?),
+        locale: row['locale'] as String? ?? 'en',
+        version: row['version'] as int? ?? 1,
+        iconKey: row['icon_key'] as String?,
+        tone: row['tone'] as String?,
+        titleTemplate: row['title_template'] as String?,
+        eyebrowTemplate: row['eyebrow_template'] as String?,
+        bodyTemplate: row['body_template'] as String,
+        footerTemplate: row['footer_template'] as String?,
+        requiredFacts: _decodeRequiredFacts(
+          row['required_facts_json'] as String?,
+        ),
+        fallbackCode: row['fallback_code'] as String?,
+        priority: row['priority'] as int,
+        enabled: row['enabled'] == 1,
+      );
 
   NarrativeInsight _toGenerated(Map<String, Object?> row) => NarrativeInsight(
-    id: row['id'] as String,
-    module: AnalysisModuleCode.values.firstWhere(
-      (m) => m.code == row['module_code'],
-      orElse: () => AnalysisModuleCode.insights,
-    ),
-    slot: InsightSlotCode.fromCode(row['slot_code'] as String?),
-    type: InsightTypeCode.fromCode(row['insight_type'] as String?),
-    templateCode: row['template_code'] as String,
-    templateVersion: row['template_version'] as int? ?? 1,
-    title: _emptyToNull(row['title'] as String?),
-    eyebrow: row['eyebrow'] as String?,
-    body: row['body'] as String,
-    footer: row['footer'] as String?,
-    facts: _decodeFacts(row['facts_json'] as String?),
-    generatedAt: DateTime.fromMillisecondsSinceEpoch(
-      row['generated_at_ms'] as int,
-    ),
-  );
+        id: row['id'] as String,
+        module: AnalysisModuleCode.values.firstWhere(
+          (m) => m.code == row['module_code'],
+          orElse: () => AnalysisModuleCode.insights,
+        ),
+        slot: InsightSlotCode.fromCode(row['slot_code'] as String?),
+        type: InsightTypeCode.fromCode(row['insight_type'] as String?),
+        templateCode: row['template_code'] as String,
+        templateVersion: row['template_version'] as int? ?? 1,
+        title: _emptyToNull(row['title'] as String?),
+        eyebrow: row['eyebrow'] as String?,
+        body: row['body'] as String,
+        footer: row['footer'] as String?,
+        facts: _decodeFacts(row['facts_json'] as String?),
+        generatedAt:
+            DateTime.fromMillisecondsSinceEpoch(row['generated_at_ms'] as int),
+      );
 
   List<String> _decodeRequiredFacts(String? value) {
     if (value == null || value.isEmpty) return const [];

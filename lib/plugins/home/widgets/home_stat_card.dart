@@ -5,7 +5,10 @@ import '../models/home_stat_card_view_model.dart';
 class HomeStatCard extends StatelessWidget {
   final HomeStatCardViewModel viewModel;
 
-  const HomeStatCard({super.key, required this.viewModel});
+  const HomeStatCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

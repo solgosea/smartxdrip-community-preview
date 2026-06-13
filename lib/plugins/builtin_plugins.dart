@@ -5,8 +5,8 @@ import 'plugin_release_config.dart';
 
 const builtInFeaturePlugins = pluginCatalog;
 
-final PluginRegistry builtInPluginRegistry = const PluginRegistryBuilder()
-    .build(
-      plugins: builtInFeaturePlugins,
-      releaseOverrides: defaultPluginReleaseOverrides,
-    );
+final PluginRegistry builtInPluginRegistry =
+    const PluginRegistryBuilder().build(
+  plugins: builtInFeaturePlugins,
+  releaseOverrides: defaultPluginReleaseOverrides,
+);

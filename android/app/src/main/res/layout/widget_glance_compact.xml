@@ -1,0 +1,107 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/glance_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/glance_widget_bg_dark">
+
+    <TextView
+        android:id="@+id/glance_accent"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:background="#6EE89E"
+        android:text="" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="13dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/glance_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="--"
+            android:textColor="#D6EDE3"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/glance_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="mmol/L"
+            android:textColor="#8FBFAA"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/glance_trend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:text="&#8599;"
+            android:textColor="#6EE89E"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/glance_delta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="+0.0"
+            android:textColor="#6EE89E"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/glance_link_glyph"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:text="&#9679;"
+            android:textColor="#6EE89E"
+            android:textSize="7sp" />
+
+        <TextView
+            android:id="@+id/glance_freshness"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:singleLine="true"
+            android:text="No data"
+            android:textColor="#4D7264"
+            android:textSize="8sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/glance_source"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="SmartXDrip"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/glance_alt_value"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="--"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/glance_tir"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="TIR 78%"
+        android:visibility="gone" />
+</FrameLayout>

@@ -12,32 +12,30 @@ class AlertVibrationPattern {
   });
 
   const AlertVibrationPattern.criticalRepeat()
-    : key = 'critical_repeat',
-      displayName = 'Critical repeat',
-      pattern = const [0, 700, 250, 700, 250, 900],
-      intensities = const [0, 255, 0, 255, 0, 255];
+      : key = 'critical_repeat',
+        displayName = 'Critical repeat',
+        pattern = const [0, 700, 250, 700, 250, 900],
+        intensities = const [0, 255, 0, 255, 0, 255];
 
   const AlertVibrationPattern.shortWarning()
-    : key = 'short_warning',
-      displayName = 'Short warning',
-      pattern = const [0, 250, 150, 250],
-      intensities = const [0, 180, 0, 180];
+      : key = 'short_warning',
+        displayName = 'Short warning',
+        pattern = const [0, 250, 150, 250],
+        intensities = const [0, 180, 0, 180];
 
   Map<String, Object?> toJson() => {
-    'key': key,
-    'displayName': displayName,
-    'pattern': pattern,
-    'intensities': intensities,
-  };
+        'key': key,
+        'displayName': displayName,
+        'pattern': pattern,
+        'intensities': intensities,
+      };
 
   static AlertVibrationPattern fromJson(Map<String, Object?> json) {
-    final pattern =
-        (json['pattern'] as List?)
+    final pattern = (json['pattern'] as List?)
             ?.map((value) => (value as num).round())
             .toList() ??
         const [0, 700, 250, 700];
-    final intensities =
-        (json['intensities'] as List?)
+    final intensities = (json['intensities'] as List?)
             ?.map((value) => (value as num).round())
             .toList() ??
         const <int>[];

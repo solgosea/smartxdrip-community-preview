@@ -13,7 +13,9 @@ import '../../domain/repository/alert_event_repository.dart';
 class SqliteAlertEventRepository implements AlertEventRepository {
   final Future<Database> Function() databaseProvider;
 
-  const SqliteAlertEventRepository({required this.databaseProvider});
+  const SqliteAlertEventRepository({
+    required this.databaseProvider,
+  });
 
   @override
   Future<void> upsert(AlertEvent event) async {
@@ -54,26 +56,29 @@ class SqliteAlertEventRepository implements AlertEventRepository {
     final database = await databaseProvider();
     await database.update(
       AlertingTables.events,
-      {'state': state.name, 'updated_at': DateTime.now().toIso8601String()},
+      {
+        'state': state.name,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
   }
 
   Map<String, Object?> _toRow(AlertEvent event) => {
-    'id': event.id,
-    'source': event.source.code,
-    'source_event_id': event.sourceEventId,
-    'category': event.category.code,
-    'level': event.level.name,
-    'state': event.state.name,
-    'title': event.title,
-    'body': event.body,
-    'payload_json': jsonEncode(event.payload),
-    'occurred_at': event.occurredAt.toIso8601String(),
-    'received_at': event.receivedAt.toIso8601String(),
-    'updated_at': event.updatedAt.toIso8601String(),
-  };
+        'id': event.id,
+        'source': event.source.code,
+        'source_event_id': event.sourceEventId,
+        'category': event.category.code,
+        'level': event.level.name,
+        'state': event.state.name,
+        'title': event.title,
+        'body': event.body,
+        'payload_json': jsonEncode(event.payload),
+        'occurred_at': event.occurredAt.toIso8601String(),
+        'received_at': event.receivedAt.toIso8601String(),
+        'updated_at': event.updatedAt.toIso8601String(),
+      };
 
   AlertEvent _fromRow(Map<String, Object?> row) {
     return AlertEvent(

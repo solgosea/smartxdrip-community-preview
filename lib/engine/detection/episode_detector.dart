@@ -63,9 +63,8 @@ class EpisodeDetector {
         }
         if (j - i >= minHighReadings) {
           final segment = readings.sublist(i, j);
-          final peak = segment
-              .map((r) => r.value)
-              .reduce((a, b) => a > b ? a : b);
+          final peak =
+              segment.map((r) => r.value).reduce((a, b) => a > b ? a : b);
           final event = GlucoseEvent(
             type: GlucoseEventType.highEpisode,
             time: segment.first.timestamp,
@@ -88,9 +87,8 @@ class EpisodeDetector {
         }
         if (j - i >= minLowReadings) {
           final segment = readings.sublist(i, j);
-          final nadir = segment
-              .map((r) => r.value)
-              .reduce((a, b) => a < b ? a : b);
+          final nadir =
+              segment.map((r) => r.value).reduce((a, b) => a < b ? a : b);
           final event = GlucoseEvent(
             type: GlucoseEventType.lowEpisode,
             time: segment.first.timestamp,
@@ -142,28 +140,22 @@ class EpisodeDetector {
   }
 
   static List<GlucoseEvent> _detectFirstReadings(
-    List<GlucoseReading> readings,
-  ) {
+      List<GlucoseReading> readings) {
     final events = <GlucoseEvent>[];
     DateTime? currentDay;
     for (final r in readings) {
-      final day = DateTime(
-        r.timestamp.year,
-        r.timestamp.month,
-        r.timestamp.day,
-      );
+      final day =
+          DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day);
       if (currentDay == day) continue;
       currentDay = day;
-      events.add(
-        GlucoseEvent(
-          type: GlucoseEventType.firstReading,
-          time: r.timestamp,
-          value: r.value,
-          peakOrNadir: r.value,
-          ratePerMin: r.ratePerMin,
-          isNocturnal: _isNocturnal(r.timestamp),
-        ),
-      );
+      events.add(GlucoseEvent(
+        type: GlucoseEventType.firstReading,
+        time: r.timestamp,
+        value: r.value,
+        peakOrNadir: r.value,
+        ratePerMin: r.ratePerMin,
+        isNocturnal: _isNocturnal(r.timestamp),
+      ));
     }
     return events;
   }
@@ -188,17 +180,15 @@ class EpisodeDetector {
         if (delta >= riseDelta) {
           if (lastRiseAt == null ||
               start.timestamp.difference(lastRiseAt).inMinutes >= 60) {
-            events.add(
-              GlucoseEvent(
-                type: GlucoseEventType.rise,
-                time: start.timestamp,
-                value: start.value,
-                endTime: end.timestamp,
-                peakOrNadir: end.value,
-                ratePerMin: delta / minutes,
-                isNocturnal: _isNocturnal(start.timestamp),
-              ),
-            );
+            events.add(GlucoseEvent(
+              type: GlucoseEventType.rise,
+              time: start.timestamp,
+              value: start.value,
+              endTime: end.timestamp,
+              peakOrNadir: end.value,
+              ratePerMin: delta / minutes,
+              isNocturnal: _isNocturnal(start.timestamp),
+            ));
             lastRiseAt = start.timestamp;
           }
           break;
@@ -230,17 +220,15 @@ class EpisodeDetector {
         continue;
       }
       final mean = _mean(segment.map((r) => r.value).toList());
-      events.add(
-        GlucoseEvent(
-          type: GlucoseEventType.stableWindow,
-          time: first.timestamp,
-          value: mean,
-          endTime: segment.last.timestamp,
-          peakOrNadir: mean,
-          ratePerMin: first.ratePerMin,
-          isNocturnal: _isNocturnal(first.timestamp),
-        ),
-      );
+      events.add(GlucoseEvent(
+        type: GlucoseEventType.stableWindow,
+        time: first.timestamp,
+        value: mean,
+        endTime: segment.last.timestamp,
+        peakOrNadir: mean,
+        ratePerMin: first.ratePerMin,
+        isNocturnal: _isNocturnal(first.timestamp),
+      ));
       lastStableAt = first.timestamp;
     }
     return events;
@@ -249,38 +237,31 @@ class EpisodeDetector {
   static List<GlucoseEvent> _detectDawnWindows(List<GlucoseReading> readings) {
     final byDay = <DateTime, List<GlucoseReading>>{};
     for (final r in readings) {
-      final day = DateTime(
-        r.timestamp.year,
-        r.timestamp.month,
-        r.timestamp.day,
-      );
+      final day =
+          DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day);
       byDay.putIfAbsent(day, () => []).add(r);
     }
 
     final events = <GlucoseEvent>[];
     for (final rows in byDay.values) {
-      final morning =
-          rows
-              .where((r) => r.timestamp.hour >= 4 && r.timestamp.hour < 8)
-              .toList();
+      final morning = rows
+          .where((r) => r.timestamp.hour >= 4 && r.timestamp.hour < 8)
+          .toList();
       if (morning.length < 4) continue;
       final lowPoint = morning.reduce((a, b) => a.value <= b.value ? a : b);
       final highPoint = morning.reduce((a, b) => a.value >= b.value ? a : b);
       final delta = highPoint.value - lowPoint.value;
       if (delta >= 1.0 && highPoint.timestamp.isAfter(lowPoint.timestamp)) {
-        events.add(
-          GlucoseEvent(
-            type: GlucoseEventType.dawnPhenomenon,
-            time: lowPoint.timestamp,
-            value: lowPoint.value,
-            endTime: highPoint.timestamp,
-            peakOrNadir: highPoint.value,
-            ratePerMin:
-                delta /
-                highPoint.timestamp.difference(lowPoint.timestamp).inMinutes,
-            isNocturnal: true,
-          ),
-        );
+        events.add(GlucoseEvent(
+          type: GlucoseEventType.dawnPhenomenon,
+          time: lowPoint.timestamp,
+          value: lowPoint.value,
+          endTime: highPoint.timestamp,
+          peakOrNadir: highPoint.value,
+          ratePerMin: delta /
+              highPoint.timestamp.difference(lowPoint.timestamp).inMinutes,
+          isNocturnal: true,
+        ));
       }
     }
     return events;
@@ -304,10 +285,9 @@ class EpisodeDetector {
     var area = 0.0;
     for (var i = 0; i < segment.length; i++) {
       final r = segment[i];
-      final minutes =
-          i == 0
-              ? 5
-              : r.timestamp.difference(segment[i - 1].timestamp).inMinutes;
+      final minutes = i == 0
+          ? 5
+          : r.timestamp.difference(segment[i - 1].timestamp).inMinutes;
       final delta = above ? r.value - threshold : threshold - r.value;
       area += delta.clamp(0, double.infinity) * minutes.clamp(1, 15);
     }
@@ -330,7 +310,7 @@ class EpisodeDetector {
     if (mean <= 0) return 0;
     final variance =
         values.map((v) => (v - mean) * (v - mean)).reduce((a, b) => a + b) /
-        values.length;
+            values.length;
     return (_sqrt(variance) / mean) * 100;
   }
 

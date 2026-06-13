@@ -36,7 +36,9 @@ class FakeGlucoseSource implements IGlucoseSource {
   Future<GlucoseReading?> latest() async {
     latestCalls += 1;
     if (readings.isEmpty) return null;
-    return readings.reduce((a, b) => a.timestamp.isAfter(b.timestamp) ? a : b);
+    return readings.reduce(
+      (a, b) => a.timestamp.isAfter(b.timestamp) ? a : b,
+    );
   }
 
   @override
@@ -59,11 +61,8 @@ class FakeGlucoseSource implements IGlucoseSource {
     final error = rangeError;
     if (error != null) throw error;
     return readings
-        .where(
-          (reading) =>
-              !reading.timestamp.isBefore(from) &&
-              reading.timestamp.isBefore(to),
-        )
+        .where((reading) =>
+            !reading.timestamp.isBefore(from) && reading.timestamp.isBefore(to))
         .toList()
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
   }

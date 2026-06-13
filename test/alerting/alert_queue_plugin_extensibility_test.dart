@@ -13,50 +13,49 @@ import '../_support/test_database.dart';
 
 void main() {
   test(
-    'alert queue accepts plugin handlers without feature dependencies',
-    () async {
-      final database = await TestDatabase.createWithAlerting();
-      final queueRepository = SqliteAlertQueueRepository(
-        databaseProvider: () => database.db,
-      );
-      final handler = _FakePluginAlertHandler();
-      final registry = AlertMessageHandlerRegistry()..register(handler);
-      final consumer = AlertQueueConsumer(
-        repository: queueRepository,
-        registry: registry,
-      );
-      final ingress = AlertIngress(
-        repository: queueRepository,
-        consumer: consumer,
-        clock: () => DateTime(2026, 6, 9, 8),
-      );
+      'alert queue accepts plugin handlers without feature-specific dependencies',
+      () async {
+    final database = await TestDatabase.createWithAlerting();
+    final queueRepository = SqliteAlertQueueRepository(
+      databaseProvider: () => database.db,
+    );
+    final handler = _FakePluginAlertHandler();
+    final registry = AlertMessageHandlerRegistry()..register(handler);
+    final consumer = AlertQueueConsumer(
+      repository: queueRepository,
+      registry: registry,
+    );
+    final ingress = AlertIngress(
+      repository: queueRepository,
+      consumer: consumer,
+      clock: () => DateTime(2026, 6, 9, 8),
+    );
 
-      await ingress.enqueue(
-        messageType: _FakePluginAlertHandler.messageType,
-        source: AlertQueueSource.system,
-        targetPluginId: 'fake.plugin',
-        targetId: 'card-1',
-        subjectId: 'subject-1',
-        alertEventId: 'fake-alert-1',
-        alertType: 'summaryReady',
-        priority: AlertQueuePriority.high,
-        payload: {'value': 42},
-        dedupeKey: 'fake.plugin:summaryReady:fake-alert-1',
-      );
-      for (var i = 0; i < 20 && handler.handledPayloads.isEmpty; i++) {
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await consumer.drain();
-      }
+    await ingress.enqueue(
+      messageType: _FakePluginAlertHandler.messageType,
+      source: AlertQueueSource.system,
+      targetPluginId: 'fake.plugin',
+      targetId: 'card-1',
+      subjectId: 'subject-1',
+      alertEventId: 'fake-alert-1',
+      alertType: 'summaryReady',
+      priority: AlertQueuePriority.high,
+      payload: {'value': 42},
+      dedupeKey: 'fake.plugin:summaryReady:fake-alert-1',
+    );
+    for (var i = 0; i < 20 && handler.handledPayloads.isEmpty; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await consumer.drain();
+    }
 
-      expect(handler.handledPayloads, [
-        {'value': 42},
-      ]);
-      expect(await queueRepository.pendingCount(), 0);
+    expect(handler.handledPayloads, [
+      {'value': 42},
+    ]);
+    expect(await queueRepository.pendingCount(), 0);
 
-      await consumer.waitForIdle();
-      await database.close();
-    },
-  );
+    await consumer.waitForIdle();
+    await database.close();
+  });
 }
 
 class _FakePluginAlertHandler implements AlertMessageHandler {

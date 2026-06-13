@@ -1,5 +1,9 @@
+import 'package:smart_xdrip/plugin_platform/graph/plugin_slot_key.dart';
+import 'package:smart_xdrip/plugin_platform/composition/plugin_placement_spec.dart';
 import 'package:flutter/material.dart';
 
+import '../../application/plugin_host/app_host_actions.dart';
+import '../../application/plugin_host/app_host_services.dart';
 import '../../plugin_platform/contracts/plugin_data_requirement.dart';
 import '../../plugin_platform/contracts/plugin_entry.dart';
 import '../../plugin_platform/contracts/plugin_id.dart';
@@ -7,10 +11,14 @@ import '../../plugin_platform/contracts/plugin_placement.dart';
 import '../../plugin_platform/contracts/plugin_release_stage.dart';
 import '../../plugin_platform/contracts/plugin_route.dart';
 import '../../plugin_platform/contracts/smart_feature_plugin.dart';
+import '../../plugin_platform/graph/plugin_node_kind.dart';
+import '../../plugin_platform/graph/plugin_slot.dart';
 import '../../plugin_platform/install/plugin_install_context.dart';
 import '../../plugin_platform/runtime/manager/plugin_runtime_start_policy.dart';
 import 'application/profile_host_services.dart';
+import 'application/profile_settings_actions.dart';
 import 'application/profile_snapshot_preheater.dart';
+import 'composition/profile_slots.dart';
 import 'pages/profile_page.dart';
 import 'runtime/profile_plugin_runtime.dart';
 import 'runtime/profile_runtime_cache.dart';
@@ -31,35 +39,66 @@ class ProfilePlugin extends SmartFeaturePlugin {
   PluginReleaseStage get releaseStage => PluginReleaseStage.stable;
 
   @override
+  PluginNodeKind get nodeKind => PluginNodeKind.container;
+
+  @override
+  List<PluginSlot> get slots => ProfileSlots.all;
+
+  @override
   Set<PluginPlacement> get placements => const {PluginPlacement.mainTab};
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.appSettings,
-    PluginDataRequirement.sourceConnection,
-  };
+        PluginDataRequirement.appSettings,
+        PluginDataRequirement.sourceConnection,
+      };
+  @override
+  List<PluginPlacementSpec> get placementSpecs => [
+        PluginPlacementSpec(
+          pluginId: id,
+          slot: const PluginSlotKey('app.mainTab'),
+          renderKey: '/profile',
+          title: 'Profile',
+          order: 40,
+          dataRequirements: dataRequirements,
+        ),
+      ];
 
   @override
   MainTabPluginEntry get mainTabEntry => const MainTabPluginEntry(
-    label: 'Profile',
-    route: '/profile',
-    icon: Icons.person_outline,
-    activeIcon: Icons.person,
-    order: 40,
-  );
+        label: 'Profile',
+        route: '/profile',
+        icon: Icons.person_outline,
+        activeIcon: Icons.person,
+        order: 40,
+      );
 
   @override
   List<PluginRoute> get routes => [
-    PluginRoute(path: '/profile', builder: (_) => const ProfilePage()),
-  ];
+        PluginRoute(path: '/profile', builder: (_) => const ProfilePage()),
+      ];
 
   @override
   void install(PluginInstallContext context) {
+    final host = context.services.get<AppHostServices>();
+    final actions = context.services.get<AppHostActions>();
+    final hostServices = ProfileHostServices(
+      changeSignal: host.changeSignal,
+      facadeProvider: host.facadeProvider,
+      settingsProvider: host.settingsProvider,
+    );
     final cache = ProfileRuntimeCache();
     final runtime = ProfilePluginRuntime(
       cache: cache,
       preheater: ProfileSnapshotPreheater(
-        hostServices: context.services.get<ProfileHostServices>(),
+        hostServices: hostServices,
+      ),
+    );
+    context.services.register<ProfileHostServices>(hostServices);
+    context.services.register<ProfileSettingsActions>(
+      ProfileSettingsActions(
+        updateSettings: actions.updateSettings,
+        settingsProvider: host.settingsProvider,
       ),
     );
     context.services.register<ProfileRuntimeCache>(cache);

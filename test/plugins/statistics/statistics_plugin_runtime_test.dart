@@ -41,52 +41,54 @@ void main() {
     expect(cache.snapshots.single.query.subjectId, 'self');
     expect(cache.snapshots.single.query.periodDays, 14);
     expect(cache.snapshots.single.viewModel.selectedPeriod, 14);
-    expect(cache.freshViewModel(subjectId: 'self', periodDays: 14), isNotNull);
+    expect(
+      cache.freshViewModel(subjectId: 'self', periodDays: 14),
+      isNotNull,
+    );
   });
 
   test(
-    'statistics runtime marks stale on datasource changes and refreshes on sync',
-    () async {
-      final now = DateTime(2026, 6, 6, 12);
-      _seedAnalysisStore(now);
-      final cache = StatisticsRuntimeCache();
-      final manager = PluginRuntimeManager.create(now: () => now);
-      addTearDown(manager.dispose);
-      manager.register(
-        StatisticsPluginRuntime(
-          cache: cache,
-          preheater: StatisticsSnapshotPreheater(
-            hostServices: _hostServices(),
-            now: () => now,
-          ),
+      'statistics runtime marks stale on datasource changes and refreshes on sync',
+      () async {
+    final now = DateTime(2026, 6, 6, 12);
+    _seedAnalysisStore(now);
+    final cache = StatisticsRuntimeCache();
+    final manager = PluginRuntimeManager.create(now: () => now);
+    addTearDown(manager.dispose);
+    manager.register(
+      StatisticsPluginRuntime(
+        cache: cache,
+        preheater: StatisticsSnapshotPreheater(
+          hostServices: _hostServices(),
+          now: () => now,
         ),
-      );
-      await manager.resume(StatisticsPluginRuntime.id);
-      expect(cache.stale, isFalse);
+      ),
+    );
+    await manager.resume(StatisticsPluginRuntime.id);
+    expect(cache.stale, isFalse);
 
-      manager.eventBus.publish(
-        PluginRuntimeEvent(
-          type: PluginRuntimeEventType.datasourceChanged,
-          occurredAt: now.add(const Duration(minutes: 1)),
-        ),
-      );
-      await pumpEventQueue();
+    manager.eventBus.publish(
+      PluginRuntimeEvent(
+        type: PluginRuntimeEventType.datasourceChanged,
+        occurredAt: now.add(const Duration(minutes: 1)),
+      ),
+    );
+    await pumpEventQueue();
 
-      expect(cache.stale, isTrue);
-      expect(cache.staleReason, PluginRuntimeEventType.datasourceChanged.name);
+    expect(cache.stale, isTrue);
+    expect(cache.staleReason, PluginRuntimeEventType.datasourceChanged.name);
 
-      manager.eventBus.publish(
-        PluginRuntimeEvent(
-          type: PluginRuntimeEventType.subjectDataChanged,
-          occurredAt: now.add(const Duration(minutes: 2)),
-        ),
-      );
-      await pumpEventQueue();
+    manager.eventBus.publish(
+      PluginRuntimeEvent(
+        type: PluginRuntimeEventType.subjectDataChanged,
+        occurredAt: now.add(const Duration(minutes: 2)),
+      ),
+    );
+    await pumpEventQueue();
 
-      expect(cache.stale, isFalse);
-      expect(cache.staleReason, isNull);
-    },
-  );
+    expect(cache.stale, isFalse);
+    expect(cache.staleReason, isNull);
+  });
 
   test('statistics runtime can preheat another period on demand', () async {
     final now = DateTime(2026, 6, 6, 12);
@@ -104,7 +106,10 @@ void main() {
 
     expect(snapshot?.query.periodDays, 30);
     expect(snapshot?.viewModel.selectedPeriod, 30);
-    expect(cache.freshViewModel(subjectId: 'self', periodDays: 30), isNotNull);
+    expect(
+      cache.freshViewModel(subjectId: 'self', periodDays: 30),
+      isNotNull,
+    );
   });
 }
 

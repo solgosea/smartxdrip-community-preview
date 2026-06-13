@@ -71,8 +71,8 @@ class _SettingsPageState extends State<SettingsPage> {
           viewModel: viewModel,
           onBack: () => context.safePopOrHome(),
           onPickUnit: () => _pickUnit(context, _controller),
-          onPickInitialSyncWindow:
-              () => _pickInitialSyncWindow(context, _controller),
+          onPickInitialSyncWindow: () =>
+              _pickInitialSyncWindow(context, _controller),
           onExportCsv: () => _exportCsv(context, _controller),
           onClearAllData: () => _confirmClear(context, _controller),
         );
@@ -118,14 +118,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: AppColors.text,
                     ),
                   ),
-                  trailing:
-                      option == controller.unitLabel
-                          ? const Icon(
-                            Icons.check_rounded,
-                            color: AppColors.green,
-                            size: 18,
-                          )
-                          : null,
+                  trailing: option == controller.unitLabel
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: AppColors.green,
+                          size: 18,
+                        )
+                      : null,
                 ),
               const SizedBox(height: 8),
             ],
@@ -176,25 +175,23 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: AppColors.text,
                     ),
                   ),
-                  subtitle:
-                      option == 14
-                          ? const Text(
-                            'Recommended balance',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              color: AppColors.textSoft,
-                            ),
-                          )
-                          : null,
-                  trailing:
-                      option == controller.settings.initialSyncDays
-                          ? const Icon(
-                            Icons.check_rounded,
-                            color: AppColors.green,
-                            size: 18,
-                          )
-                          : null,
+                  subtitle: option == 14
+                      ? const Text(
+                          'Recommended balance',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12,
+                            color: AppColors.textSoft,
+                          ),
+                        )
+                      : null,
+                  trailing: option == controller.settings.initialSyncDays
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: AppColors.green,
+                          size: 18,
+                        )
+                      : null,
                 ),
               const SizedBox(height: 8),
             ],
@@ -237,47 +234,46 @@ class _SettingsPageState extends State<SettingsPage> {
     final messenger = ScaffoldMessenger.of(context);
     final confirm = await showDialog<bool>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            backgroundColor: AppColors.bgCard,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: const Text(
-              'Clear all data?',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w600,
-                color: AppColors.text,
-              ),
-            ),
-            content: const Text(
-              'This permanently deletes all stored CGM readings, events, and '
-              'analysis snapshots. This cannot be undone.',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                color: AppColors.textSoft,
-                height: 1.5,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: AppColors.textSoft),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text(
-                  'Delete everything',
-                  style: TextStyle(color: AppColors.rose),
-                ),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Clear all data?',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
           ),
+        ),
+        content: const Text(
+          'This permanently deletes all stored CGM readings, events, and '
+          'analysis snapshots. This cannot be undone.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 13,
+            color: AppColors.textSoft,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSoft),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Delete everything',
+              style: TextStyle(color: AppColors.rose),
+            ),
+          ),
+        ],
+      ),
     );
     if (confirm == true) {
       await controller.clearAllData();

@@ -58,15 +58,13 @@ class PollingPolicyEngine {
 
     return PollingDecision(
       sourceKind: context.sourceKind,
-      nextInterval:
-          context.mode == PollingMode.foreground
-              ? profile.foregroundNormal
-              : profile.backgroundNormal,
+      nextInterval: context.mode == PollingMode.foreground
+          ? profile.foregroundNormal
+          : profile.backgroundNormal,
       riskLevel: PollingRiskLevel.normal,
-      reason:
-          context.mode == PollingMode.foreground
-              ? 'Foreground normal polling'
-              : 'Background normal polling',
+      reason: context.mode == PollingMode.foreground
+          ? 'Foreground normal polling'
+          : 'Background normal polling',
     );
   }
 }

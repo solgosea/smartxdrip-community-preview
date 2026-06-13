@@ -62,11 +62,10 @@ class AlertAudioGateway {
         AssetSource(uri, mimeType: 'audio/wav'),
         volume: 1,
         mode: PlayerMode.lowLatency,
-        ctx:
-            AudioContextConfig(
-              route: AudioContextConfigRoute.system,
-              focus: AudioContextConfigFocus.gain,
-            ).build(),
+        ctx: AudioContextConfig(
+          route: AudioContextConfigRoute.system,
+          focus: AudioContextConfigFocus.gain,
+        ).build(),
       );
       await Future<void>.delayed(maxDuration);
     } finally {

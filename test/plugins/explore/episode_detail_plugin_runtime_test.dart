@@ -26,36 +26,55 @@ void main() {
 
   tearDown(_resetStore);
 
-  test(
-    'runtime preheats high and low episode detail for current subject',
-    () async {
-      final now = DateTime(2026, 6, 6, 8);
-      _seedStore(now, subject: ActiveSubjectDefaults.self);
-      final cache = EpisodeDetailRuntimeCache();
-      final manager = PluginRuntimeManager.create(now: () => now);
-      addTearDown(manager.dispose);
-      manager.register(
-        EpisodeDetailPluginRuntime(cache: cache, preheater: _preheater(now)),
-      );
+  test('runtime preheats high and low episode detail for current subject',
+      () async {
+    final now = DateTime(2026, 6, 6, 8);
+    _seedStore(now, subject: ActiveSubjectDefaults.self);
+    final cache = EpisodeDetailRuntimeCache();
+    final manager = PluginRuntimeManager.create(now: () => now);
+    addTearDown(manager.dispose);
+    manager.register(
+      EpisodeDetailPluginRuntime(
+        cache: cache,
+        preheater: _preheater(now),
+      ),
+    );
 
-      await manager.resume(EpisodeDetailPluginRuntime.id);
+    await manager.resume(EpisodeDetailPluginRuntime.id);
 
-      final high = cache.freshSnapshot(
-        subjectId: ActiveSubjectDefaults.self.id,
-        kind: EpisodeKind.high,
-      );
-      final low = cache.freshSnapshot(
-        subjectId: ActiveSubjectDefaults.self.id,
-        kind: EpisodeKind.low,
-      );
-      expect(high, isNotNull);
-      expect(low, isNotNull);
-      expect(high!.viewModel.kind, EpisodeKind.high);
-      expect(low!.viewModel.kind, EpisodeKind.low);
-      expect(high.viewModel.hero, isNotNull);
-      expect(low.viewModel.hero, isNotNull);
-    },
-  );
+    final high = cache.freshSnapshot(
+      subjectId: ActiveSubjectDefaults.self.id,
+      kind: EpisodeKind.high,
+    );
+    final low = cache.freshSnapshot(
+      subjectId: ActiveSubjectDefaults.self.id,
+      kind: EpisodeKind.low,
+    );
+    expect(high, isNotNull);
+    expect(low, isNotNull);
+    expect(high!.viewModel.kind, EpisodeKind.high);
+    expect(low!.viewModel.kind, EpisodeKind.low);
+    expect(high.viewModel.hero, isNotNull);
+    expect(low.viewModel.hero, isNotNull);
+    final highChart = high.viewModel.chart!;
+    final lowChart = low.viewModel.chart!;
+    expect(
+      highChart.timeRangeStart,
+      DateTime(2026, 6, 6, 5, 45),
+    );
+    expect(
+      highChart.timeRangeEnd,
+      DateTime(2026, 6, 6, 10, 23),
+    );
+    expect(
+      lowChart.timeRangeStart,
+      DateTime(2026, 6, 6, 1, 20),
+    );
+    expect(
+      lowChart.timeRangeEnd,
+      DateTime(2026, 6, 6, 5, 43),
+    );
+  });
 
   test('runtime refreshes cache after active subject changes', () async {
     final now = DateTime(2026, 6, 6, 8);
@@ -64,15 +83,18 @@ void main() {
     final manager = PluginRuntimeManager.create(now: () => now);
     addTearDown(manager.dispose);
     manager.register(
-      EpisodeDetailPluginRuntime(cache: cache, preheater: _preheater(now)),
+      EpisodeDetailPluginRuntime(
+        cache: cache,
+        preheater: _preheater(now),
+      ),
     );
     await manager.resume(EpisodeDetailPluginRuntime.id);
 
     const child = AnalysisSubject(
-      id: 'external:child-episode',
+      id: 'remote:child-episode',
       displayName: 'Child Episode',
-      sourceLabel: 'External Nightscout',
-      origin: AnalysisSubjectOrigin('external'),
+      sourceLabel: 'Remote Nightscout',
+      origin: AnalysisSubjectOrigin('remote'),
     );
     _seedStore(now.add(const Duration(minutes: 5)), subject: child);
     manager.eventBus.publish(
@@ -88,7 +110,10 @@ void main() {
       subjectId: child.id,
       kind: EpisodeKind.high,
     );
-    final low = cache.freshSnapshot(subjectId: child.id, kind: EpisodeKind.low);
+    final low = cache.freshSnapshot(
+      subjectId: child.id,
+      kind: EpisodeKind.low,
+    );
     expect(high, isNotNull);
     expect(low, isNotNull);
     expect(high!.reason, PluginRuntimeEventType.activeSubjectChanged.name);
@@ -114,10 +139,8 @@ void main() {
     expect(services.maybe<EpisodeDetailPluginRuntime>(), isNotNull);
     expect(
       manager.registry.handles
-          .where(
-            (handle) =>
-                handle.runtime.pluginId == EpisodeDetailPluginRuntime.id,
-          )
+          .where((handle) =>
+              handle.runtime.pluginId == EpisodeDetailPluginRuntime.id)
           .length,
       1,
     );
@@ -132,11 +155,8 @@ EpisodeDetailSnapshotPreheater _preheater(DateTime now) {
 }
 
 void _seedStore(DateTime now, {required AnalysisSubject subject}) {
-  final start = DateTime(
-    now.year,
-    now.month,
-    now.day,
-  ).subtract(const Duration(days: 20));
+  final start =
+      DateTime(now.year, now.month, now.day).subtract(const Duration(days: 20));
   final readings = <GlucoseReading>[];
   for (var day = 0; day < 21; day++) {
     final current = start.add(Duration(days: day));

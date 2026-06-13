@@ -117,7 +117,10 @@ class AlertRuleDefaults {
         thresholdValue: GlucoseAlertDefaultThresholds.noDataMinutes,
         thresholdUnit: 'minutes',
         level: AlertLevel.info,
-        channels: const {AlertChannel.inApp, AlertChannel.localNotification},
+        channels: const {
+          AlertChannel.inApp,
+          AlertChannel.localNotification,
+        },
         repeatMinutes: 30,
         priority: 60,
         now: now,

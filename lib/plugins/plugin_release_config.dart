@@ -4,7 +4,7 @@ import 'release/plugin_release_matrix.dart';
 import 'release/plugin_release_matrix_resolver.dart';
 import 'release/plugin_release_profile.dart';
 
-const currentPluginReleaseProfile = PluginReleaseProfile.fullInternal;
+const currentPluginReleaseProfile = PluginReleaseProfile.ossPreview;
 
 const ossPreviewPluginReleaseMatrix = PluginReleaseMatrix(
   profile: PluginReleaseProfile.ossPreview,
@@ -78,6 +78,6 @@ PluginReleaseMatrix get currentPluginReleaseMatrix =>
 
 final PluginReleaseOverrides defaultPluginReleaseOverrides =
     const PluginReleaseMatrixResolver().resolve(
-      plugins: pluginCatalog,
-      matrix: currentPluginReleaseMatrix,
-    );
+  plugins: pluginCatalog,
+  matrix: currentPluginReleaseMatrix,
+);

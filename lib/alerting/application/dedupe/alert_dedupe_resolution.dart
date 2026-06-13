@@ -1,4 +1,8 @@
-enum AlertDedupeResolutionType { enqueue, suppress, replaceExisting }
+enum AlertDedupeResolutionType {
+  enqueue,
+  suppress,
+  replaceExisting,
+}
 
 class AlertDedupeResolution {
   final AlertDedupeResolutionType type;
@@ -7,11 +11,11 @@ class AlertDedupeResolution {
   const AlertDedupeResolution._(this.type, this.reason);
 
   const AlertDedupeResolution.enqueue()
-    : this._(AlertDedupeResolutionType.enqueue, null);
+      : this._(AlertDedupeResolutionType.enqueue, null);
 
   const AlertDedupeResolution.suppress(String reason)
-    : this._(AlertDedupeResolutionType.suppress, reason);
+      : this._(AlertDedupeResolutionType.suppress, reason);
 
   const AlertDedupeResolution.replaceExisting()
-    : this._(AlertDedupeResolutionType.replaceExisting, null);
+      : this._(AlertDedupeResolutionType.replaceExisting, null);
 }

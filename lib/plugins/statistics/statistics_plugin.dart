@@ -1,5 +1,8 @@
+import 'package:smart_xdrip/plugin_platform/graph/plugin_slot_key.dart';
+import 'package:smart_xdrip/plugin_platform/composition/plugin_placement_spec.dart';
 import 'package:flutter/material.dart';
 
+import 'package:smart_xdrip/application/plugin_host/app_host_services.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_data_requirement.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_entry.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_id.dart';
@@ -35,35 +38,53 @@ class StatisticsPlugin extends SmartFeaturePlugin {
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.glucoseReadings,
-    PluginDataRequirement.dailySummaries,
-    PluginDataRequirement.agpSlots,
-    PluginDataRequirement.appSettings,
-  };
+        PluginDataRequirement.glucoseReadings,
+        PluginDataRequirement.dailySummaries,
+        PluginDataRequirement.agpSlots,
+        PluginDataRequirement.appSettings,
+      };
+  @override
+  List<PluginPlacementSpec> get placementSpecs => [
+        PluginPlacementSpec(
+          pluginId: id,
+          slot: const PluginSlotKey('app.mainTab'),
+          renderKey: '/stats',
+          title: 'Stats',
+          order: 20,
+          dataRequirements: dataRequirements,
+        ),
+      ];
 
   @override
   MainTabPluginEntry get mainTabEntry => const MainTabPluginEntry(
-    label: 'Stats',
-    route: '/stats',
-    icon: Icons.bar_chart_outlined,
-    activeIcon: Icons.bar_chart,
-    order: 20,
-  );
+        label: 'Stats',
+        route: '/stats',
+        icon: Icons.bar_chart_outlined,
+        activeIcon: Icons.bar_chart,
+        order: 20,
+      );
 
   @override
   List<PluginRoute> get routes => [
-    PluginRoute(path: '/stats', builder: (_) => const StatisticsPage()),
-  ];
+        PluginRoute(path: '/stats', builder: (_) => const StatisticsPage()),
+      ];
 
   @override
   void install(PluginInstallContext context) {
+    final host = context.services.get<AppHostServices>();
+    final hostServices = StatisticsHostServices(
+      changeSignal: host.changeSignal,
+      facadeProvider: host.facadeProvider,
+      settingsProvider: host.settingsProvider,
+    );
     final cache = StatisticsRuntimeCache();
     final runtime = StatisticsPluginRuntime(
       cache: cache,
       preheater: StatisticsSnapshotPreheater(
-        hostServices: context.services.get<StatisticsHostServices>(),
+        hostServices: hostServices,
       ),
     );
+    context.services.register<StatisticsHostServices>(hostServices);
     context.services.register<StatisticsRuntimeCache>(cache);
     context.services.register<StatisticsPluginRuntime>(runtime);
     context.registerRuntime(

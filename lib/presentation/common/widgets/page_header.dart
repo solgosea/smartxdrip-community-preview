@@ -18,10 +18,9 @@ class PageHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 18),
       child: Row(
-        crossAxisAlignment:
-            subtitle == null
-                ? CrossAxisAlignment.center
-                : CrossAxisAlignment.start,
+        crossAxisAlignment: subtitle == null
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
         children: [
           GestureDetector(
             onTap: onBack,

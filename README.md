@@ -1,194 +1,84 @@
 # SmartXDrip Community Preview
 
-## Already using [xDrip+](https://github.com/NightscoutFoundation/xDrip) or [Nightscout](https://nightscout.github.io/)?
+SmartXDrip is an open-source companion app for people who already use
+[xDrip+](https://github.com/NightscoutFoundation/xDrip) and
+[Nightscout](https://github.com/nightscout/cgm-remote-monitor).
 
-SmartXDrip is a companion app for CGM review, analysis, and local helper reminders. It is built for people who already rely on [xDrip+](https://github.com/NightscoutFoundation/xDrip) and [Nightscout](https://nightscout.github.io/) as valuable parts of their CGM workflow.
+This preview focuses on making existing CGM data easier to review, understand,
+and discuss with the community. It does not replace xDrip+, Nightscout, a CGM
+manufacturer app, or medical advice.
 
-SmartXDrip does not replace either project. xDrip+ and Nightscout remain the source of truth for CGM data. SmartXDrip reads from the user's configured source and adds a focused workspace for daily review, historical context, statistics, insights, episode review, and local alerting experiments.
+## Download
 
-## Watch the demo videos
+**Android APK:**  
+https://github.com/solgosea/smartxdrip-community-preview/releases/download/v0.2.0-community-preview/smartxdrip-community-preview-v0.2.0-android.apk
 
-Before installing the APK, you can watch the walkthrough videos to see the current preview features:
+## What's New in v0.2.0
 
-**[Watch the main SmartXDrip v0.1.0 walkthrough video on YouTube](https://www.youtube.com/watch?v=UfjxgaeEwZA)**
+- Improved data refresh behavior for xDrip+ Local and Nightscout sources.
+- Added Android Glance widgets for quick glucose viewing.
+- Added a persistent notification preview for always-visible glucose status.
+- Added chart touch inspection to check readings at specific points in time.
+- Improved Home view controls, including glucose unit switching and clearer sync status.
+- Added a local alert engine foundation, disabled by default.
+- Cleaned the public preview scope so unreleased/internal features are not exposed.
 
-**[Watch the SmartXDrip v0.1.0 demo playlist on YouTube](https://www.youtube.com/watch?v=QZl0NSckXYI&list=PLKDhx_9jUu-74px9PGC62dwRQwsXWhLxi)**
+## v0.2.0 Preview
 
-## Download the Android preview
+| Home features | Target range |
+| --- | --- |
+| <img src="docs/assets/release/v0.2.0/home-overview-sync-status.png" alt="SmartXDrip Home overview and sync status" width="360"> | <img src="docs/assets/release/v0.2.0/target-range-settings.png" alt="SmartXDrip target range settings" width="360"> |
 
-The first community preview APK is available here:
+| Widget entry | Configure widgets |
+| --- | --- |
+| <img src="docs/assets/release/v0.2.0/glance-widget-entry.png" alt="SmartXDrip Glance widget entry" width="360"> | <img src="docs/assets/release/v0.2.0/glance-widget-configuration.png" alt="SmartXDrip Glance widget configuration" width="360"> |
 
-**[Download SmartXDrip Community Preview v0.1.0 for Android](https://github.com/solgosea/smartxdrip-community-preview/releases/download/v0.1.0-community-preview/smartxdrip-community-preview-v0.1.0-android.apk)**
+| Add widget | Persistent notification |
+| --- | --- |
+| <img src="docs/assets/release/v0.2.0/android-add-glance-widget.png" alt="Add SmartXDrip Glance widget on Android" width="360"> | <img src="docs/assets/release/v0.2.0/persistent-notification-preview.png" alt="SmartXDrip persistent notification preview" width="360"> |
 
-This is an early community preview for feedback and discussion. Please keep using your existing xDrip+, Nightscout, CGM manufacturer app, alert, and diabetes management workflows.
+## Demo
 
-Useful links:
+**Demo video:**  
+https://www.youtube.com/watch?v=UfjxgaeEwZA
 
-- **Release page:** [v0.1.0-community-preview](https://github.com/solgosea/smartxdrip-community-preview/releases/tag/v0.1.0-community-preview)
-- **Documentation:** [https://solgosea.github.io/smartxdrip-docs/](https://solgosea.github.io/smartxdrip-docs/)
+**Playlist:**  
+https://www.youtube.com/watch?v=QZl0NSckXYI&list=PLKDhx_9jUu-74px9PGC62dwRQwsXWhLxi
 
-## First public scope
+## Current Preview Scope
 
-This community preview currently focuses on:
+- Home view with current glucose, trend, range, TIR, and quick insights.
+- History view with daily review and high/low episode entry points.
+- Stats view for TIR, variability, AGP-style overview, and summary metrics.
+- Insights view for readable glucose pattern summaries.
+- High Episode and Low Episode analysis.
+- xDrip+ Local and Nightscout data source setup.
+- Background sync foundation for keeping data fresh.
+- Local alert engine for glucose-related reminders.
+- Glance Layer: Android widgets and persistent notification preview.
+- Chart touch inspection for checking the reading at a specific point.
 
-- **Home** - current glucose, trend, Time in Range, recent curve, insight banner, and sync status
-- **Insights** - plain-language daily and weekly review prompts
-- **History** - day-by-day CGM review with high and low event entry points
-- **High Episode** - focused review of a sustained high glucose event
-- **Low Episode** - focused review of a sustained low glucose event
-- **Stats** - Time in Range, average glucose, variability, AGP, and range breakdown
-- **Data Source** - xDrip+ Local on Android and Nightscout API
-- **Background Sync** - Android-first sync runtime and source health tasks
-- **Settings** - display, target range, storage, sync, and app information
-- **Alerting Core** - local glucose reminder rules, notification, sound, vibration, and snooze foundations
+More features will be added step by step based on community feedback.
 
-This preview intentionally keeps the first public feature set focused. Future features should be shaped step by step based on community feedback and real user needs.
+## Privacy
 
-## Preview Screens
+- No account is required.
+- Glucose data is stored locally on the device.
+- Network calls are made only to data sources you configure, such as xDrip+
+  Local or your own Nightscout site.
+- This repository does not include telemetry or advertising SDKs.
 
-<table>
-  <tr>
-    <td align="center"><strong>Home</strong></td>
-    <td align="center"><strong>History</strong></td>
-    <td align="center"><strong>Stats</strong></td>
-  </tr>
-  <tr>
-    <td><img src="docs/assets/screenshots/home-hero.png" width="220" alt="Home screen preview"></td>
-    <td><img src="docs/assets/screenshots/history-hero.png" width="220" alt="History screen preview"></td>
-    <td><img src="docs/assets/screenshots/stats-hero.png" width="220" alt="Stats screen preview"></td>
-  </tr>
-</table>
+## Medical Disclaimer
 
-<table>
-  <tr>
-    <td align="center"><strong>Insights</strong></td>
-    <td align="center"><strong>High Episode</strong></td>
-    <td align="center"><strong>Low Episode</strong></td>
-  </tr>
-  <tr>
-    <td><img src="docs/assets/screenshots/insights-hero.png" width="220" alt="Insights screen preview"></td>
-    <td><img src="docs/assets/screenshots/high-episode-hero.png" width="220" alt="High Episode screen preview"></td>
-    <td><img src="docs/assets/screenshots/low-episode-hero.png" width="220" alt="Low Episode screen preview"></td>
-  </tr>
-</table>
+SmartXDrip is not a medical device. It is for personal data review, education,
+and community feedback. Do not make treatment decisions based only on this app.
+Always follow your care plan and consult qualified healthcare professionals.
 
-## Why this exists
-
-[xDrip+](https://github.com/NightscoutFoundation/xDrip) and [Nightscout](https://nightscout.github.io/) have created a strong foundation for CGM users: data collection, device workflows, alerts, uploads, sharing, and user-controlled access to glucose data.
-
-SmartXDrip starts from respect for that foundation. The goal is to explore a companion workspace that helps users review and interpret the CGM data they already collect.
-
-The app is designed to help answer:
-
-- What is happening with my glucose right now?
-- What happened on a difficult day?
-- Which high or low event deserves closer review?
-- Are Time in Range, average glucose, and variability changing?
-- Are there repeated patterns worth noticing?
-- Is my data source fresh and still syncing?
-
-## Data Sources
-
-SmartXDrip can read from:
-
-- **xDrip+ Local Web Service** on Android
-- **Nightscout API** through a user-provided URL and readable token
-
-SmartXDrip does not read CGM sensors directly. xDrip+ or Nightscout remains the source of truth.
-
-If a Nightscout URL has no scheme, SmartXDrip normalizes it automatically. Public hosts default to `https://`; local and private network hosts default to `http://`.
-
-## Platform Status
-
-This preview is Android-first.
-
-- Android supports xDrip+ Local, Nightscout, local storage, foreground/background sync foundations, and Alerting Core experiments.
-- iOS is a planned Nightscout-first direction. The UI and analysis layers are largely portable, but iOS background sync and helper alerts need a dedicated design because iOS controls background execution differently from Android.
-
-## What this is not
-
-SmartXDrip is not intended to:
-
-- Replace [xDrip+](https://github.com/NightscoutFoundation/xDrip)
-- Replace [Nightscout](https://nightscout.github.io/)
-- Read CGM sensors directly
-- Replace existing alert and safety workflows
-- Make treatment recommendations
-- Provide medical advice
-
-SmartXDrip should work alongside the existing tools users already trust, not ask users to move away from them.
-
-## Repository Scope
-
-This repository contains the SmartXDrip community preview source code.
-
-It includes the first public Flutter app scope, plugin architecture, local analysis code, data source integration, background sync foundations, Alerting Core foundations, tests, and supporting documentation.
-
-It does not include unrelated internal prototype modules that are outside the first public preview.
-
-## Running Locally
+## Development
 
 ```bash
 flutter pub get
 flutter run -d android
 ```
 
-For web preview during development:
-
-```bash
-flutter run -d chrome
-```
-
-## xDrip+ Local Setup
-
-In xDrip+ on Android:
-
-1. Open Settings.
-2. Enable the local Web Service.
-3. Configure an API secret if your setup requires one.
-4. Use the local xDrip+ URL in SmartXDrip.
-
-## Nightscout Setup
-
-In SmartXDrip:
-
-1. Open Profile.
-2. Configure Nightscout as a data source.
-3. Enter your Nightscout site URL and readable token.
-
-## Testing
-
-```bash
-flutter test
-flutter analyze
-```
-
-## Privacy
-
-- No SmartXDrip-operated glucose data cloud in this preview.
-- No required account.
-- Glucose data is stored locally.
-- Outbound calls are made only to user-configured xDrip+ or Nightscout sources.
-- API secrets are stored through secure platform storage.
-
-## Feedback Wanted
-
-The first public review focuses on:
-
-- Whether this companion workflow feels useful to xDrip+ and Nightscout users
-- Whether Home, Insights, History, Episode Detail, and Stats are the right starting point
-- Which alerting and sync behavior users would expect from a companion app
-- Which details feel useful, confusing, or unnecessary
-- Where SmartXDrip should stop so it does not duplicate existing tools
-
-Join the discussion:
-
-- [What would you want to see first when opening a CGM review app?](https://github.com/solgosea/smartxdrip-docs/discussions/1)
-- [How do you review a difficult CGM day after it happens?](https://github.com/solgosea/smartxdrip-docs/discussions/2)
-- [Which CGM statistics actually help you understand your patterns?](https://github.com/solgosea/smartxdrip-docs/discussions/3)
-
-## Medical Disclaimer
-
-SmartXDrip is a personal data review tool, not a medical device. It does not diagnose, treat, cure, or prevent disease. It does not provide medical advice.
-
-Do not make treatment, medication, or dietary decisions based solely on information shown by the app. Always consult a qualified healthcare professional.
+This public preview is Android-first.

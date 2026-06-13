@@ -15,11 +15,8 @@ class DailySummaryModule implements AnalysisModule<List<DailyGlucoseSummary>> {
   Future<List<DailyGlucoseSummary>> run(AnalysisContext context) async {
     final byDay = <DateTime, List<GlucoseReading>>{};
     for (final r in context.readings) {
-      final day = DateTime(
-        r.timestamp.year,
-        r.timestamp.month,
-        r.timestamp.day,
-      );
+      final day =
+          DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day);
       byDay.putIfAbsent(day, () => []).add(r);
     }
 
@@ -34,20 +31,18 @@ class DailySummaryModule implements AnalysisModule<List<DailyGlucoseSummary>> {
         high: context.settings.highThreshold,
         veryHigh: context.settings.veryHighThreshold,
       );
-      result.add(
-        DailyGlucoseSummary(
-          day: entry.key,
-          readingCount: rows.length,
-          tir: tir.tir,
-          tar: tir.tar,
-          tbr: tir.tbr,
-          mean: tir.mean,
-          cv: tir.cv,
-          minValue: _min(rows),
-          maxValue: _max(rows),
-          firstReadingValue: rows.first.value,
-        ),
-      );
+      result.add(DailyGlucoseSummary(
+        day: entry.key,
+        readingCount: rows.length,
+        tir: tir.tir,
+        tar: tir.tar,
+        tbr: tir.tbr,
+        mean: tir.mean,
+        cv: tir.cv,
+        minValue: _min(rows),
+        maxValue: _max(rows),
+        firstReadingValue: rows.first.value,
+      ));
     }
     result.sort((a, b) => a.day.compareTo(b.day));
     return result;

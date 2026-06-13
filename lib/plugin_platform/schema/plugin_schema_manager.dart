@@ -19,10 +19,8 @@ class PluginSchemaManager {
     final database = await databaseProvider();
     await versionStore.ensureInitialized(database);
     for (final contributor in registry.contributors) {
-      final currentVersion = await versionStore.versionFor(
-        database,
-        contributor.pluginId,
-      );
+      final currentVersion =
+          await versionStore.versionFor(database, contributor.pluginId);
       final targetVersion = contributor.schemaVersion;
       if (currentVersion == targetVersion) continue;
       if (currentVersion > targetVersion) continue;

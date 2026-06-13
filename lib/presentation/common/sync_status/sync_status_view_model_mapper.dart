@@ -1,4 +1,5 @@
 import 'package:smart_xdrip/application/sync_status/sync_status_formatter.dart';
+import 'package:smart_xdrip/application/sync_runtime/sync_runtime_status.dart';
 import 'package:smart_xdrip/domain/sync_status/sync_status_level.dart';
 import 'package:smart_xdrip/domain/sync_status/sync_status_snapshot.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
@@ -13,11 +14,15 @@ class SyncStatusViewModelMapper {
     this.formatter = const SyncStatusFormatter(),
   });
 
-  SyncStatusViewModel map(SyncStatusSnapshot snapshot) {
+  SyncStatusViewModel map(
+    SyncStatusSnapshot snapshot, {
+    SyncRuntimeStatus? runtimeStatus,
+  }) {
     final color = switch (snapshot.level) {
       SyncStatusLevel.fresh => AppColors.green,
       SyncStatusLevel.waitingFirstSync ||
-      SyncStatusLevel.stale => AppColors.amber,
+      SyncStatusLevel.stale =>
+        AppColors.amber,
       SyncStatusLevel.failed => AppColors.rose,
       SyncStatusLevel.inactive => AppColors.textDim,
     };
@@ -28,17 +33,54 @@ class SyncStatusViewModelMapper {
       label: label,
       title: _title(snapshot),
       detail: _detail(snapshot, label, countdownLabel),
-      semanticLabel: '$label. $countdownLabel',
+      semanticLabel: '$label. ${_syncCountLabel(snapshot)}. $countdownLabel',
       color: color,
-      pulsing:
-          snapshot.level == SyncStatusLevel.fresh ||
+      pulsing: snapshot.level == SyncStatusLevel.fresh ||
           snapshot.level == SyncStatusLevel.waitingFirstSync,
       icon: _icon(snapshot.level),
       nextSyncAt: schedule?.nextSyncAt,
       countdownLabel: countdownLabel,
+      syncCountLabel: _syncCountLabel(snapshot),
       scheduleEstimated: schedule?.estimated ?? false,
       scheduleActive: schedule?.active ?? false,
+      display: snapshot.active,
+      runtimeLimitationText: _runtimeLimitationText(snapshot, runtimeStatus),
+      lastForegroundReconcileAt: runtimeStatus?.lastForegroundReconcileAt,
+      lastForegroundReconcileLabel:
+          _foregroundLabel(runtimeStatus?.lastForegroundReconcileAt),
     );
+  }
+
+  String _foregroundLabel(DateTime? at) {
+    if (at == null) return '';
+    final elapsed = DateTime.now().difference(at);
+    if (elapsed.inSeconds < 60) return 'Foreground refresh just now';
+    if (elapsed.inMinutes < 60) {
+      return 'Foreground refresh ${elapsed.inMinutes}m ago';
+    }
+    return 'Foreground refresh ${elapsed.inHours}h ago';
+  }
+
+  String _runtimeLimitationText(
+    SyncStatusSnapshot snapshot,
+    SyncRuntimeStatus? status,
+  ) {
+    if (!snapshot.active) return '';
+    if (status == null) return '';
+    if (status.supportsReliableBackgroundSync) return '';
+    if (status.message.toLowerCase().contains('available but idle')) return '';
+    return status.message;
+  }
+
+  String _syncCountLabel(SyncStatusSnapshot snapshot) {
+    if (snapshot.level == SyncStatusLevel.inactive ||
+        snapshot.level == SyncStatusLevel.waitingFirstSync) {
+      return '';
+    }
+    final count = snapshot.lastStoredCount;
+    if (count == null) return '';
+    if (count <= 0) return '0 new';
+    return count == 1 ? '1 new' : '$count new';
   }
 
   String _title(SyncStatusSnapshot snapshot) {

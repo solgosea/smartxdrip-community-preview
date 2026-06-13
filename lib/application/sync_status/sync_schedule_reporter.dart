@@ -7,8 +7,10 @@ class SyncScheduleReporter {
   final SyncScheduleStore store;
   final DateTime Function() now;
 
-  const SyncScheduleReporter({required this.store, DateTime Function()? now})
-    : now = now ?? DateTime.now;
+  const SyncScheduleReporter({
+    required this.store,
+    DateTime Function()? now,
+  }) : now = now ?? DateTime.now;
 
   void reportDecision({
     required PollingDecision decision,

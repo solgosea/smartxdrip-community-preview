@@ -8,7 +8,11 @@ class BottomNavShell extends StatelessWidget {
   final StatefulNavigationShell shell;
   final List<MainTabPluginEntry> tabs;
 
-  const BottomNavShell({super.key, required this.shell, required this.tabs});
+  const BottomNavShell({
+    super.key,
+    required this.shell,
+    required this.tabs,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +27,9 @@ class BottomNavShell extends StatelessWidget {
           selectedItemColor: AppColors.green,
           unselectedItemColor: AppColors.textDim,
           selectedLabelStyle: const TextStyle(
-            fontFamily: 'JetBrainsMono',
-            fontSize: 9,
-            letterSpacing: 0.8,
-          ),
+              fontFamily: 'JetBrainsMono', fontSize: 9, letterSpacing: 0.8),
           unselectedLabelStyle: const TextStyle(
-            fontFamily: 'JetBrainsMono',
-            fontSize: 9,
-            letterSpacing: 0.8,
-          ),
+              fontFamily: 'JetBrainsMono', fontSize: 9, letterSpacing: 0.8),
           elevation: 0,
           items: [
             for (final tab in tabs)

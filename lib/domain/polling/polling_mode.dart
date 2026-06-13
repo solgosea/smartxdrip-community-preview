@@ -1,1 +1,4 @@
-enum PollingMode { foreground, background }
+enum PollingMode {
+  foreground,
+  background,
+}

@@ -5,7 +5,9 @@ import '../ingress/alert_ingress.dart';
 class AlertIngressSourceSink implements AlertSourceSink {
   final AlertIngress ingress;
 
-  const AlertIngressSourceSink({required this.ingress});
+  const AlertIngressSourceSink({
+    required this.ingress,
+  });
 
   @override
   Future<void> ingest(AlertInput input) {
@@ -19,8 +21,7 @@ class AlertIngressSourceSink implements AlertSourceSink {
       alertType: input.alertType,
       priority: input.priority,
       payload: input.payload,
-      dedupeKey:
-          input.dedupeKey ??
+      dedupeKey: input.dedupeKey ??
           [
             input.sourceId.value,
             input.messageType,

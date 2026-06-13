@@ -41,19 +41,21 @@ class GlucoseEtlPipeline {
       canonical.putIfAbsent(candidate.bucketMs, () => []).add(candidate);
     }
 
-    final winners =
-        canonical.entries
-            .map(
-              (entry) => mergePolicy.choose(
-                bucketMs: entry.key,
-                candidates: entry.value,
-                now: now,
-              ),
-            )
-            .toList()
-          ..sort((a, b) => a.bucketMs.compareTo(b.bucketMs));
+    final winners = canonical.entries
+        .map(
+          (entry) => mergePolicy.choose(
+            bucketMs: entry.key,
+            candidates: entry.value,
+            now: now,
+          ),
+        )
+        .toList()
+      ..sort((a, b) => a.bucketMs.compareTo(b.bucketMs));
 
     await database.upsertCanonicalReadings(winners, subjectId: subjectId);
-    return GlucoseEtlResult(rawReadings: raw, canonicalReadings: winners);
+    return GlucoseEtlResult(
+      rawReadings: raw,
+      canonicalReadings: winners,
+    );
   }
 }

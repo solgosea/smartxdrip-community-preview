@@ -3,12 +3,12 @@ import '../../domain/entities/glucose_reading.dart';
 import '../../domain/glucose_trend/glucose_trend_enrichment_service.dart';
 import '../../domain/glucose_trend/glucose_trend_sample.dart';
 import '../../domain/sources/i_glucose_source.dart';
+import 'glucose_source_http_result.dart';
 
-/// Nightscout REST API source for reading glucose data uploaded by
+/// Nightscout REST API source — for reading glucose data uploaded by
 /// xDrip+ / xDrip4iOS / Loop / etc. to a user-hosted Nightscout instance.
 ///
-/// Works on both Android and iOS (cross-platform fallback when local
-/// xDrip+ HTTP isn't available).
+/// Works on both Android and iOS.
 ///
 /// Auth: Nightscout uses either ?token=<readable_token> query param
 /// or api-secret header (SHA1 of API_SECRET).
@@ -17,8 +17,11 @@ class NightscoutApiSource implements IGlucoseSource {
   final String? token;
   final Dio _dio;
 
-  NightscoutApiSource({required this.baseUrl, this.token, Dio? dio})
-    : _dio = dio ?? Dio() {
+  NightscoutApiSource({
+    required this.baseUrl,
+    this.token,
+    Dio? dio,
+  }) : _dio = dio ?? Dio() {
     _dio.options.baseUrl = baseUrl;
     _dio.options.connectTimeout = const Duration(seconds: 8);
     _dio.options.receiveTimeout = const Duration(seconds: 15);
@@ -38,6 +41,30 @@ class NightscoutApiSource implements IGlucoseSource {
       return r.statusCode == 200;
     } catch (_) {
       return false;
+    }
+  }
+
+  Future<GlucoseSourceHttpResult> jsonGet(
+    String path, {
+    Map<String, Object?>? queryParameters,
+  }) async {
+    final started = DateTime.now();
+    try {
+      final response = await _dio.get(path, queryParameters: queryParameters);
+      return GlucoseSourceHttpResult(
+        reachable: response.statusCode != null &&
+            response.statusCode! >= 200 &&
+            response.statusCode! < 500,
+        statusCode: response.statusCode,
+        elapsed: DateTime.now().difference(started),
+        data: response.data,
+      );
+    } catch (error) {
+      return GlucoseSourceHttpResult(
+        reachable: false,
+        elapsed: DateTime.now().difference(started),
+        error: error,
+      );
     }
   }
 

@@ -40,12 +40,9 @@ class AlertEventPayloadCodec {
       state: AlertEventState.fromCode(_string(json['state']) ?? ''),
       title: _string(json['title']) ?? '',
       body: _string(json['body']) ?? '',
-      payload:
-          nestedPayload is Map
-              ? nestedPayload.map(
-                (key, value) => MapEntry(key.toString(), value),
-              )
-              : const {},
+      payload: nestedPayload is Map
+          ? nestedPayload.map((key, value) => MapEntry(key.toString(), value))
+          : const {},
       occurredAt: _time(json['occurredAtMs']) ?? DateTime.now(),
       receivedAt: _time(json['receivedAtMs']) ?? DateTime.now(),
       updatedAt: _time(json['updatedAtMs']) ?? DateTime.now(),

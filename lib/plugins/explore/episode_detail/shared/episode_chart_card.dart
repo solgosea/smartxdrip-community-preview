@@ -5,15 +5,7 @@ import '../../../../../domain/entities/glucose_reading.dart';
 import '../../../../presentation/common/widgets/charts/glucose_line_chart.dart';
 
 /// Card wrapping the GlucoseLineChart for an episode page.
-///
-/// Renders the section label inside the card (matches HTML's "sc-label inside
-/// the card" convention used on the Stats page) and feeds three event markers
-/// to the chart: onset (amber), peak/nadir (theme color), recovery (green).
-///
-/// `peakOrNadirTime` is computed by the caller from the readings window
-/// (argmax / argmin around the episode window). The shared widget does not
-/// touch the GlucoseEvent entity to keep the engine layer untouched.
-class EpisodeChartCard extends StatelessWidget {
+class EpisodeChartCard extends StatefulWidget {
   final List<GlucoseReading> readings;
   final GlucoseUnit unit;
   final double lowThreshold;
@@ -21,6 +13,8 @@ class EpisodeChartCard extends StatelessWidget {
   final DateTime onsetTime;
   final DateTime peakOrNadirTime;
   final DateTime? recoveryTime;
+  final DateTime timeRangeStart;
+  final DateTime timeRangeEnd;
   final Color themeColor; // rose for high, blue for low
   final ChartEpisode? episode; // tinted segment for the episode duration
 
@@ -32,18 +26,27 @@ class EpisodeChartCard extends StatelessWidget {
     required this.highThreshold,
     required this.onsetTime,
     required this.peakOrNadirTime,
+    required this.timeRangeStart,
+    required this.timeRangeEnd,
     required this.themeColor,
     this.recoveryTime,
     this.episode,
   });
 
   @override
+  State<EpisodeChartCard> createState() => _EpisodeChartCardState();
+}
+
+class _EpisodeChartCardState extends State<EpisodeChartCard> {
+  bool _inspecting = false;
+
+  @override
   Widget build(BuildContext context) {
     final markers = <ChartEventMarker>[
-      ChartEventMarker(time: onsetTime, color: AppColors.amber),
-      ChartEventMarker(time: peakOrNadirTime, color: themeColor),
-      if (recoveryTime != null)
-        ChartEventMarker(time: recoveryTime!, color: AppColors.green),
+      ChartEventMarker(time: widget.onsetTime, color: AppColors.amber),
+      ChartEventMarker(time: widget.peakOrNadirTime, color: widget.themeColor),
+      if (widget.recoveryTime != null)
+        ChartEventMarker(time: widget.recoveryTime!, color: AppColors.green),
     ];
 
     return Container(
@@ -57,27 +60,38 @@ class EpisodeChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'EPISODE TIMELINE',
-            style: TextStyle(
-              fontFamily: 'JetBrainsMono',
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textDim,
-              letterSpacing: 1.4,
+          AnimatedOpacity(
+            opacity: _inspecting ? 0.48 : 1,
+            duration: const Duration(milliseconds: 140),
+            child: const Text(
+              'EPISODE TIMELINE',
+              style: TextStyle(
+                fontFamily: 'JetBrainsMono',
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textDim,
+                letterSpacing: 1.4,
+              ),
             ),
           ),
           const SizedBox(height: 10),
           GlucoseLineChart(
-            readings: readings,
-            unit: unit,
-            low: lowThreshold,
-            high: highThreshold,
+            readings: widget.readings,
+            unit: widget.unit,
+            low: widget.lowThreshold,
+            high: widget.highThreshold,
+            timeRangeStart: widget.timeRangeStart,
+            timeRangeEnd: widget.timeRangeEnd,
             height: 180,
             showCurrentDot: false,
+            enableInspection: true,
+            onInspectionChanged: (value) {
+              if (!mounted || _inspecting == value) return;
+              setState(() => _inspecting = value);
+            },
             thresholdLineMode: ThresholdLineMode.colored,
             showMidYLabel: true,
-            episodes: episode != null ? [episode!] : const [],
+            episodes: widget.episode != null ? [widget.episode!] : const [],
             markers: markers,
             coloringMode: ChartColoringMode.byEpisode,
           ),

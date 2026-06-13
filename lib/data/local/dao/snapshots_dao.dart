@@ -45,10 +45,9 @@ class SnapshotsDao {
     String subjectId = GlucoseSubject.selfId,
   }) async {
     final database = await _db();
-    final where =
-        moduleCode == null
-            ? 'subject_id = ?'
-            : 'subject_id = ? AND module_code = ?';
+    final where = moduleCode == null
+        ? 'subject_id = ?'
+        : 'subject_id = ? AND module_code = ?';
     final whereArgs =
         moduleCode == null ? [subjectId] : [subjectId, moduleCode];
     final rows = await database.query(
@@ -62,18 +61,14 @@ class SnapshotsDao {
     final row = rows.first;
     return JsonSnapshot(
       key: row['snapshot_key'] as String,
-      windowStart: DateTime.fromMillisecondsSinceEpoch(
-        row['window_start_ms'] as int,
-      ),
-      windowEnd: DateTime.fromMillisecondsSinceEpoch(
-        row['window_end_ms'] as int,
-      ),
-      payload:
-          (jsonDecode(row['payload_json'] as String) as Map)
-              .cast<String, Object?>(),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(
-        row['updated_at_ms'] as int,
-      ),
+      windowStart:
+          DateTime.fromMillisecondsSinceEpoch(row['window_start_ms'] as int),
+      windowEnd:
+          DateTime.fromMillisecondsSinceEpoch(row['window_end_ms'] as int),
+      payload: (jsonDecode(row['payload_json'] as String) as Map)
+          .cast<String, Object?>(),
+      updatedAt:
+          DateTime.fromMillisecondsSinceEpoch(row['updated_at_ms'] as int),
     );
   }
 }

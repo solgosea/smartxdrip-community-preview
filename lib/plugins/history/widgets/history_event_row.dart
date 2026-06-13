@@ -17,12 +17,11 @@ class HistoryEventRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        border:
-            isLast
-                ? null
-                : const Border(
-                  bottom: BorderSide(color: AppColors.border, width: 1),
-                ),
+        border: isLast
+            ? null
+            : const Border(
+                bottom: BorderSide(color: AppColors.border, width: 1),
+              ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +49,11 @@ class HistoryEventRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.center,
-            child: Icon(viewModel.icon, size: 16, color: viewModel.iconColor),
+            child: Icon(
+              viewModel.icon,
+              size: 16,
+              color: viewModel.iconColor,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(

@@ -6,8 +6,9 @@ import '../../domain/polling/polling_context.dart';
 import '../../domain/polling/polling_mode.dart';
 import '../../domain/subject/glucose_subject.dart';
 
-typedef PollingSourceStateLoader =
-    Future<SourceSyncState?> Function(DataSourceKind kind);
+typedef PollingSourceStateLoader = Future<SourceSyncState?> Function(
+  DataSourceKind kind,
+);
 
 class PollingContextBuilder {
   final GlucoseDatabase database;

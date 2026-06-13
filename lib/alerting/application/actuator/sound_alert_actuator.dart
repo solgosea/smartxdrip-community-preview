@@ -7,8 +7,9 @@ import 'alert_actuator.dart';
 class SoundAlertActuator implements AlertActuator {
   final AlertSoundSessionManager sessionManager;
 
-  SoundAlertActuator({AlertSoundSessionManager? sessionManager})
-    : sessionManager = sessionManager ?? AlertSoundSessionManager.shared;
+  SoundAlertActuator({
+    AlertSoundSessionManager? sessionManager,
+  }) : sessionManager = sessionManager ?? AlertSoundSessionManager.shared;
 
   @override
   bool supports(AlertActuatorCommand command) {
@@ -16,7 +17,8 @@ class SoundAlertActuator implements AlertActuator {
       AlertActuatorCommandType.playSound ||
       AlertActuatorCommandType.stopEvent ||
       AlertActuatorCommandType.stopTarget ||
-      AlertActuatorCommandType.stopAll => true,
+      AlertActuatorCommandType.stopAll =>
+        true,
       _ => false,
     };
   }

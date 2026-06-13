@@ -14,7 +14,10 @@ import '../widgets/alert_banner_action_row.dart';
 class AlertOverlayHost extends StatefulWidget {
   final Widget child;
 
-  const AlertOverlayHost({super.key, required this.child});
+  const AlertOverlayHost({
+    super.key,
+    required this.child,
+  });
 
   @override
   State<AlertOverlayHost> createState() => _AlertOverlayHostState();
@@ -67,7 +70,8 @@ class _AlertOverlayHostState extends State<AlertOverlayHost> {
       AlertBannerActionType.acknowledge => AlertAction.acknowledge,
       AlertBannerActionType.dismiss => AlertAction.dismiss,
       AlertBannerActionType.stop ||
-      AlertBannerActionType.openDetail => AlertAction.stop,
+      AlertBannerActionType.openDetail =>
+        AlertAction.stop,
     };
     await context
         .read<AppContainer>()
@@ -123,11 +127,8 @@ class _AlertCard extends StatelessWidget {
                   color: color.withValues(alpha: .16),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  Icons.notifications_active_rounded,
-                  color: color,
-                  size: 18,
-                ),
+                child: Icon(Icons.notifications_active_rounded,
+                    color: color, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(

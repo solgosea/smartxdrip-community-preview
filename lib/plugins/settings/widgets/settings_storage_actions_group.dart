@@ -21,7 +21,10 @@ class SettingsStorageActionsGroup extends StatelessWidget {
     return SettingsGroup(
       children: [
         for (final row in viewModel.rows)
-          SettingsRow(row: row, onTap: _tapFor(row.action)),
+          SettingsRow(
+            row: row,
+            onTap: _tapFor(row.action),
+          ),
       ],
     );
   }

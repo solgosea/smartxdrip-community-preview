@@ -4,7 +4,10 @@ import '../models/history_view_model.dart';
 class HistorySummaryChip extends StatelessWidget {
   final HistorySummaryChipViewModel viewModel;
 
-  const HistorySummaryChip({super.key, required this.viewModel});
+  const HistorySummaryChip({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

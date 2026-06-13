@@ -43,10 +43,9 @@ class InsightFactBuilder {
     final mostStable = _mostStable(periods);
     final weekdayGap = _weekdayGap(snapshot.readings, now, thresholds);
     final events7 = _eventsForLastDays(snapshot.events, 7, now);
-    final highEpisodes =
-        events7
-            .where((event) => event.type == GlucoseEventType.highEpisode)
-            .toList();
+    final highEpisodes = events7
+        .where((event) => event.type == GlucoseEventType.highEpisode)
+        .toList();
 
     final bundles = <InsightFactBundle>[
       _dailyBrief(snapshot, now, settings),
@@ -57,24 +56,20 @@ class InsightFactBuilder {
       bundles.add(_dawnBundle(dawn, settings));
     }
     if (mostVolatile != null) {
-      bundles.add(
-        _periodBundle(
-          mostVolatile,
-          InsightTypeCode.volatilePeriod,
-          settings: settings,
-          priority: 40,
-        ),
-      );
+      bundles.add(_periodBundle(
+        mostVolatile,
+        InsightTypeCode.volatilePeriod,
+        settings: settings,
+        priority: 40,
+      ));
     }
     if (mostStable != null) {
-      bundles.add(
-        _periodBundle(
-          mostStable,
-          InsightTypeCode.stablePeriod,
-          settings: settings,
-          priority: 50,
-        ),
-      );
+      bundles.add(_periodBundle(
+        mostStable,
+        InsightTypeCode.stablePeriod,
+        settings: settings,
+        priority: 50,
+      ));
     }
     if (weekdayGap != null) {
       bundles.add(_weekdayGapBundle(weekdayGap));
@@ -119,31 +114,38 @@ class InsightFactBuilder {
     final displayFacts = templateValueAdapter.displayFactsFor(settings);
     final highThreshold =
         glucoseFormatter.value(settings.highThreshold, settings.unit).value;
+    final facts = <String, Object?>{
+      ...displayFacts,
+      'dayLabel': _dayLabel(targetDay.day, now),
+      'tir': targetDay.tir.toStringAsFixed(0),
+      'tirDeltaPhrase': _deltaPhrase(targetDay.tir - averageTir14),
+      'avgTir14': averageTir14.toStringAsFixed(0),
+      'cv': targetDay.cv.toStringAsFixed(0),
+      'cvDeltaPhrase': _cvPhrase(targetDay.cv - averageCv14),
+      'avgCv14': averageCv14.toStringAsFixed(0),
+      'observedDays14': _observedDays(snapshot.dailySummaries, now, 14),
+    };
+    if (evening != null) {
+      final eveningValue = glucoseFormatter.value(evening.value, settings.unit);
+      facts.addAll({
+        'eveningPeakTime': _formatTime(evening.time),
+        'eveningPeakValue': eveningValue.valueLabel,
+        'eveningAboveTarget':
+            (eveningValue.value - highThreshold).toStringAsFixed(1),
+        'eveningHighMinutes': evening.highMinutes,
+      });
+    }
+    if (night != null) {
+      facts['nightRange'] =
+          glucoseFormatter.range(night.min, night.max, settings.unit).fullLabel;
+    }
 
     return InsightFactBundle(
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.dailyBrief,
       type: InsightTypeCode.dailyCompleteDay,
       priority: 10,
-      facts: {
-        ...displayFacts,
-        'dayLabel': _dayLabel(targetDay.day, now),
-        'tir': targetDay.tir.toStringAsFixed(0),
-        'tirDeltaPhrase': _deltaPhrase(targetDay.tir - averageTir14),
-        'avgTir14': averageTir14.toStringAsFixed(0),
-        'eveningSentence':
-            evening == null
-                ? 'The evening window did not cross the high threshold in the latest complete day.'
-                : 'The evening-window peak at ${_formatTime(evening.time)} reached ${glucoseFormatter.value(evening.value, settings.unit).fullLabel}, ${(glucoseFormatter.value(evening.value, settings.unit).value - highThreshold).toStringAsFixed(1)} above target, lasting about ${evening.highMinutes} min.',
-        'cv': targetDay.cv.toStringAsFixed(0),
-        'cvDeltaPhrase': _cvPhrase(targetDay.cv - averageCv14),
-        'avgCv14': averageCv14.toStringAsFixed(0),
-        'nightSentence':
-            night == null
-                ? 'Night data was not complete enough to summarize.'
-                : 'Night (00:00-06:00) stayed at ${glucoseFormatter.range(night.min, night.max, settings.unit).fullLabel}.',
-        'observedDays14': _observedDays(snapshot.dailySummaries, now, 14),
-      },
+      facts: facts,
     );
   }
 
@@ -160,56 +162,74 @@ class InsightFactBuilder {
     final bestDays = _bestDays(snapshot.dailySummaries, now);
     final longest = _longestHigh(highEpisodes);
 
+    final facts = <String, Object?>{
+      ...templateValueAdapter.displayFactsFor(settings),
+      'weekRange': _formatWeekRange(weekRange.start, weekRange.end),
+      'tir7': tir7.tir.toStringAsFixed(0),
+      'tirDeltaPhrase': _weekDeltaPhrase(delta),
+      'prevTir7': prevTir7.tir.toStringAsFixed(0),
+      'cv7': tir7.cv.toStringAsFixed(0),
+      'readingCount7': tir7.readingCount,
+      'bestDayShort': bestDays.isEmpty ? '--' : bestDays.first,
+      'longestHighValue':
+          longest == null ? '--' : _durationText(longest.durationMinutes),
+      'longestHighLabel': longest == null
+          ? 'Longest high'
+          : 'Longest high - ${_weekdayShort(longest.time.weekday)}',
+      'hasLongestHigh': longest != null,
+    };
+    if (bestDays.isNotEmpty) {
+      facts.addAll({
+        'bestDayNames': _joinDayNames(bestDays),
+        'bestDayVerb': bestDays.length == 1 ? 'was' : 'were',
+        'bestDayNoun': bestDays.length == 1 ? 'day' : 'days',
+      });
+    }
+    if (longest != null) {
+      facts.addAll({
+        'longestHighDay': _weekdayShort(longest.time.weekday),
+        'longestHighStart': _formatTime(longest.time),
+        'longestHighEnd': _formatTime(longest.endTime ?? longest.time),
+        'longestHighPeak': glucoseFormatter
+            .value(longest.peakOrNadir ?? longest.value, settings.unit)
+            .fullLabel,
+      });
+    }
+
     return InsightFactBundle(
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.weeklyReview,
       type: InsightTypeCode.weeklyReview,
       priority: 20,
-      facts: {
-        ...templateValueAdapter.displayFactsFor(settings),
-        'weekRange': _formatWeekRange(weekRange.start, weekRange.end),
-        'tir7': tir7.tir.toStringAsFixed(0),
-        'tirDeltaPhrase': _weekDeltaPhrase(delta),
-        'prevTir7': prevTir7.tir.toStringAsFixed(0),
-        'bestDaySentence':
-            bestDays.isEmpty
-                ? 'No complete daily TIR ranking was available.'
-                : '${_joinDayNames(bestDays)} ${bestDays.length == 1 ? 'was' : 'were'} the best ${bestDays.length == 1 ? 'day' : 'days'} by TIR.',
-        'longestHighSentence':
-            longest == null
-                ? 'No high episode was detected during the reviewed week.'
-                : '${_weekdayShort(longest.time.weekday)} had the longest high episode: ${_formatTime(longest.time)} to ${_formatTime(longest.endTime ?? longest.time)}, peak ${glucoseFormatter.value(longest.peakOrNadir ?? longest.value, settings.unit).fullLabel}.',
-        'cv7': tir7.cv.toStringAsFixed(0),
-        'readingCount7': tir7.readingCount,
-        'bestDayShort': bestDays.isEmpty ? '--' : bestDays.first,
-        'longestHighValue':
-            longest == null ? '--' : _durationText(longest.durationMinutes),
-        'longestHighLabel':
-            longest == null
-                ? 'Longest high'
-                : 'Longest high - ${_weekdayShort(longest.time.weekday)}',
-        'hasLongestHigh': longest != null,
-      },
+      facts: facts,
     );
   }
 
   InsightFactBundle _dawnBundle(_DawnResult dawn, AppSettings settings) {
     final consistent = dawn.consistent;
+    final riseThreshold = glucoseFormatter.value(
+      DawnPhenomenonDetector.significantRiseMmol,
+      settings.unit,
+    );
+    final facts = <String, Object?>{
+      ...templateValueAdapter.displayFactsFor(settings),
+      'dawnTitle':
+          consistent ? 'Dawn phenomenon detected' : 'Pre-dawn rise check',
+      'windowLabel': DawnPhenomenonDetector.windowLabel,
+      'observedMornings': dawn.observedDays,
+      'significantDays': dawn.significantDays,
+      'riseThreshold': riseThreshold.valueLabel,
+    };
+    if (consistent) {
+      facts['averageRise'] =
+          glucoseFormatter.value(dawn.averageRise, settings.unit).valueLabel;
+    }
     return InsightFactBundle(
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.patternCard,
       type: InsightTypeCode.dawnPattern,
       priority: 30,
-      facts: {
-        ...templateValueAdapter.displayFactsFor(settings),
-        'dawnTitle':
-            consistent ? 'Dawn phenomenon detected' : 'Pre-dawn rise check',
-        'dawnBody':
-            consistent
-                ? 'Glucose rises an average of +${glucoseFormatter.value(dawn.averageRise, settings.unit).fullLabel} between 04:00-07:00. This pattern appeared on ${dawn.significantDays} of ${dawn.observedDays} mornings.'
-                : 'The 04:00-07:00 window was measurable on ${dawn.observedDays} mornings, but only ${dawn.significantDays} crossed the rise threshold.',
-        'observedMornings': dawn.observedDays,
-      },
+      facts: facts,
     );
   }
 
@@ -243,10 +263,9 @@ class InsightFactBuilder {
       type: InsightTypeCode.weekdayGap,
       priority: 60,
       facts: {
-        'weekdayGapTitle':
-            gap.weekendLower
-                ? 'Weekends show lower TIR'
-                : 'Weekends show higher TIR',
+        'weekdayGapTitle': gap.weekendLower
+            ? 'Weekends show lower TIR'
+            : 'Weekends show higher TIR',
         'weekendTir': gap.weekendTir.toStringAsFixed(0),
         'weekdayGapDelta': gap.deltaAbs.toStringAsFixed(0),
         'weekdayGapDirection': gap.weekendLower ? 'below' : 'above',
@@ -269,8 +288,7 @@ class InsightFactBuilder {
     final cutoff = now.subtract(Duration(days: days));
     return readings
         .where(
-          (r) => !r.timestamp.isBefore(cutoff) && !r.timestamp.isAfter(now),
-        )
+            (r) => !r.timestamp.isBefore(cutoff) && !r.timestamp.isAfter(now))
         .toList();
   }
 
@@ -299,7 +317,9 @@ class InsightFactBuilder {
   _DawnResult _dawn(List<GlucoseReading> readings) {
     final rises = DawnPhenomenonDetector.detectDailyRises(readings);
     if (rises.isEmpty) return const _DawnResult(false, 0, 0, 0);
-    final significant = rises.where((rise) => rise >= 1.2).length;
+    final significant = rises
+        .where((rise) => rise >= DawnPhenomenonDetector.significantRiseMmol)
+        .length;
     final required = (rises.length * 0.65).ceil().clamp(2, 10).toInt();
     final avg = rises.reduce((a, b) => a + b) / rises.length;
     return _DawnResult(significant >= required, avg, significant, rises.length);
@@ -317,19 +337,20 @@ class InsightFactBuilder {
     ];
     final result = <_PeriodResult>[];
     for (final period in periods) {
-      final rows =
-          readings
-              .where(
-                (reading) =>
-                    reading.timestamp.hour >= period.startHour &&
-                    reading.timestamp.hour < period.endHour,
-              )
-              .toList();
+      final rows = readings
+          .where((reading) =>
+              reading.timestamp.hour >= period.startHour &&
+              reading.timestamp.hour < period.endHour)
+          .toList();
       if (rows.length < 12) continue;
       final tir = _tir(rows, thresholds);
-      result.add(
-        _PeriodResult(period.label, rows.length, tir.tir, tir.mean, tir.cv),
-      );
+      result.add(_PeriodResult(
+        period.label,
+        rows.length,
+        tir.tir,
+        tir.mean,
+        tir.cv,
+      ));
     }
     return result;
   }
@@ -385,9 +406,10 @@ class InsightFactBuilder {
   ) {
     if (daily.isEmpty) return null;
     final today = DateTime(now.year, now.month, now.day);
-    final complete =
-        daily.where((summary) => summary.day.isBefore(today)).toList()
-          ..sort((a, b) => b.day.compareTo(a.day));
+    final complete = daily
+        .where((summary) => summary.day.isBefore(today))
+        .toList()
+      ..sort((a, b) => b.day.compareTo(a.day));
     return complete.isNotEmpty ? complete.first : daily.last;
   }
 
@@ -397,8 +419,7 @@ class InsightFactBuilder {
     int days,
   ) {
     return _average(
-      _recentDaily(daily, now, days).map((summary) => summary.tir),
-    );
+        _recentDaily(daily, now, days).map((summary) => summary.tir));
   }
 
   double _averageDailyCv(
@@ -407,8 +428,7 @@ class InsightFactBuilder {
     int days,
   ) {
     return _average(
-      _recentDaily(daily, now, days).map((summary) => summary.cv),
-    );
+        _recentDaily(daily, now, days).map((summary) => summary.cv));
   }
 
   List<DailyGlucoseSummary> _recentDaily(
@@ -416,33 +436,27 @@ class InsightFactBuilder {
     DateTime now,
     int days,
   ) {
-    final cutoff = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).subtract(Duration(days: days));
+    final cutoff =
+        DateTime(now.year, now.month, now.day).subtract(Duration(days: days));
     return daily.where((summary) => !summary.day.isBefore(cutoff)).toList();
   }
 
   ({DateTime time, double value, double aboveTarget, int highMinutes})?
-  _eveningPeak(
+      _eveningPeak(
     List<GlucoseReading> readings,
     GlucoseThresholdContext thresholds,
   ) {
-    final evening =
-        readings
-            .where(
-              (reading) =>
-                  reading.timestamp.hour >= 18 && reading.timestamp.hour < 24,
-            )
-            .toList();
+    final evening = readings
+        .where((reading) =>
+            reading.timestamp.hour >= 18 && reading.timestamp.hour < 24)
+        .toList();
     if (evening.isEmpty) return null;
     final peak = evening.reduce((a, b) => a.value > b.value ? a : b);
     if (peak.value <= thresholds.high) return null;
     final sampleMinutes = _sampleMinutes(evening);
     final highMinutes =
         evening.where((reading) => reading.value > thresholds.high).length *
-        sampleMinutes;
+            sampleMinutes;
     return (
       time: peak.timestamp,
       value: peak.value,
@@ -452,20 +466,15 @@ class InsightFactBuilder {
   }
 
   ({double min, double max})? _nightRange(List<GlucoseReading> readings) {
-    final night =
-        readings
-            .where(
-              (reading) =>
-                  reading.timestamp.hour >= 0 && reading.timestamp.hour < 6,
-            )
-            .toList();
+    final night = readings
+        .where((reading) =>
+            reading.timestamp.hour >= 0 && reading.timestamp.hour < 6)
+        .toList();
     if (night.isEmpty) return null;
-    final min = night
-        .map((reading) => reading.value)
-        .reduce((a, b) => a < b ? a : b);
-    final max = night
-        .map((reading) => reading.value)
-        .reduce((a, b) => a > b ? a : b);
+    final min =
+        night.map((reading) => reading.value).reduce((a, b) => a < b ? a : b);
+    final max =
+        night.map((reading) => reading.value).reduce((a, b) => a > b ? a : b);
     return (min: min, max: max);
   }
 
@@ -485,14 +494,12 @@ class InsightFactBuilder {
   }
 
   List<String> _bestDays(List<DailyGlucoseSummary> daily, DateTime now) {
-    final cutoff = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).subtract(const Duration(days: 7));
-    final recent =
-        daily.where((summary) => !summary.day.isBefore(cutoff)).toList()
-          ..sort((a, b) => b.tir.compareTo(a.tir));
+    final cutoff = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 7));
+    final recent = daily
+        .where((summary) => !summary.day.isBefore(cutoff))
+        .toList()
+      ..sort((a, b) => b.tir.compareTo(a.tir));
     return recent
         .take(2)
         .map<String>((summary) => _weekdayShort(summary.day.weekday))

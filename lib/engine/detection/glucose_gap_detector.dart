@@ -22,8 +22,7 @@ class GlucoseGapDetector {
       if (minutes <= threshold) continue;
       gaps.add(
         GlucoseGap(
-          id:
-              '${previous.timestamp.millisecondsSinceEpoch}_${current.timestamp.millisecondsSinceEpoch}',
+          id: '${previous.timestamp.millisecondsSinceEpoch}_${current.timestamp.millisecondsSinceEpoch}',
           start: previous.timestamp,
           end: current.timestamp,
           durationMinutes: minutes,

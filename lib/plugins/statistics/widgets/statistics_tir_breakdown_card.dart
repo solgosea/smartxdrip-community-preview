@@ -8,7 +8,10 @@ import 'statistics_section_card.dart';
 class StatisticsTirBreakdownCard extends StatelessWidget {
   final StatisticsTirBreakdownViewModel viewModel;
 
-  const StatisticsTirBreakdownCard({super.key, required this.viewModel});
+  const StatisticsTirBreakdownCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

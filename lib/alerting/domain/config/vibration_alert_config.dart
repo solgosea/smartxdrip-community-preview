@@ -21,11 +21,11 @@ class VibrationAlertConfig implements AlertStrategyConfig {
 
   @override
   Map<String, Object?> toJson() => {
-    'enabled': enabled,
-    'criticalPattern': criticalPattern.toJson(),
-    'warningPattern': warningPattern.toJson(),
-    'repeatCritical': repeatCritical,
-  };
+        'enabled': enabled,
+        'criticalPattern': criticalPattern.toJson(),
+        'warningPattern': warningPattern.toJson(),
+        'repeatCritical': repeatCritical,
+      };
 
   static VibrationAlertConfig fromJson(Map<String, Object?> json) {
     return VibrationAlertConfig(

@@ -10,8 +10,13 @@ class SyncStatusViewModel {
   final IconData icon;
   final DateTime? nextSyncAt;
   final String countdownLabel;
+  final String syncCountLabel;
   final bool scheduleEstimated;
   final bool scheduleActive;
+  final bool display;
+  final String runtimeLimitationText;
+  final DateTime? lastForegroundReconcileAt;
+  final String lastForegroundReconcileLabel;
 
   const SyncStatusViewModel({
     required this.label,
@@ -23,7 +28,12 @@ class SyncStatusViewModel {
     this.icon = Icons.sync_rounded,
     this.nextSyncAt,
     this.countdownLabel = '',
+    this.syncCountLabel = '',
     this.scheduleEstimated = false,
     this.scheduleActive = false,
+    this.display = true,
+    this.runtimeLimitationText = '',
+    this.lastForegroundReconcileAt,
+    this.lastForegroundReconcileLabel = '',
   });
 }

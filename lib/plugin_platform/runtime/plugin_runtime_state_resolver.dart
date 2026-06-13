@@ -26,9 +26,8 @@ class PluginRuntimeStateResolver {
         reason: capability.reason,
       );
     }
-    if (plugin.dataRequirements.contains(
-          PluginDataRequirement.glucoseReadings,
-        ) &&
+    if (plugin.dataRequirements
+            .contains(PluginDataRequirement.glucoseReadings) &&
         !context.hasGlucoseData) {
       return _noData(plugin, 'No glucose data available yet');
     }
@@ -36,15 +35,13 @@ class PluginRuntimeStateResolver {
         !context.hasGlucoseEvents) {
       return _noData(plugin, 'No glucose events available yet');
     }
-    if (plugin.dataRequirements.contains(
-          PluginDataRequirement.dailySummaries,
-        ) &&
+    if (plugin.dataRequirements
+            .contains(PluginDataRequirement.dailySummaries) &&
         !context.hasDailySummaries) {
       return _noData(plugin, 'No daily summaries available yet');
     }
-    if (plugin.dataRequirements.contains(
-          PluginDataRequirement.periodSummaries,
-        ) &&
+    if (plugin.dataRequirements
+            .contains(PluginDataRequirement.periodSummaries) &&
         !context.hasPeriodSummaries) {
       return _noData(plugin, 'No period summaries available yet');
     }
@@ -52,9 +49,8 @@ class PluginRuntimeStateResolver {
         !context.hasGlucoseData) {
       return _noData(plugin, 'No AGP data available yet');
     }
-    if (plugin.dataRequirements.contains(
-          PluginDataRequirement.sourceConnection,
-        ) &&
+    if (plugin.dataRequirements
+            .contains(PluginDataRequirement.sourceConnection) &&
         !context.hasConfiguredSource) {
       return PluginRuntimeState(
         pluginId: plugin.id,

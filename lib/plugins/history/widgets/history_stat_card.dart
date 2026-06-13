@@ -5,7 +5,10 @@ import '../models/history_view_model.dart';
 class HistoryStatCard extends StatelessWidget {
   final HistoryStatCardViewModel viewModel;
 
-  const HistoryStatCard({super.key, required this.viewModel});
+  const HistoryStatCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

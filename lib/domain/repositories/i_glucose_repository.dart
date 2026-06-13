@@ -1,8 +1,7 @@
 import '../entities/glucose_reading.dart';
 import '../entities/glucose_event.dart';
 
-/// Top-level glucose data access. Hides which source (mock/xdrip/nightscout)
-/// is in use and provides analysis-ready windows.
+/// Top-level glucose data access for analysis-ready reading windows.
 abstract class IGlucoseRepository {
   /// Stream of the latest reading (emits when new data arrives).
   Stream<GlucoseReading> get latestStream;
@@ -18,9 +17,6 @@ abstract class IGlucoseRepository {
 
   /// Readings for a specific calendar day.
   Future<List<GlucoseReading>> forDay(DateTime day);
-
-  /// Force refresh from upstream source (network call).
-  Future<void> sync();
 
   /// Auto-detected glucose events for a window.
   Future<List<GlucoseEvent>> eventsFor(List<GlucoseReading> readings);

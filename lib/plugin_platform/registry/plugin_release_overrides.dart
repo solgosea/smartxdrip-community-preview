@@ -8,7 +8,10 @@ class PluginReleaseOverrides {
     Map<String, PluginReleaseStage> stages = const {},
   }) : _stages = stages;
 
-  PluginReleaseStage stageFor(PluginId id, PluginReleaseStage fallback) {
+  PluginReleaseStage stageFor(
+    PluginId id,
+    PluginReleaseStage fallback,
+  ) {
     return _stages[id.value] ?? fallback;
   }
 }

@@ -7,14 +7,18 @@ import 'alert_actuator.dart';
 class NotificationAlertActuator implements AlertActuator {
   final FlutterLocalNotificationGateway gateway;
 
-  const NotificationAlertActuator({required this.gateway});
+  const NotificationAlertActuator({
+    required this.gateway,
+  });
 
   @override
   bool supports(AlertActuatorCommand command) {
     return switch (command.type) {
       AlertActuatorCommandType.showNotification ||
       AlertActuatorCommandType.stopEvent ||
-      AlertActuatorCommandType.stopAll => true,
+      AlertActuatorCommandType.stopTarget ||
+      AlertActuatorCommandType.stopAll =>
+        true,
       _ => false,
     };
   }
@@ -41,6 +45,11 @@ class NotificationAlertActuator implements AlertActuator {
         }
         return const AlertActuatorResult.success(
           message: 'System notification cancelled.',
+        );
+      case AlertActuatorCommandType.stopTarget:
+        await gateway.cancelAll();
+        return const AlertActuatorResult.success(
+          message: 'Target system notifications cancelled.',
         );
       case AlertActuatorCommandType.stopAll:
         await gateway.cancelAll();

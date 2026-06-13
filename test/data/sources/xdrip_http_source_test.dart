@@ -17,34 +17,38 @@ void main() {
       expect(await source.isAvailable(), isTrue);
     });
 
-    test(
-      'loads recent entries sorted oldest to newest and converted to mmol/L',
-      () async {
-        final readings = CgmReadingsFixture.stableDay(
-          start: DateTime(2026, 6, 4, 9),
-          count: 8,
-          value: 7,
-        );
-        final server = MockCgmHttpServer(
-          entries:
-              CgmReadingsFixture.nightscoutEntries(readings).reversed.toList(),
-        );
-        await server.start();
-        addTearDown(server.stop);
+    test('loads recent entries sorted oldest to newest and converted to mmol/L',
+        () async {
+      final readings = CgmReadingsFixture.stableDay(
+        start: DateTime(2026, 6, 4, 9),
+        count: 8,
+        value: 7,
+      );
+      final server = MockCgmHttpServer(
+        entries:
+            CgmReadingsFixture.nightscoutEntries(readings).reversed.toList(),
+      );
+      await server.start();
+      addTearDown(server.stop);
 
-        final source = XdripHttpSource(baseUrl: server.baseUri.toString());
-        final result = await source.recent(count: 3);
+      final source = XdripHttpSource(baseUrl: server.baseUri.toString());
+      final result = await source.recent(count: 3);
 
-        expect(result, hasLength(3));
-        expect(result[0].timestamp.isBefore(result[1].timestamp), isTrue);
-        expect(result.last.value, closeTo(7, 0.08));
-      },
-    );
+      expect(result, hasLength(3));
+      expect(result[0].timestamp.isBefore(result[1].timestamp), isTrue);
+      expect(result.last.value, closeTo(7, 0.08));
+    });
 
     test('enriches readings with adjacent-point trend rate', () async {
       final readings = [
-        GlucoseReading(timestamp: DateTime(2026, 6, 9, 10), value: 6.4),
-        GlucoseReading(timestamp: DateTime(2026, 6, 9, 10, 5), value: 5.8),
+        GlucoseReading(
+          timestamp: DateTime(2026, 6, 9, 10),
+          value: 6.4,
+        ),
+        GlucoseReading(
+          timestamp: DateTime(2026, 6, 9, 10, 5),
+          value: 5.8,
+        ),
       ];
       final server = MockCgmHttpServer(
         entries: CgmReadingsFixture.nightscoutEntries(readings),

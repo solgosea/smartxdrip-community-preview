@@ -57,14 +57,13 @@ class MockCgmHttpServer {
     final gte = int.tryParse(uri.queryParameters['find[date][\$gte]'] ?? '');
     final lte = int.tryParse(uri.queryParameters['find[date][\$lte]'] ?? '');
     final count = int.tryParse(uri.queryParameters['count'] ?? '');
-    var rows =
-        entries.where((entry) {
-          final date = entry['date'];
-          if (date is! num) return false;
-          if (gte != null && date < gte) return false;
-          if (lte != null && date > lte) return false;
-          return true;
-        }).toList();
+    var rows = entries.where((entry) {
+      final date = entry['date'];
+      if (date is! num) return false;
+      if (gte != null && date < gte) return false;
+      if (lte != null && date > lte) return false;
+      return true;
+    }).toList();
     if (count != null && rows.length > count) {
       rows = rows.sublist(rows.length - count);
     }

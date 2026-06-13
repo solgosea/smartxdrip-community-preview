@@ -58,7 +58,10 @@ class AlertSoundSessionManager {
     _sessions.remove(key)?.stop(AlertSoundPlaybackStopReason.stopped);
   }
 
-  void stopTargetType({required String targetId, required String type}) {
+  void stopTargetType({
+    required String targetId,
+    required String type,
+  }) {
     for (final key in sessionKey.targetTypeKeys(
       targetId: targetId,
       type: type,

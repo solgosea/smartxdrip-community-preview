@@ -1,1 +1,7 @@
-enum PluginRuntimeStatus { hidden, available, disabled, noData, missingSource }
+enum PluginRuntimeStatus {
+  hidden,
+  available,
+  disabled,
+  noData,
+  missingSource,
+}

@@ -6,7 +6,10 @@ class AlertRuleEvaluationContext {
   final List<GlucoseReading> readings;
   final DateTime now;
 
-  const AlertRuleEvaluationContext({required this.readings, required this.now});
+  const AlertRuleEvaluationContext({
+    required this.readings,
+    required this.now,
+  });
 
   GlucoseReading? get latest => readings.isEmpty ? null : readings.last;
 }

@@ -3,8 +3,7 @@ import '../application/background_capability/background_capability_contributor.d
 import 'plugin_catalog.dart';
 
 final builtInBackgroundCapabilityCatalog = BackgroundCapabilityCatalog(
-  contributors:
-      pluginCatalog
-          .map((plugin) => plugin.backgroundCapabilityContributor)
-          .whereType<BackgroundCapabilityContributor>(),
+  contributors: pluginCatalog
+      .map((plugin) => plugin.backgroundCapabilityContributor)
+      .whereType<BackgroundCapabilityContributor>(),
 );

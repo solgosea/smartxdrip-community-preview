@@ -11,7 +11,9 @@ class DataSourceRegistry {
       XdripLocalDataSourceHandler(),
       NightscoutDataSourceHandler(),
     ],
-  }) : _handlers = {for (final handler in handlers) handler.kind: handler};
+  }) : _handlers = {
+          for (final handler in handlers) handler.kind: handler,
+        };
 
   DataSourceHandler handlerFor(DataSourceKind kind) {
     final handler = _handlers[kind];

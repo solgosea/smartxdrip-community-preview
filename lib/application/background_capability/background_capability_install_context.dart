@@ -2,17 +2,20 @@ import '../../application/background_runtime/background_runtime_strategy_registr
 import '../../application/background_sync/background_sync_post_task_registry.dart';
 import '../../application/sync_target/glucose_sync_target_registry.dart';
 import '../../data/local/glucose_database.dart';
+import '../../plugin_platform/services/plugin_service_registry.dart';
 
 class BackgroundCapabilityInstallContext {
   final GlucoseDatabase database;
   final GlucoseSyncTargetRegistry syncTargetRegistry;
   final BackgroundSyncPostTaskRegistry postTaskRegistry;
   final BackgroundRuntimeStrategyRegistry? runtimeStrategyRegistry;
+  final PluginServiceRegistry services;
 
-  const BackgroundCapabilityInstallContext({
+  BackgroundCapabilityInstallContext({
     required this.database,
     required this.syncTargetRegistry,
     required this.postTaskRegistry,
     this.runtimeStrategyRegistry,
-  });
+    PluginServiceRegistry? services,
+  }) : services = services ?? PluginServiceRegistry();
 }

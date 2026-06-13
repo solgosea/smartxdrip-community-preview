@@ -5,7 +5,9 @@ import 'template_renderer.dart';
 class InsightTemplateRenderer {
   final TemplateRenderer renderer;
 
-  const InsightTemplateRenderer({this.renderer = const TemplateRenderer()});
+  const InsightTemplateRenderer({
+    this.renderer = const TemplateRenderer(),
+  });
 
   InsightRenderedText render(
     InsightTemplate template,

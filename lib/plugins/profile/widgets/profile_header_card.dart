@@ -6,7 +6,10 @@ import '../models/profile_view_model.dart';
 class ProfileHeaderCard extends StatelessWidget {
   final ProfileHeaderViewModel viewModel;
 
-  const ProfileHeaderCard({super.key, required this.viewModel});
+  const ProfileHeaderCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,9 @@ class ProfileHeaderCard extends StatelessWidget {
                 Wrap(
                   spacing: 6,
                   runSpacing: 4,
-                  children: [_Badge(text: viewModel.primaryBadge, green: true)],
+                  children: [
+                    _Badge(text: viewModel.primaryBadge, green: true),
+                  ],
                 ),
               ],
             ),
@@ -62,7 +67,10 @@ class _Badge extends StatelessWidget {
   final String text;
   final bool green;
 
-  const _Badge({required this.text, required this.green});
+  const _Badge({
+    required this.text,
+    required this.green,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -20,8 +20,7 @@ class GlucoseNoDataRuleEvaluator extends AlertRuleEvaluator {
   ) {
     final minutes = rule.thresholdValue ?? 20;
     final latest = context.latest;
-    final stale =
-        latest == null ||
+    final stale = latest == null ||
         context.now.difference(latest.timestamp).inSeconds >= minutes * 60;
     if (!stale) return null;
     return AlertRuleEvaluationResult(

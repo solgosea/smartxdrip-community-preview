@@ -28,16 +28,14 @@ class AgpCalculator {
       final vals = slots[m];
       if (vals == null || vals.isEmpty) continue;
       vals.sort();
-      result.add(
-        AgpSlot(
-          minuteOfDay: m,
-          p10: _percentile(vals, 10),
-          p25: _percentile(vals, 25),
-          p50: _percentile(vals, 50),
-          p75: _percentile(vals, 75),
-          p90: _percentile(vals, 90),
-        ),
-      );
+      result.add(AgpSlot(
+        minuteOfDay: m,
+        p10: _percentile(vals, 10),
+        p25: _percentile(vals, 25),
+        p50: _percentile(vals, 50),
+        p75: _percentile(vals, 75),
+        p90: _percentile(vals, 90),
+      ));
     }
     return result;
   }

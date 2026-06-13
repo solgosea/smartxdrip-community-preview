@@ -18,30 +18,29 @@ void main() {
     });
 
     test(
-      'loads range entries, filters by window, sorts, and converts to mmol/L',
-      () async {
-        final readings = CgmReadingsFixture.stableDay(
-          start: DateTime(2026, 6, 4),
-          count: 12,
-          value: 6,
-        );
-        final shuffledEntries =
-            CgmReadingsFixture.nightscoutEntries(readings).reversed.toList();
-        final server = MockCgmHttpServer(entries: shuffledEntries);
-        await server.start();
-        addTearDown(server.stop);
+        'loads range entries, filters by window, sorts, and converts to mmol/L',
+        () async {
+      final readings = CgmReadingsFixture.stableDay(
+        start: DateTime(2026, 6, 4),
+        count: 12,
+        value: 6,
+      );
+      final shuffledEntries =
+          CgmReadingsFixture.nightscoutEntries(readings).reversed.toList();
+      final server = MockCgmHttpServer(entries: shuffledEntries);
+      await server.start();
+      addTearDown(server.stop);
 
-        final source = NightscoutApiSource(baseUrl: server.baseUri.toString());
-        final from = readings[2].timestamp;
-        final to = readings[6].timestamp;
-        final result = await source.range(from: from, to: to);
+      final source = NightscoutApiSource(baseUrl: server.baseUri.toString());
+      final from = readings[2].timestamp;
+      final to = readings[6].timestamp;
+      final result = await source.range(from: from, to: to);
 
-        expect(result, hasLength(5));
-        expect(result.first.timestamp, from);
-        expect(result.last.timestamp, readings[6].timestamp);
-        expect(result.first.value, closeTo(6, 0.06));
-      },
-    );
+      expect(result, hasLength(5));
+      expect(result.first.timestamp, from);
+      expect(result.last.timestamp, readings[6].timestamp);
+      expect(result.first.value, closeTo(6, 0.06));
+    });
 
     test('passes token query parameter when configured', () async {
       final readings = CgmReadingsFixture.stableDay(count: 1);
@@ -64,8 +63,14 @@ void main() {
 
     test('enriches readings with adjacent-point trend rate', () async {
       final readings = [
-        GlucoseReading(timestamp: DateTime(2026, 6, 9, 10), value: 5.8),
-        GlucoseReading(timestamp: DateTime(2026, 6, 9, 10, 5), value: 6.4),
+        GlucoseReading(
+          timestamp: DateTime(2026, 6, 9, 10),
+          value: 5.8,
+        ),
+        GlucoseReading(
+          timestamp: DateTime(2026, 6, 9, 10, 5),
+          value: 6.4,
+        ),
       ];
       final server = MockCgmHttpServer(
         entries: CgmReadingsFixture.nightscoutEntries(readings),

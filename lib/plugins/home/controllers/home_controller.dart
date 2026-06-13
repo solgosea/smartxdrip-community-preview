@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:smart_xdrip/application/analysis/analysis_facade.dart';
+import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 import 'package:smart_xdrip/presentation/common/sync_status/sync_status_view_model_mapper.dart';
 import 'package:smart_xdrip/presentation/common/sync_status/sync_status_view_model.dart';
@@ -26,6 +27,7 @@ class HomeController extends ChangeNotifier {
     semanticLabel: 'Checking sync',
     color: AppColors.textDim,
     pulsing: false,
+    display: false,
   );
   bool _refreshing = false;
   bool _refreshAgain = false;
@@ -37,9 +39,9 @@ class HomeController extends ChangeNotifier {
     this.runtime,
     HomeViewModelMapper? mapper,
     SyncStatusViewModelMapper? syncStatusMapper,
-  }) : _mapper = mapper ?? const HomeViewModelMapper(),
-       _syncStatusMapper =
-           syncStatusMapper ?? const SyncStatusViewModelMapper() {
+  })  : _mapper = mapper ?? const HomeViewModelMapper(),
+        _syncStatusMapper =
+            syncStatusMapper ?? const SyncStatusViewModelMapper() {
     hostServices.changeSignal.addListener(_handleHostChanged);
   }
 
@@ -50,12 +52,20 @@ class HomeController extends ChangeNotifier {
   Future<void> selectRange(HomeChartRange range) async {
     if (_selectedRange == range) return;
     _selectedRange = range;
-    await _refresh();
+    _remap();
   }
 
   Future<void> switchBackToSelf() async {
     await hostServices.switchToSelfSubject();
     await _refresh();
+  }
+
+  Future<void> updateUnit(GlucoseUnit unit) async {
+    if (viewModel?.unit == unit) return;
+    await hostServices.updateUnit(unit);
+    if (_disposed) return;
+    _remap();
+    unawaited(_refresh());
   }
 
   Future<void> _refresh() async {
@@ -80,7 +90,10 @@ class HomeController extends ChangeNotifier {
         _syncStatus = snapshot.viewModel.syncStatus;
       } else {
         final syncStatus = await hostServices.syncStatusSnapshot();
-        _syncStatus = _syncStatusMapper.map(syncStatus);
+        _syncStatus = _syncStatusMapper.map(
+          syncStatus,
+          runtimeStatus: hostServices.syncRuntimeStatus(),
+        );
         _remap(notify: false);
       }
     }

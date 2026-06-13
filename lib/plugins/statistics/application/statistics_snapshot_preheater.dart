@@ -14,7 +14,9 @@ class StatisticsSnapshotPreheater {
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
 
-  Future<StatisticsRuntimeSnapshot> preheat({required int periodDays}) async {
+  Future<StatisticsRuntimeSnapshot> preheat({
+    required int periodDays,
+  }) async {
     final facade = hostServices.facadeProvider();
     final query = StatisticsPeriodQuery(
       subjectId: facade.activeSubject.id,
@@ -22,7 +24,10 @@ class StatisticsSnapshotPreheater {
     );
     return StatisticsRuntimeSnapshot(
       query: query,
-      viewModel: mapper.map(facade: facade, selectedPeriod: periodDays),
+      viewModel: mapper.map(
+        facade: facade,
+        selectedPeriod: periodDays,
+      ),
       updatedAt: now(),
     );
   }

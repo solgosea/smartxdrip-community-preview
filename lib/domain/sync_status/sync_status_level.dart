@@ -1,1 +1,7 @@
-enum SyncStatusLevel { inactive, waitingFirstSync, fresh, stale, failed }
+enum SyncStatusLevel {
+  inactive,
+  waitingFirstSync,
+  fresh,
+  stale,
+  failed,
+}

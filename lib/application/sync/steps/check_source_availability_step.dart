@@ -6,7 +6,9 @@ import '../glucose_sync_step.dart';
 class CheckSourceAvailabilityStep extends GlucoseSyncStep {
   final GlucoseSyncRetryPolicy retryPolicy;
 
-  const CheckSourceAvailabilityStep({required this.retryPolicy});
+  const CheckSourceAvailabilityStep({
+    required this.retryPolicy,
+  });
 
   @override
   Future<void> execute(GlucoseSyncContext context) async {

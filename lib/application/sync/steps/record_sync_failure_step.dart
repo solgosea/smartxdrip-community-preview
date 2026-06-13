@@ -5,7 +5,9 @@ import '../glucose_sync_result.dart';
 class RecordSyncFailureStep {
   final GlucoseSyncErrorClassifier errorClassifier;
 
-  const RecordSyncFailureStep({required this.errorClassifier});
+  const RecordSyncFailureStep({
+    required this.errorClassifier,
+  });
 
   Future<GlucoseSyncResult> execute(
     GlucoseSyncContext context,

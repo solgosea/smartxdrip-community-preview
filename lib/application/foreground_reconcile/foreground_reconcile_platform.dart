@@ -1,1 +1,5 @@
-enum ForegroundReconcilePlatform { android, ios, other }
+enum ForegroundReconcilePlatform {
+  android,
+  ios,
+  other,
+}

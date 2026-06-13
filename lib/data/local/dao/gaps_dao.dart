@@ -18,15 +18,19 @@ class GapsDao {
     final now = DateTime.now().millisecondsSinceEpoch;
     final batch = database.batch();
     for (final gap in gaps) {
-      batch.insert(GlucoseTables.glucoseGaps, {
-        'id': gap.id,
-        'subject_id': subjectId,
-        'start_ts_ms': gap.start.millisecondsSinceEpoch,
-        'end_ts_ms': gap.end.millisecondsSinceEpoch,
-        'duration_minutes': gap.durationMinutes,
-        'source': gap.source,
-        'created_at_ms': now,
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert(
+        GlucoseTables.glucoseGaps,
+        {
+          'id': gap.id,
+          'subject_id': subjectId,
+          'start_ts_ms': gap.start.millisecondsSinceEpoch,
+          'end_ts_ms': gap.end.millisecondsSinceEpoch,
+          'duration_minutes': gap.durationMinutes,
+          'source': gap.source,
+          'created_at_ms': now,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }

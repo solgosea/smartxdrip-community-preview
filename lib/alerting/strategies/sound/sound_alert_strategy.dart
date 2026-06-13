@@ -86,7 +86,11 @@ class SoundAlertStrategy implements AlertStrategy<SoundAlertConfig> {
           },
         );
       }
-      sessionManager.start(event: event, sound: config.sound, policy: policy);
+      sessionManager.start(
+        event: event,
+        sound: config.sound,
+        policy: policy,
+      );
       return AlertDeliveryResult.delivered(
         channel: AlertChannel.sound,
         message: 'Sound alert session started.',

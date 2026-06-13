@@ -5,11 +5,11 @@ enum AlertRuleComparator {
   staleForMinutes;
 
   String get code => switch (this) {
-    AlertRuleComparator.lessThan => 'lt',
-    AlertRuleComparator.greaterThan => 'gt',
-    AlertRuleComparator.rateBelow => 'rate_below',
-    AlertRuleComparator.staleForMinutes => 'stale_for_minutes',
-  };
+        AlertRuleComparator.lessThan => 'lt',
+        AlertRuleComparator.greaterThan => 'gt',
+        AlertRuleComparator.rateBelow => 'rate_below',
+        AlertRuleComparator.staleForMinutes => 'stale_for_minutes',
+      };
 
   static AlertRuleComparator fromCode(String code) {
     return AlertRuleComparator.values.firstWhere(

@@ -4,10 +4,14 @@ import 'background_runtime_context.dart';
 class BackgroundRuntimeContextLoader {
   final DateTime Function() clock;
 
-  const BackgroundRuntimeContextLoader({DateTime Function()? clock})
-    : clock = clock ?? DateTime.now;
+  const BackgroundRuntimeContextLoader({
+    DateTime Function()? clock,
+  }) : clock = clock ?? DateTime.now;
 
   Future<BackgroundRuntimeContext> load(AppSettings settings) async {
-    return BackgroundRuntimeContext(settings: settings, evaluatedAt: clock());
+    return BackgroundRuntimeContext(
+      settings: settings,
+      evaluatedAt: clock(),
+    );
   }
 }

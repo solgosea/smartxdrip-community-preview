@@ -52,7 +52,7 @@ class AlertSettingsEntryCard extends StatelessWidget {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        'Sound, vibration, notifications, and in-app alert behavior',
+                        'Local glucose sound, vibration, notifications, and in-app behavior',
                         style: TextStyle(
                           color: AppColors.textSoft,
                           fontSize: 11,
@@ -62,10 +62,8 @@ class AlertSettingsEntryCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textDim,
-                ),
+                const Icon(Icons.chevron_right_rounded,
+                    color: AppColors.textDim),
               ],
             ),
           ),

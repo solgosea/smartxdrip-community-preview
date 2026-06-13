@@ -18,7 +18,10 @@ import 'episode_severity_card.dart';
 class EpisodeDetailBody extends StatelessWidget {
   final EpisodeDetailViewModel viewModel;
 
-  const EpisodeDetailBody({super.key, required this.viewModel});
+  const EpisodeDetailBody({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +64,9 @@ class EpisodeDetailBody extends StatelessWidget {
                 areaColor: hero.areaColor,
                 heroBg: hero.heroBg,
                 heroBorder: hero.heroBorder,
-                trailingBadge:
-                    hero.showNocturnalBadge
-                        ? const EpisodeNocturnalBadge()
-                        : null,
+                trailingBadge: hero.showNocturnalBadge
+                    ? const EpisodeNocturnalBadge()
+                    : null,
               ),
               EpisodeChartCard(
                 readings: chart.readings,
@@ -74,6 +76,8 @@ class EpisodeDetailBody extends StatelessWidget {
                 onsetTime: chart.onsetTime,
                 peakOrNadirTime: chart.peakOrNadirTime,
                 recoveryTime: chart.recoveryTime,
+                timeRangeStart: chart.timeRangeStart,
+                timeRangeEnd: chart.timeRangeEnd,
                 themeColor: chart.themeColor,
                 episode: chart.episode,
               ),
@@ -95,7 +99,10 @@ class EpisodeDetailBody extends StatelessWidget {
                 const _NoSimilarEpisodes()
               else
                 for (final card in viewModel.similarCards)
-                  EpisodeSimilarCard(themeColor: themeColor, data: card),
+                  EpisodeSimilarCard(
+                    themeColor: themeColor,
+                    data: card,
+                  ),
               EpisodeDisclaimer(text: viewModel.disclaimer),
             ],
           ),

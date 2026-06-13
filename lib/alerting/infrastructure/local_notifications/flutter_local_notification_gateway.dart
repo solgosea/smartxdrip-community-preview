@@ -5,26 +5,56 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../domain/config/local_notification_alert_config.dart';
 import '../../domain/event/alert_event.dart';
 import '../../domain/event/alert_level.dart';
+import '../../domain/notification/alert_notification_action_category.dart';
+import 'android_alert_notification_action_factory.dart';
+import 'alert_notification_id.dart';
+import 'alert_notification_action_router.dart';
+import 'alert_notification_payload_codec.dart';
+import 'ios_alert_notification_category_factory.dart';
 
 class FlutterLocalNotificationGateway {
   final FlutterLocalNotificationsPlugin plugin;
+  final AlertNotificationPayloadCodec payloadCodec;
+  final AlertNotificationId notificationId;
+  final AndroidAlertNotificationActionFactory androidActionFactory;
+  final IosAlertNotificationCategoryFactory iosCategoryFactory;
+  final DidReceiveBackgroundNotificationResponseCallback?
+      backgroundActionHandler;
+  AlertNotificationActionRouter? _actionRouter;
   bool _initialized = false;
 
-  FlutterLocalNotificationGateway({FlutterLocalNotificationsPlugin? plugin})
-    : plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationGateway({
+    FlutterLocalNotificationsPlugin? plugin,
+    this.payloadCodec = const AlertNotificationPayloadCodec(),
+    this.notificationId = const AlertNotificationId(),
+    this.androidActionFactory = const AndroidAlertNotificationActionFactory(),
+    this.iosCategoryFactory = const IosAlertNotificationCategoryFactory(),
+    this.backgroundActionHandler,
+  }) : plugin = plugin ?? FlutterLocalNotificationsPlugin();
+
+  void bindActionRouter(AlertNotificationActionRouter router) {
+    _actionRouter = router;
+  }
 
   Future<void> initialize() async {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const darwin = DarwinInitializationSettings();
-    const settings = InitializationSettings(android: android, iOS: darwin);
-    await plugin.initialize(settings);
+    final darwin = DarwinInitializationSettings(
+      notificationCategories: iosCategoryFactory.categories(),
+    );
+    final settings = InitializationSettings(android: android, iOS: darwin);
+    await plugin.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (response) {
+        _actionRouter?.handle(response);
+      },
+      onDidReceiveBackgroundNotificationResponse: backgroundActionHandler,
+    );
     _initialized = true;
     if (Platform.isAndroid) {
       await plugin
           .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
+              AndroidFlutterLocalNotificationsPlugin>()
           ?.requestNotificationsPermission();
     }
   }
@@ -47,24 +77,26 @@ class FlutterLocalNotificationGateway {
       playSound: true,
       enableVibration: true,
       category: AndroidNotificationCategory.alarm,
+      actions: androidActionFactory.actions(),
     );
     const darwin = DarwinNotificationDetails(
+      categoryIdentifier: AlertNotificationActionCategory.alertActions,
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
     await plugin.show(
-      event.id.hashCode,
+      notificationId.fromAlertEventId(event.id),
       event.title,
       event.body,
       NotificationDetails(android: android, iOS: darwin),
-      payload: event.id,
+      payload: payloadCodec.encode(alertEventId: event.id),
     );
   }
 
   Future<void> cancel(String alertEventId) async {
     await initialize();
-    await plugin.cancel(alertEventId.hashCode);
+    await plugin.cancel(notificationId.fromAlertEventId(alertEventId));
   }
 
   Future<void> cancelAll() async {

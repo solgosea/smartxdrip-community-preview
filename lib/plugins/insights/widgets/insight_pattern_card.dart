@@ -5,7 +5,10 @@ import '../models/insights_view_model.dart';
 class InsightPatternCard extends StatelessWidget {
   final InsightPatternViewModel viewModel;
 
-  const InsightPatternCard({super.key, required this.viewModel});
+  const InsightPatternCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

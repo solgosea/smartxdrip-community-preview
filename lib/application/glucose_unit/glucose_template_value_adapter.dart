@@ -12,14 +12,9 @@ class GlucoseTemplateValueAdapter {
     return {
       'glucoseUnit': formatter.unitLabel(settings.unit),
       'glucoseRateUnit': formatter.rateUnitLabel(settings.unit),
-      'targetRange':
-          formatter
-              .range(
-                settings.lowThreshold,
-                settings.highThreshold,
-                settings.unit,
-              )
-              .fullLabel,
+      'targetRange': formatter
+          .range(settings.lowThreshold, settings.highThreshold, settings.unit)
+          .fullLabel,
       'lowThreshold':
           formatter.value(settings.lowThreshold, settings.unit).valueLabel,
       'highThreshold':

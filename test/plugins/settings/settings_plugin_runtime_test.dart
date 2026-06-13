@@ -69,15 +69,14 @@ SettingsHostServices _hostServices(DateTime now) {
     changeSignal: _NoopListenable(),
     settingsProvider: () => const AppSettings(retentionDays: 90),
     databaseFileSizeBytes: () async => 4096,
-    readingsForDays:
-        (days) async => List.generate(
-          24,
-          (index) => GlucoseReading(
-            timestamp: now.subtract(Duration(minutes: (23 - index) * 5)),
-            value: 5.8 + (index % 4) * 0.2,
-            ratePerMin: 0.01,
-          ),
-        ),
+    readingsForDays: (days) async => List.generate(
+      24,
+      (index) => GlucoseReading(
+        timestamp: now.subtract(Duration(minutes: (23 - index) * 5)),
+        value: 5.8 + (index % 4) * 0.2,
+        ratePerMin: 0.01,
+      ),
+    ),
   );
 }
 

@@ -61,23 +61,17 @@ class AlertDeliveryPipeline {
     }
     switch (strategy.strategyKey) {
       case InAppAlertConfig.key:
-        return (strategy as AlertStrategy<InAppAlertConfig>).deliver(
-          plan.event,
-          config.inApp,
-        );
+        return (strategy as AlertStrategy<InAppAlertConfig>)
+            .deliver(plan.event, config.inApp);
       case LocalNotificationAlertConfig.key:
         return (strategy as AlertStrategy<LocalNotificationAlertConfig>)
             .deliver(plan.event, config.localNotification);
       case SoundAlertConfig.key:
-        return (strategy as AlertStrategy<SoundAlertConfig>).deliver(
-          plan.event,
-          config.sound,
-        );
+        return (strategy as AlertStrategy<SoundAlertConfig>)
+            .deliver(plan.event, config.sound);
       case VibrationAlertConfig.key:
-        return (strategy as AlertStrategy<VibrationAlertConfig>).deliver(
-          plan.event,
-          config.vibration,
-        );
+        return (strategy as AlertStrategy<VibrationAlertConfig>)
+            .deliver(plan.event, config.vibration);
       default:
         return AlertDeliveryResult.skipped(
           channel: strategy.channel,

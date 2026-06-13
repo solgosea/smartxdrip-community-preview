@@ -51,6 +51,8 @@ class SyncStatusService {
         lastSuccessAt: state?.lastSuccessAt,
         lastAttemptAt: state?.lastAttemptAt,
         lastError: runtime.lastHealthMessage,
+        lastFetchedCount: state?.lastFetchedCount,
+        lastStoredCount: state?.lastStoredCount,
         schedule: scheduleSnapshot,
       );
     }
@@ -63,6 +65,8 @@ class SyncStatusService {
         lastSuccessAt: state.lastSuccessAt,
         lastAttemptAt: state.lastAttemptAt,
         lastError: state.lastError,
+        lastFetchedCount: state.lastFetchedCount,
+        lastStoredCount: state.lastStoredCount,
         schedule: scheduleSnapshot,
       );
     }
@@ -74,6 +78,8 @@ class SyncStatusService {
         level: SyncStatusLevel.waitingFirstSync,
         active: true,
         lastAttemptAt: state?.lastAttemptAt,
+        lastFetchedCount: state?.lastFetchedCount,
+        lastStoredCount: state?.lastStoredCount,
         schedule: scheduleSnapshot,
       );
     }
@@ -86,6 +92,8 @@ class SyncStatusService {
       active: true,
       lastSuccessAt: success,
       lastAttemptAt: state?.lastAttemptAt,
+      lastFetchedCount: state?.lastFetchedCount,
+      lastStoredCount: state?.lastStoredCount,
       schedule: scheduleSnapshot,
     );
   }

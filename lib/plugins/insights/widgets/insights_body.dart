@@ -24,7 +24,10 @@ class InsightsBody extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            InsightsHeader(dateText: viewModel.headerDate, onBack: onBack),
+            InsightsHeader(
+              dateText: viewModel.headerDate,
+              onBack: onBack,
+            ),
             DailyBriefCard(
               text: viewModel.dailyBrief,
               footer: viewModel.dailyBriefFooter,

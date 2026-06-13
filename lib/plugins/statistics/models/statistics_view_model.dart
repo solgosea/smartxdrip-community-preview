@@ -134,7 +134,21 @@ class StatisticsHeatmapViewModel {
 }
 
 class StatisticsHeatmapCellViewModel {
+  final int hour;
+  final double tirPct;
   final Color color;
+  final String timeLabel;
+  final String tirLabel;
+  final String tagLabel;
+  final Color tagColor;
 
-  const StatisticsHeatmapCellViewModel({required this.color});
+  const StatisticsHeatmapCellViewModel({
+    required this.hour,
+    required this.tirPct,
+    required this.color,
+    required this.timeLabel,
+    required this.tirLabel,
+    required this.tagLabel,
+    required this.tagColor,
+  });
 }

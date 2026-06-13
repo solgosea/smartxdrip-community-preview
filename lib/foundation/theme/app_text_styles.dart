@@ -4,7 +4,6 @@ import 'app_colors.dart';
 class AppTextStyles {
   static const _mono = TextStyle(fontFamily: 'JetBrainsMono');
 
-  // Hero glucose value
   static final heroValue = _mono.copyWith(
     fontSize: 88,
     fontWeight: FontWeight.w700,
@@ -13,7 +12,6 @@ class AppTextStyles {
     letterSpacing: -2,
   );
 
-  // Large metric number (32px)
   static final metricLarge = _mono.copyWith(
     fontSize: 32,
     fontWeight: FontWeight.w700,
@@ -26,7 +24,6 @@ class AppTextStyles {
     height: 1,
   );
 
-  // Section label: MONO 10px uppercase
   static final sectionLabel = _mono.copyWith(
     fontSize: 10,
     fontWeight: FontWeight.w600,
@@ -35,7 +32,6 @@ class AppTextStyles {
     height: 1,
   );
 
-  // Eyebrow (9px)
   static final eyebrow = _mono.copyWith(
     fontSize: 9,
     fontWeight: FontWeight.w500,
@@ -43,7 +39,6 @@ class AppTextStyles {
     letterSpacing: 1.4,
   );
 
-  // Body
   static const body = TextStyle(
     fontFamily: 'Inter',
     fontSize: 13,
@@ -66,11 +61,13 @@ class AppTextStyles {
     letterSpacing: -0.3,
   );
 
-  // Mono data label
   static final monoData = _mono.copyWith(
     fontSize: 11,
     color: AppColors.textSoft,
   );
 
-  static final monoDim = _mono.copyWith(fontSize: 10, color: AppColors.textDim);
+  static final monoDim = _mono.copyWith(
+    fontSize: 10,
+    color: AppColors.textDim,
+  );
 }

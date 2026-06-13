@@ -4,7 +4,9 @@ import 'active_subject_service.dart';
 class ActiveSubjectSwitcher {
   final ActiveSubjectService service;
 
-  const ActiveSubjectSwitcher({required this.service});
+  const ActiveSubjectSwitcher({
+    required this.service,
+  });
 
   Future<AnalysisSubject> switchTo(AnalysisSubject subject) async {
     await service.switchTo(subject);

@@ -9,8 +9,15 @@ class ActiveSubjectValidationResult {
     this.refreshedSubject,
   });
 
-  const ActiveSubjectValidationResult.valid({AnalysisSubject? refreshedSubject})
-    : this._(resetToSelf: false, refreshedSubject: refreshedSubject);
+  const ActiveSubjectValidationResult.valid({
+    AnalysisSubject? refreshedSubject,
+  }) : this._(
+          resetToSelf: false,
+          refreshedSubject: refreshedSubject,
+        );
 
-  const ActiveSubjectValidationResult.invalid() : this._(resetToSelf: true);
+  const ActiveSubjectValidationResult.invalid()
+      : this._(
+          resetToSelf: true,
+        );
 }

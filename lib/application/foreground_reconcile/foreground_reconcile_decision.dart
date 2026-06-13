@@ -4,7 +4,10 @@ class ForegroundReconcileDecision {
   final ForegroundReconcileMode mode;
   final String reason;
 
-  const ForegroundReconcileDecision({required this.mode, required this.reason});
+  const ForegroundReconcileDecision({
+    required this.mode,
+    required this.reason,
+  });
 
   bool get shouldRun => mode != ForegroundReconcileMode.skip;
 
@@ -12,9 +15,11 @@ class ForegroundReconcileDecision {
     this.reason = 'Foreground reconcile skipped.',
   }) : mode = ForegroundReconcileMode.skip;
 
-  const ForegroundReconcileDecision.light({required this.reason})
-    : mode = ForegroundReconcileMode.light;
+  const ForegroundReconcileDecision.light({
+    required this.reason,
+  }) : mode = ForegroundReconcileMode.light;
 
-  const ForegroundReconcileDecision.full({required this.reason})
-    : mode = ForegroundReconcileMode.full;
+  const ForegroundReconcileDecision.full({
+    required this.reason,
+  }) : mode = ForegroundReconcileMode.full;
 }

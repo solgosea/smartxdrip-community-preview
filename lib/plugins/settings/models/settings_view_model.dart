@@ -23,7 +23,9 @@ class SettingsViewModel {
 class SettingsDisplayViewModel {
   final SettingsRowViewModel unitRow;
 
-  const SettingsDisplayViewModel({required this.unitRow});
+  const SettingsDisplayViewModel({
+    required this.unitRow,
+  });
 }
 
 class SettingsStorageViewModel {
@@ -49,7 +51,9 @@ class SettingsStorageViewModel {
 class SettingsGroupViewModel {
   final List<SettingsRowViewModel> rows;
 
-  const SettingsGroupViewModel({required this.rows});
+  const SettingsGroupViewModel({
+    required this.rows,
+  });
 }
 
 class SettingsRowViewModel {
@@ -74,14 +78,20 @@ class SettingsDangerViewModel {
   final String title;
   final String subtitle;
 
-  const SettingsDangerViewModel({required this.title, required this.subtitle});
+  const SettingsDangerViewModel({
+    required this.title,
+    required this.subtitle,
+  });
 }
 
 class SettingsAboutViewModel {
   final String title;
   final List<String> links;
 
-  const SettingsAboutViewModel({required this.title, required this.links});
+  const SettingsAboutViewModel({
+    required this.title,
+    required this.links,
+  });
 }
 
 enum SettingsAction {

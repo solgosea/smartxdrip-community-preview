@@ -4,11 +4,13 @@ import '../../../plugin_platform/runtime/plugin_capability_context_factory.dart'
 class ExploreEntryContextBuilder {
   final PluginCapabilityContextFactory capabilityContextFactory;
 
-  const ExploreEntryContextBuilder({required this.capabilityContextFactory});
+  const ExploreEntryContextBuilder({
+    required this.capabilityContextFactory,
+  });
 
   factory ExploreEntryContextBuilder.current() => ExploreEntryContextBuilder(
-    capabilityContextFactory: PluginCapabilityContextFactory.current(),
-  );
+        capabilityContextFactory: PluginCapabilityContextFactory.current(),
+      );
 
   PluginCapabilityContext build() => capabilityContextFactory.create();
 }

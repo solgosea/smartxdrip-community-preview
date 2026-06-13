@@ -24,14 +24,20 @@ class PluginRuntimeManager {
     required this.context,
   });
 
-  factory PluginRuntimeManager.create({DateTime Function()? now}) {
+  factory PluginRuntimeManager.create({
+    DateTime Function()? now,
+  }) {
     final store = PluginRuntimeStore(now: now);
     final eventBus = PluginRuntimeEventBus();
     return PluginRuntimeManager._(
       registry: PluginRuntimeRegistry(),
       store: store,
       eventBus: eventBus,
-      context: PluginRuntimeContext(eventBus: eventBus, store: store, now: now),
+      context: PluginRuntimeContext(
+        eventBus: eventBus,
+        store: store,
+        now: now,
+      ),
     );
   }
 

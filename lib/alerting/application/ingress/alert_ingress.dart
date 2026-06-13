@@ -17,17 +17,16 @@ class AlertIngress {
     AlertQueueConsumer? consumer,
     this.idGenerator = const AlertIdGenerator(),
     DateTime Function()? clock,
-  }) : assert(
-         enqueueService != null || (repository != null && consumer != null),
-         'Provide enqueueService or repository + consumer.',
-       ),
-       enqueueService =
-           enqueueService ??
-           AlertQueueEnqueueService(
-             repository: repository!,
-             consumer: consumer!,
-           ),
-       clock = clock ?? DateTime.now;
+  })  : assert(
+          enqueueService != null || (repository != null && consumer != null),
+          'Provide enqueueService or repository + consumer.',
+        ),
+        enqueueService = enqueueService ??
+            AlertQueueEnqueueService(
+              repository: repository!,
+              consumer: consumer!,
+            ),
+        clock = clock ?? DateTime.now;
 
   Future<void> enqueue({
     required String messageType,
@@ -48,8 +47,7 @@ class AlertIngress {
     final now = clock();
     final message = AlertQueueMessage(
       id: idGenerator.newId('queue'),
-      dedupeKey:
-          dedupeKey ??
+      dedupeKey: dedupeKey ??
           [
             messageType,
             source,

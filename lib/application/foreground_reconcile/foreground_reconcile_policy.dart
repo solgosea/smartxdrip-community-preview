@@ -22,8 +22,8 @@ class ForegroundReconcilePolicy {
 
     return switch (context.platform) {
       ForegroundReconcilePlatform.ios => const ForegroundReconcileDecision.full(
-        reason: 'iOS foreground resume requires full reconcile.',
-      ),
+          reason: 'iOS foreground resume requires full reconcile.',
+        ),
       ForegroundReconcilePlatform.android => _androidDecision(context),
       ForegroundReconcilePlatform.other =>
         const ForegroundReconcileDecision.light(

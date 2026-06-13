@@ -41,6 +41,56 @@
             android:foregroundServiceType="dataSync|mediaPlayback"
             android:exported="false"
             tools:replace="android:exported,android:foregroundServiceType" />
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".glance.GlanceCompactWidgetProvider"
+            android:exported="true"
+            android:label="Glance Compact">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glance_widget_compact" />
+        </receiver>
+        <receiver
+            android:name=".glance.GlanceTrendWidgetProvider"
+            android:exported="true"
+            android:label="Glance Trend">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glance_widget_trend" />
+        </receiver>
+        <receiver
+            android:name=".glance.GlanceDashboardWidgetProvider"
+            android:exported="true"
+            android:label="Glance Dashboard">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glance_widget_dashboard" />
+        </receiver>
+        <receiver
+            android:name=".glance.GlanceDualUnitWidgetProvider"
+            android:exported="true"
+            android:label="Glance Dual">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glance_widget_dual_unit" />
+        </receiver>
+        <receiver
+            android:name=".glance.GlanceWidgetTapActionReceiver"
+            android:exported="false" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

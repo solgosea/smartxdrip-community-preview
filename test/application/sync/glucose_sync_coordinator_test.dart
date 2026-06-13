@@ -21,19 +21,20 @@ void main() {
         readings: readings,
       );
 
-      final result = await GlucoseSyncCoordinator(
-        database: database,
-      ).syncOnce(source: source, settings: AppSettingsFixture.nightscout);
+      final result = await GlucoseSyncCoordinator(database: database).syncOnce(
+        source: source,
+        settings: AppSettingsFixture.nightscout,
+      );
 
       expect(result.success, isTrue);
       expect(result.fetchedCount, 12);
       expect(await database.count(), 12);
       expect(await database.rawReadings.count(), 12);
       final state = await database.getSourceState('nightscout');
-      expect(
-        state?.lastCursor,
-        readings.last.timestamp.millisecondsSinceEpoch.toString(),
-      );
+      expect(state?.lastCursor,
+          readings.last.timestamp.millisecondsSinceEpoch.toString());
+      expect(state?.lastFetchedCount, 12);
+      expect(state?.lastStoredCount, 12);
     });
 
     test('syncOnce is idempotent for duplicate source windows', () async {
@@ -64,28 +65,27 @@ void main() {
       expect(source.rangeCalls, 2);
     });
 
-    test(
-      'unavailable source records error and does not fetch readings',
-      () async {
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final source = FakeGlucoseSource(
-          type: DataSource.xdripHttp,
-          readings: CgmReadingsFixture.stableDay(count: 5),
-          available: false,
-        );
+    test('unavailable source records error and does not fetch readings',
+        () async {
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final source = FakeGlucoseSource(
+        type: DataSource.xdripHttp,
+        readings: CgmReadingsFixture.stableDay(count: 5),
+        available: false,
+      );
 
-        final result = await GlucoseSyncCoordinator(
-          database: database,
-        ).syncOnce(source: source, settings: AppSettingsFixture.xdrip);
+      final result = await GlucoseSyncCoordinator(database: database).syncOnce(
+        source: source,
+        settings: AppSettingsFixture.xdrip,
+      );
 
-        expect(result.success, isFalse);
-        expect(result.available, isFalse);
-        expect(source.rangeCalls, 0);
-        expect(await database.count(), 0);
-        final state = await database.getSourceState('xdripHttp');
-        expect(state?.lastError, 'source_unavailable');
-      },
-    );
+      expect(result.success, isFalse);
+      expect(result.available, isFalse);
+      expect(source.rangeCalls, 0);
+      expect(await database.count(), 0);
+      final state = await database.getSourceState('xdripHttp');
+      expect(state?.lastError, 'source_unavailable');
+    });
   });
 }

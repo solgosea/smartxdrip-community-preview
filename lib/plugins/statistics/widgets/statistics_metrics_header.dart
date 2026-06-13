@@ -4,7 +4,10 @@ import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 class StatisticsMetricsHeader extends StatelessWidget {
   final String text;
 
-  const StatisticsMetricsHeader({super.key, required this.text});
+  const StatisticsMetricsHeader({
+    super.key,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {

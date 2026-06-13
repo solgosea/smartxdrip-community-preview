@@ -35,7 +35,10 @@ class AlertRuleProvider {
       return existing;
     }
     final now = clock();
-    final ruleSet = defaults.selfDefaultRuleSet(subjectId: subjectId, now: now);
+    final ruleSet = defaults.selfDefaultRuleSet(
+      subjectId: subjectId,
+      now: now,
+    );
     await repository.upsertRuleSet(ruleSet);
     await repository.upsertRules(
       defaults.selfDefaultRules(ruleSetId: ruleSet.id, now: now),

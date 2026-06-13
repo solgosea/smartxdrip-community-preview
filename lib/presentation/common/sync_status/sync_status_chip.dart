@@ -6,7 +6,10 @@ import 'sync_status_view_model.dart';
 class SyncStatusChip extends StatelessWidget {
   final SyncStatusViewModel viewModel;
 
-  const SyncStatusChip({super.key, required this.viewModel});
+  const SyncStatusChip({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +65,10 @@ class _SyncDot extends StatefulWidget {
   final Color color;
   final bool pulsing;
 
-  const _SyncDot({required this.color, required this.pulsing});
+  const _SyncDot({
+    required this.color,
+    required this.pulsing,
+  });
 
   @override
   State<_SyncDot> createState() => _SyncDotState();

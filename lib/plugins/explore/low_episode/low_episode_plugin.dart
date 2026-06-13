@@ -1,3 +1,5 @@
+import '../composition/explore_slots.dart';
+import '../../../plugin_platform/composition/plugin_placement_spec.dart';
 import 'package:flutter/material.dart';
 
 import '../../../foundation/theme/app_colors.dart';
@@ -32,29 +34,40 @@ class LowEpisodePlugin extends SmartFeaturePlugin {
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.glucoseReadings,
-    PluginDataRequirement.glucoseEvents,
-    PluginDataRequirement.appSettings,
-  };
+        PluginDataRequirement.glucoseReadings,
+        PluginDataRequirement.glucoseEvents,
+        PluginDataRequirement.appSettings,
+      };
+  @override
+  List<PluginPlacementSpec> get placementSpecs => [
+        PluginPlacementSpec(
+          pluginId: id,
+          slot: ExploreSlots.card,
+          renderKey: '/explore/low-episode',
+          title: 'Low Episode',
+          order: 310,
+          dataRequirements: dataRequirements,
+        ),
+      ];
 
   @override
   ExplorePluginEntry get exploreEntry => const ExplorePluginEntry(
-    section: 'EPISODES',
-    title: 'Low Episode',
-    subtitle: 'Hypoglycemia analysis',
-    route: '/explore/low-episode',
-    icon: Icons.arrow_downward_rounded,
-    accentColor: AppColors.blue,
-    order: 310,
-  );
+        section: 'EPISODES',
+        title: 'Low Episode',
+        subtitle: 'Hypoglycemia analysis',
+        route: '/explore/low-episode',
+        icon: Icons.arrow_downward_rounded,
+        accentColor: AppColors.blue,
+        order: 310,
+      );
 
   @override
   List<PluginRoute> get routes => [
-    PluginRoute(
-      path: '/explore/low-episode',
-      builder: (_) => const LowEpisodePage(),
-    ),
-  ];
+        PluginRoute(
+          path: '/explore/low-episode',
+          builder: (_) => const LowEpisodePage(),
+        ),
+      ];
 
   @override
   void install(PluginInstallContext context) {

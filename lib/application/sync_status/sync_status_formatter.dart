@@ -55,7 +55,8 @@ class SyncStatusFormatter {
       SyncScheduleMode.paused => 'Sync paused',
       SyncScheduleMode.waiting => 'Waiting for schedule',
       SyncScheduleMode.foreground ||
-      SyncScheduleMode.background => _nextText(schedule),
+      SyncScheduleMode.background =>
+        _nextText(schedule),
     };
   }
 

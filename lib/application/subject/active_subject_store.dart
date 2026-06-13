@@ -24,14 +24,12 @@ class ActiveSubjectStore {
     final origin = _originFromName(sp.getString(_kOrigin));
     _current = AnalysisSubject(
       id: id,
-      displayName:
-          sp.getString(_kDisplayName)?.trim().isNotEmpty == true
-              ? sp.getString(_kDisplayName)!.trim()
-              : id,
-      sourceLabel:
-          sp.getString(_kSourceLabel)?.trim().isNotEmpty == true
-              ? sp.getString(_kSourceLabel)!.trim()
-              : 'External source',
+      displayName: sp.getString(_kDisplayName)?.trim().isNotEmpty == true
+          ? sp.getString(_kDisplayName)!.trim()
+          : id,
+      sourceLabel: sp.getString(_kSourceLabel)?.trim().isNotEmpty == true
+          ? sp.getString(_kSourceLabel)!.trim()
+          : 'External source',
       origin: origin,
     );
     return _current;

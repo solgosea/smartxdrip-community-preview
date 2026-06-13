@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage> {
           return HomeBody(
             viewModel: viewModel,
             onRangeChanged: _controller.selectRange,
+            onUnitChanged: _controller.updateUnit,
             onInsightTap: () => context.push('/insights'),
             onSwitchBackToSelf: _controller.switchBackToSelf,
           );

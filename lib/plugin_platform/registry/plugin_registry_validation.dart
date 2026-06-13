@@ -1,5 +1,6 @@
 import '../contracts/plugin_placement.dart';
 import '../contracts/smart_feature_plugin.dart';
+import '../graph/plugin_slot_key.dart';
 
 class PluginRegistryValidationIssue {
   final String code;
@@ -76,59 +77,65 @@ class PluginRegistryValidator {
   ) {
     for (final plugin in plugins) {
       if (plugin.placements.contains(PluginPlacement.mainTab) &&
-          plugin.mainTabEntry == null) {
+          !_hasPlacementSpec(plugin, const PluginSlotKey('app.mainTab'))) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_main_tab_entry',
-            message: 'Main tab plugin ${plugin.id.value} has no tab entry.',
+            message:
+                'Main tab plugin ${plugin.id.value} has no app.mainTab placement.',
           ),
         );
       }
       if (plugin.placements.contains(PluginPlacement.exploreCard) &&
-          plugin.exploreEntry == null) {
+          !_hasPlacementSpec(plugin, const PluginSlotKey('explore.card'))) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_explore_entry',
-            message: 'Explore plugin ${plugin.id.value} has no explore entry.',
+            message:
+                'Explore plugin ${plugin.id.value} has no explore.card placement.',
           ),
         );
       }
       if (plugin.placements.contains(PluginPlacement.profileSection) &&
-          plugin.profileEntry == null) {
+          !_hasPlacementSpec(plugin, const PluginSlotKey('profile.section'))) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_profile_entry',
-            message: 'Profile plugin ${plugin.id.value} has no profile entry.',
+            message:
+                'Profile plugin ${plugin.id.value} has no profile.section placement.',
           ),
         );
       }
       if (plugin.placements.contains(PluginPlacement.settingsSection) &&
-          plugin.settingsEntry == null) {
+          !_hasPlacementSpec(plugin, const PluginSlotKey('settings.section'))) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_settings_entry',
             message:
-                'Settings plugin ${plugin.id.value} has no settings entry.',
+                'Settings plugin ${plugin.id.value} has no settings.section placement.',
           ),
         );
       }
       if (plugin.placements.contains(PluginPlacement.homeWidget) &&
-          plugin.homeWidgetEntry == null) {
+          !_hasPlacementSpec(plugin, const PluginSlotKey('home.widget'))) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_home_widget_entry',
             message:
-                'Home widget plugin ${plugin.id.value} has no widget entry.',
+                'Home widget plugin ${plugin.id.value} has no home.widget placement.',
           ),
         );
       }
       if (plugin.placements.contains(PluginPlacement.backgroundTask) &&
-          plugin.backgroundTaskEntry == null) {
+          !_hasPlacementSpec(
+            plugin,
+            const PluginSlotKey('app.backgroundTask'),
+          )) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_background_task_entry',
             message:
-                'Background task plugin ${plugin.id.value} has no task entry.',
+                'Background task plugin ${plugin.id.value} has no app.backgroundTask placement.',
           ),
         );
       }
@@ -160,12 +167,15 @@ class PluginRegistryValidator {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_main_tab_route',
-            message:
-                'Main tab plugin ${plugin.id.value} does not expose route '
+            message: 'Main tab plugin ${plugin.id.value} does not expose route '
                 '${entry.route}.',
           ),
         );
       }
     }
+  }
+
+  bool _hasPlacementSpec(SmartFeaturePlugin plugin, PluginSlotKey slot) {
+    return plugin.placementSpecs.any((spec) => spec.slot == slot);
   }
 }

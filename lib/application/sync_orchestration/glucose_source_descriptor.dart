@@ -14,6 +14,6 @@ class GlucoseSourceDescriptor {
     String? label,
     required this.source,
     this.primaryHistory = false,
-  }) : targetId = targetId ?? 'self:${source.type.name}',
-       label = label ?? source.type.name;
+  })  : targetId = targetId ?? 'self:${source.type.name}',
+        label = label ?? source.type.name;
 }

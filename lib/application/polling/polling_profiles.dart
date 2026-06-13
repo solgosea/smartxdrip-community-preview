@@ -13,7 +13,7 @@ class PollingProfiles {
 
   static const nightscout = PollingSourceProfile(
     sourceKind: DataSourceKind.nightscout,
-    foregroundNormal: Duration(seconds: 180),
+    foregroundNormal: Duration(seconds: 60),
     backgroundNormal: Duration(seconds: 300),
     dangerous: Duration(seconds: 60),
     stale: Duration(seconds: 300),

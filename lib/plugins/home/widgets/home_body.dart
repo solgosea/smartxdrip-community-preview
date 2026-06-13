@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:smart_xdrip/plugin_platform/placement/home_widget_plugin_resolver.dart';
-import 'package:smart_xdrip/plugin_platform/registry/plugin_registry.dart';
-import 'package:smart_xdrip/plugin_platform/runtime/plugin_capability_context_factory.dart';
+import '../../../domain/entities/app_settings.dart';
 import '../models/home_chart_range.dart';
 import '../models/home_view_model.dart';
-import 'home_header.dart';
-import 'home_hero_glucose_card.dart';
-import 'home_insight_banner.dart';
-import 'home_range_chart_card.dart';
-import 'home_stats_row.dart';
-import 'home_tir_section.dart';
+import 'home_render_scope.dart';
+import 'home_slot_host.dart';
 
-class HomeBody extends StatelessWidget {
+class HomeBody extends StatefulWidget {
   final HomeViewModel viewModel;
   final ValueChanged<HomeChartRange> onRangeChanged;
+  final ValueChanged<GlucoseUnit> onUnitChanged;
   final VoidCallback onInsightTap;
   final VoidCallback onSwitchBackToSelf;
 
@@ -22,64 +16,44 @@ class HomeBody extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.onRangeChanged,
+    required this.onUnitChanged,
     required this.onInsightTap,
     required this.onSwitchBackToSelf,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final pluginContext = PluginCapabilityContextFactory.current().create();
-    final registry = context.read<PluginRegistry>();
-    final widgets = HomeWidgetPluginResolver(
-      registry,
-    ).resolve(context: pluginContext);
+  State<HomeBody> createState() => _HomeBodyState();
+}
 
+class _HomeBodyState extends State<HomeBody> {
+  bool _inspectingPast = false;
+
+  void _handleInspectionChanged(bool value) {
+    if (_inspectingPast == value) return;
+    setState(() => _inspectingPast = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final widget in widgets)
-              ..._buildHomeWidget(widget.entry.widgetKey),
+            HomeRenderScope(
+              viewModel: widget.viewModel,
+              inspectingPast: _inspectingPast,
+              onRangeChanged: widget.onRangeChanged,
+              onInspectionChanged: _handleInspectionChanged,
+              onInsightTap: widget.onInsightTap,
+              onSwitchBackToSelf: widget.onSwitchBackToSelf,
+              onUnitChanged: widget.onUnitChanged,
+              child: const HomeSlotHost(),
+            ),
           ],
         ),
       ),
     );
-  }
-
-  List<Widget> _buildHomeWidget(String widgetKey) {
-    return switch (widgetKey) {
-      'home.header' => [
-        HomeHeader(
-          viewModel: viewModel,
-          onSwitchBackToSelf: onSwitchBackToSelf,
-        ),
-        const SizedBox(height: 4),
-      ],
-      'home.hero_glucose' => [
-        HomeHeroGlucoseCard(glucose: viewModel.glucose),
-        const SizedBox(height: 18),
-      ],
-      'home.range_chart' => [
-        HomeRangeChartCard(
-          viewModel: viewModel,
-          onRangeChanged: onRangeChanged,
-        ),
-        const SizedBox(height: 12),
-      ],
-      'home.stats' => [
-        HomeStatsRow(stats: viewModel.stats),
-        const SizedBox(height: 12),
-      ],
-      'home.tir' => [
-        HomeTirSection(viewModel: viewModel.tir),
-        const SizedBox(height: 12),
-      ],
-      'home.insight' => [
-        HomeInsightBanner(text: viewModel.insightText, onTap: onInsightTap),
-      ],
-      _ => const <Widget>[],
-    };
   }
 }

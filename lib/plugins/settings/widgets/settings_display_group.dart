@@ -17,7 +17,12 @@ class SettingsDisplayGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsGroup(
-      children: [SettingsRow(row: viewModel.unitRow, onTap: onPickUnit)],
+      children: [
+        SettingsRow(
+          row: viewModel.unitRow,
+          onTap: onPickUnit,
+        ),
+      ],
     );
   }
 }

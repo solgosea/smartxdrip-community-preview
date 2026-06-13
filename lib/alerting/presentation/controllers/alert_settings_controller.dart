@@ -29,25 +29,25 @@ class AlertSettingsController extends ChangeNotifier {
     this.soundPreview = const AlertSoundPreviewService(),
     AlertSoundSessionManager? soundSessionManager,
   }) : soundSessionManager =
-           soundSessionManager ?? AlertSoundSessionManager.shared;
+            soundSessionManager ?? AlertSoundSessionManager.shared;
 
   AlertSoundRef get selectedSound => _config.sound.sound;
 
   AlertingSettingsSnapshot get snapshot => AlertingSettingsSnapshot(
-    globalEnabled: _config.global.enabled,
-    criticalOnly: _config.global.criticalOnly,
-    inAppEnabled: _config.inApp.enabled,
-    localNotificationEnabled: _config.localNotification.enabled,
-    soundEnabled: _config.sound.enabled,
-    vibrationEnabled: _config.vibration.enabled,
-    fullScreenForCritical: _config.inApp.fullScreenForCritical,
-    repeatCriticalSound: _config.sound.repeatCritical,
-    repeatCriticalVibration: _config.vibration.repeatCritical,
-    soundMaxDurationSeconds: _config.sound.maxDurationSeconds,
-    soundLabel: _config.sound.sound.displayName,
-    criticalVibrationLabel: _config.vibration.criticalPattern.displayName,
-    warningVibrationLabel: _config.vibration.warningPattern.displayName,
-  );
+        globalEnabled: _config.global.enabled,
+        criticalOnly: _config.global.criticalOnly,
+        inAppEnabled: _config.inApp.enabled,
+        localNotificationEnabled: _config.localNotification.enabled,
+        soundEnabled: _config.sound.enabled,
+        vibrationEnabled: _config.vibration.enabled,
+        fullScreenForCritical: _config.inApp.fullScreenForCritical,
+        repeatCriticalSound: _config.sound.repeatCritical,
+        repeatCriticalVibration: _config.vibration.repeatCritical,
+        soundMaxDurationSeconds: _config.sound.maxDurationSeconds,
+        soundLabel: _config.sound.sound.displayName,
+        criticalVibrationLabel: _config.vibration.criticalPattern.displayName,
+        warningVibrationLabel: _config.vibration.warningPattern.displayName,
+      );
 
   Future<void> load() async {
     loading = true;

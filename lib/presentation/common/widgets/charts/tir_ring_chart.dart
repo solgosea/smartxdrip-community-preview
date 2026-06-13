@@ -36,15 +36,13 @@ class TirRingChart extends StatelessWidget {
                   color: AppColors.green,
                 ),
               ),
-              const Text(
-                'TIR',
-                style: TextStyle(
-                  fontFamily: 'JetBrainsMono',
-                  fontSize: 8,
-                  color: AppColors.textDim,
-                  letterSpacing: 1.2,
-                ),
-              ),
+              const Text('TIR',
+                  style: TextStyle(
+                    fontFamily: 'JetBrainsMono',
+                    fontSize: 8,
+                    color: AppColors.textDim,
+                    letterSpacing: 1.2,
+                  )),
             ],
           ),
         ),
@@ -64,21 +62,19 @@ class _TirRingPainter extends CustomPainter {
     const strokeWidth = 8.0;
     const startAngle = -pi / 2;
 
-    final bgPaint =
-        Paint()
-          ..color = AppColors.bgCard2
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth;
+    final bgPaint = Paint()
+      ..color = AppColors.bgCard2
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
     canvas.drawCircle(center, radius, bgPaint);
 
     void drawArc(double fraction, Color color, double offset) {
       if (fraction <= 0) return;
-      final paint =
-          Paint()
-            ..color = color
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = strokeWidth
-            ..strokeCap = StrokeCap.round;
+      final paint = Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round;
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle + offset,

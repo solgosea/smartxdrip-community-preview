@@ -36,10 +36,9 @@ class NightscoutDataSourceHandler implements DataSourceHandler {
       final fresh = _isFresh(syncState);
       return DataSourceConnectionSnapshot(
         kind: DataSourceKind.nightscout,
-        status:
-            !reachable
-                ? DataSourceConnectionStatus.failed
-                : fresh
+        status: !reachable
+            ? DataSourceConnectionStatus.failed
+            : fresh
                 ? DataSourceConnectionStatus.syncing
                 : DataSourceConnectionStatus.connected,
         action: DataSourceConnectionAction.sync,
@@ -60,27 +59,23 @@ class NightscoutDataSourceHandler implements DataSourceHandler {
 
     return DataSourceConnectionSnapshot(
       kind: DataSourceKind.nightscout,
-      status:
-          configured
-              ? reachable
-                  ? DataSourceConnectionStatus.configured
-                  : DataSourceConnectionStatus.failed
-              : DataSourceConnectionStatus.notConfigured,
-      action:
-          !strategyEnabled
-              ? DataSourceConnectionAction.none
-              : configured
+      status: configured
+          ? reachable
+              ? DataSourceConnectionStatus.configured
+              : DataSourceConnectionStatus.failed
+          : DataSourceConnectionStatus.notConfigured,
+      action: !strategyEnabled
+          ? DataSourceConnectionAction.none
+          : configured
               ? DataSourceConnectionAction.none
               : DataSourceConnectionAction.configure,
-      strategyAction:
-          strategyEnabled
-              ? DataSourceSyncStrategyAction.disable
-              : DataSourceSyncStrategyAction.enable,
+      strategyAction: strategyEnabled
+          ? DataSourceSyncStrategyAction.disable
+          : DataSourceSyncStrategyAction.enable,
       title: 'Nightscout API',
-      subtitle:
-          !strategyEnabled
-              ? 'Strategy is off - enable before setup'
-              : configured
+      subtitle: !strategyEnabled
+          ? 'Strategy is off - enable before setup'
+          : configured
               ? reachable
                   ? 'Configured - strategy is disabled'
                   : 'Configured, but API is not reachable'
@@ -131,7 +126,9 @@ class NightscoutDataSourceHandler implements DataSourceHandler {
     }
     return DataSourceConnectionResult.success(
       message: 'Nightscout API disconnected',
-      nextSettings: settings.copyWith(clearNightscout: true),
+      nextSettings: settings.copyWith(
+        clearNightscout: true,
+      ),
     );
   }
 

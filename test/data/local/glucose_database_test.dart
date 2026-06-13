@@ -39,11 +39,18 @@ void main() {
       expect(state?.lastAttemptAt, isNotNull);
       expect(state?.lastSuccessAt, isNull);
 
-      await database.recordSourceSuccess('nightscout', cursor: '12345');
+      await database.recordSourceSuccess(
+        'nightscout',
+        cursor: '12345',
+        fetchedCount: 12,
+        storedCount: 8,
+      );
       state = await database.getSourceState('nightscout');
       expect(state?.lastSuccessAt, isNotNull);
       expect(state?.lastCursor, '12345');
       expect(state?.lastError, isNull);
+      expect(state?.lastFetchedCount, 12);
+      expect(state?.lastStoredCount, 8);
 
       await database.recordSourceError('nightscout', 'source_unavailable');
       state = await database.getSourceState('nightscout');

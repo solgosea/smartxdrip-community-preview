@@ -4,7 +4,10 @@ class AppSettingsChange {
   final AppSettings previous;
   final AppSettings next;
 
-  const AppSettingsChange({required this.previous, required this.next});
+  const AppSettingsChange({
+    required this.previous,
+    required this.next,
+  });
 
   bool get unitChanged => previous.unit != next.unit;
 

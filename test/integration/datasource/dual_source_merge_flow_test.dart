@@ -10,57 +10,57 @@ import '../../_support/test_database.dart';
 
 void main() {
   group('dual source merge flow', () {
-    test(
-      'syncs enabled Nightscout and xDrip sources into one canonical row',
-      () async {
-        final now = DateTime.now();
-        final sampleTime = now.subtract(const Duration(hours: 2));
-        final nightscoutReading = GlucoseReading(
-          timestamp: sampleTime,
-          value: 6.7,
-        );
-        final xdripReading = GlucoseReading(timestamp: sampleTime, value: 7.4);
+    test('syncs enabled Nightscout and xDrip sources into one canonical row',
+        () async {
+      final now = DateTime.now();
+      final sampleTime = now.subtract(const Duration(hours: 2));
+      final nightscoutReading = GlucoseReading(
+        timestamp: sampleTime,
+        value: 6.7,
+      );
+      final xdripReading = GlucoseReading(
+        timestamp: sampleTime,
+        value: 7.4,
+      );
 
-        final nightscoutServer = MockCgmHttpServer(
-          entries: CgmReadingsFixture.nightscoutEntries([nightscoutReading]),
-        );
-        final xdripServer = MockCgmHttpServer(
-          entries: CgmReadingsFixture.nightscoutEntries([xdripReading]),
-        );
-        await nightscoutServer.start();
-        await xdripServer.start();
-        addTearDown(nightscoutServer.stop);
-        addTearDown(xdripServer.stop);
+      final nightscoutServer = MockCgmHttpServer(
+        entries: CgmReadingsFixture.nightscoutEntries([nightscoutReading]),
+      );
+      final xdripServer = MockCgmHttpServer(
+        entries: CgmReadingsFixture.nightscoutEntries([xdripReading]),
+      );
+      await nightscoutServer.start();
+      await xdripServer.start();
+      addTearDown(nightscoutServer.stop);
+      addTearDown(xdripServer.stop);
 
-        final database = TestDatabase.create();
-        addTearDown(database.close);
+      final database = TestDatabase.create();
+      addTearDown(database.close);
 
-        final settings = AppSettings(
-          nightscoutBaseUrl: nightscoutServer.baseUri.toString(),
-          nightscoutSyncEnabled: true,
-          xdripBaseUrl: xdripServer.baseUri.toString(),
-          xdripSyncEnabled: true,
-        );
+      final settings = AppSettings(
+        nightscoutBaseUrl: nightscoutServer.baseUri.toString(),
+        nightscoutSyncEnabled: true,
+        xdripBaseUrl: xdripServer.baseUri.toString(),
+        xdripSyncEnabled: true,
+      );
 
-        final result = await GlucoseSourceSyncOrchestrator(
-          database: database,
-        ).syncConfiguredSources(settings: settings);
+      final result = await GlucoseSourceSyncOrchestrator(database: database)
+          .syncConfiguredSources(settings: settings);
 
-        expect(result.success, isTrue);
-        expect(result.sourceResults.map((entry) => entry.source), [
-          DataSource.nightscout,
-          DataSource.xdripHttp,
-        ]);
-        expect(await database.rawReadings.count(), 2);
+      expect(result.success, isTrue);
+      expect(result.sourceResults.map((entry) => entry.source), [
+        DataSource.nightscout,
+        DataSource.xdripHttp,
+      ]);
+      expect(await database.rawReadings.count(), 2);
 
-        final canonical = await database.range(
-          sampleTime.subtract(const Duration(minutes: 1)),
-          sampleTime.add(const Duration(minutes: 1)),
-        );
-        expect(canonical, hasLength(1));
-        expect(canonical.single.value, closeTo(6.7, 0.08));
-      },
-    );
+      final canonical = await database.range(
+        sampleTime.subtract(const Duration(minutes: 1)),
+        sampleTime.add(const Duration(minutes: 1)),
+      );
+      expect(canonical, hasLength(1));
+      expect(canonical.single.value, closeTo(6.7, 0.08));
+    });
 
     test('does not sync configured but disabled sources', () async {
       final now = DateTime.now();
@@ -88,9 +88,8 @@ void main() {
         xdripBaseUrl: xdripServer.baseUri.toString(),
       );
 
-      final result = await GlucoseSourceSyncOrchestrator(
-        database: database,
-      ).syncConfiguredSources(settings: settings);
+      final result = await GlucoseSourceSyncOrchestrator(database: database)
+          .syncConfiguredSources(settings: settings);
 
       expect(result.sourceResults, isEmpty);
       expect(result.success, isFalse);

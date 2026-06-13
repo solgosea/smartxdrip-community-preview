@@ -19,7 +19,9 @@ class AlertPolicyEngine {
     if (requested != null) {
       return requested
           .where((channel) => _channelEnabled(channel, config))
-          .toList(growable: false);
+          .toList(
+            growable: false,
+          );
     }
 
     final channels = <AlertChannel>[];
@@ -47,7 +49,10 @@ class AlertPolicyEngine {
     return channels;
   }
 
-  bool _channelEnabled(AlertChannel channel, AlertStrategyConfigSet config) {
+  bool _channelEnabled(
+    AlertChannel channel,
+    AlertStrategyConfigSet config,
+  ) {
     return switch (channel) {
       AlertChannel.inApp => config.inApp.enabled,
       AlertChannel.localNotification => config.localNotification.enabled,

@@ -1,3 +1,4 @@
+import 'package:smart_xdrip/application/plugin_host/app_host_services.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_data_requirement.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_id.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_placement.dart';
@@ -32,27 +33,34 @@ class InsightsPlugin extends SmartFeaturePlugin {
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.glucoseReadings,
-    PluginDataRequirement.dailySummaries,
-    PluginDataRequirement.appSettings,
-  };
+        PluginDataRequirement.glucoseReadings,
+        PluginDataRequirement.dailySummaries,
+        PluginDataRequirement.appSettings,
+      };
 
   @override
   List<PluginRoute> get routes => [
-    PluginRoute(path: '/insight', builder: (_) => const InsightsPage()),
-    PluginRoute(path: '/insights', builder: (_) => const InsightsPage()),
-  ];
+        PluginRoute(path: '/insight', builder: (_) => const InsightsPage()),
+        PluginRoute(path: '/insights', builder: (_) => const InsightsPage()),
+      ];
 
   @override
   void install(PluginInstallContext context) {
+    final host = context.services.get<AppHostServices>();
+    final hostServices = InsightsHostServices(
+      changeSignal: host.changeSignal,
+      facadeProvider: host.facadeProvider,
+      settingsProvider: host.settingsProvider,
+    );
     final cache = InsightsRuntimeCache();
     final runtime = InsightsPluginRuntime(
       cache: cache,
       preheater: InsightsSnapshotPreheater(
-        hostServices: context.services.get<InsightsHostServices>(),
+        hostServices: hostServices,
       ),
     );
     context.services.register<InsightsRuntimeCache>(cache);
+    context.services.register<InsightsHostServices>(hostServices);
     context.services.register<InsightsPluginRuntime>(runtime);
     context.registerRuntime(
       runtime,

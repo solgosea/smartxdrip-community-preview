@@ -6,27 +6,98 @@ import '../../domain/insight/insight_type_code.dart';
 class DefaultInsightTemplates {
   static const all = <InsightTemplate>[
     InsightTemplate(
-      code: 'daily_brief_complete_day_v1',
+      code: 'daily_brief_complete_day_evening_night_v2',
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.dailyBrief,
       type: InsightTypeCode.dailyCompleteDay,
       eyebrowTemplate: 'DAILY BRIEF - TODAY',
       bodyTemplate:
-          '{dayLabel} TIR was {tir}%, {tirDeltaPhrase} your 2-week average ({avgTir14}%). {eveningSentence} CV was {cv}%, {cvDeltaPhrase} your typical {avgCv14}%. {nightSentence}',
+          '{dayLabel} TIR was {tir}%, {tirDeltaPhrase} your 2-week average ({avgTir14}%). The evening-window peak at {eveningPeakTime} reached {eveningPeakValue} {glucoseUnit}, {eveningAboveTarget} above target, lasting about {eveningHighMinutes} min. CV was {cv}%, {cvDeltaPhrase} your typical {avgCv14}%. Night (00:00-06:00) stayed at {nightRange}.',
       footerTemplate: 'Based on {observedDays14} days of data',
       requiredFacts: [
         'dayLabel',
         'tir',
         'tirDeltaPhrase',
         'avgTir14',
-        'eveningSentence',
+        'eveningPeakTime',
+        'eveningPeakValue',
+        'eveningAboveTarget',
+        'eveningHighMinutes',
         'cv',
         'cvDeltaPhrase',
         'avgCv14',
-        'nightSentence',
+        'nightRange',
         'observedDays14',
       ],
       priority: 10,
+    ),
+    InsightTemplate(
+      code: 'daily_brief_complete_day_evening_only_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.dailyBrief,
+      type: InsightTypeCode.dailyCompleteDay,
+      eyebrowTemplate: 'DAILY BRIEF - TODAY',
+      bodyTemplate:
+          '{dayLabel} TIR was {tir}%, {tirDeltaPhrase} your 2-week average ({avgTir14}%). The evening-window peak at {eveningPeakTime} reached {eveningPeakValue} {glucoseUnit}, {eveningAboveTarget} above target, lasting about {eveningHighMinutes} min. CV was {cv}%, {cvDeltaPhrase} your typical {avgCv14}%. Night data was not complete enough to summarize.',
+      footerTemplate: 'Based on {observedDays14} days of data',
+      requiredFacts: [
+        'dayLabel',
+        'tir',
+        'tirDeltaPhrase',
+        'avgTir14',
+        'eveningPeakTime',
+        'eveningPeakValue',
+        'eveningAboveTarget',
+        'eveningHighMinutes',
+        'cv',
+        'cvDeltaPhrase',
+        'avgCv14',
+        'observedDays14',
+      ],
+      priority: 11,
+    ),
+    InsightTemplate(
+      code: 'daily_brief_complete_day_night_only_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.dailyBrief,
+      type: InsightTypeCode.dailyCompleteDay,
+      eyebrowTemplate: 'DAILY BRIEF - TODAY',
+      bodyTemplate:
+          '{dayLabel} TIR was {tir}%, {tirDeltaPhrase} your 2-week average ({avgTir14}%). The evening window did not cross the high threshold in the latest complete day. CV was {cv}%, {cvDeltaPhrase} your typical {avgCv14}%. Night (00:00-06:00) stayed at {nightRange}.',
+      footerTemplate: 'Based on {observedDays14} days of data',
+      requiredFacts: [
+        'dayLabel',
+        'tir',
+        'tirDeltaPhrase',
+        'avgTir14',
+        'cv',
+        'cvDeltaPhrase',
+        'avgCv14',
+        'nightRange',
+        'observedDays14',
+      ],
+      priority: 12,
+    ),
+    InsightTemplate(
+      code: 'daily_brief_complete_day_no_evening_no_night_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.dailyBrief,
+      type: InsightTypeCode.dailyCompleteDay,
+      eyebrowTemplate: 'DAILY BRIEF - TODAY',
+      bodyTemplate:
+          '{dayLabel} TIR was {tir}%, {tirDeltaPhrase} your 2-week average ({avgTir14}%). The evening window did not cross the high threshold in the latest complete day. CV was {cv}%, {cvDeltaPhrase} your typical {avgCv14}%. Night data was not complete enough to summarize.',
+      footerTemplate: 'Based on {observedDays14} days of data',
+      requiredFacts: [
+        'dayLabel',
+        'tir',
+        'tirDeltaPhrase',
+        'avgTir14',
+        'cv',
+        'cvDeltaPhrase',
+        'avgCv14',
+        'observedDays14',
+      ],
+      priority: 13,
     ),
     InsightTemplate(
       code: 'daily_brief_not_enough_data_v1',
@@ -40,38 +111,135 @@ class DefaultInsightTemplates {
       priority: 90,
     ),
     InsightTemplate(
-      code: 'weekly_review_v1',
+      code: 'weekly_review_best_and_longest_v2',
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.weeklyReview,
       type: InsightTypeCode.weeklyReview,
       eyebrowTemplate: 'WEEK IN REVIEW - {weekRange}',
       bodyTemplate:
-          'Last week TIR was {tir7}%, {tirDeltaPhrase} the prior week ({prevTir7}%). {bestDaySentence} {longestHighSentence} CV was {cv7}% for the reviewed week.',
+          'Last week TIR was {tir7}%, {tirDeltaPhrase} the prior week ({prevTir7}%). {bestDayNames} {bestDayVerb} the best {bestDayNoun} by TIR. {longestHighDay} had the longest high episode: {longestHighStart} to {longestHighEnd}, peak {longestHighPeak}. CV was {cv7}% for the reviewed week.',
       footerTemplate: 'n={readingCount7} readings - rolling 7-day review',
       requiredFacts: [
         'weekRange',
         'tir7',
         'tirDeltaPhrase',
         'prevTir7',
-        'bestDaySentence',
-        'longestHighSentence',
+        'bestDayNames',
+        'bestDayVerb',
+        'bestDayNoun',
+        'longestHighDay',
+        'longestHighStart',
+        'longestHighEnd',
+        'longestHighPeak',
         'cv7',
         'readingCount7',
       ],
       priority: 20,
     ),
     InsightTemplate(
-      code: 'pattern_dawn_v1',
+      code: 'weekly_review_best_only_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyReview,
+      type: InsightTypeCode.weeklyReview,
+      eyebrowTemplate: 'WEEK IN REVIEW - {weekRange}',
+      bodyTemplate:
+          'Last week TIR was {tir7}%, {tirDeltaPhrase} the prior week ({prevTir7}%). {bestDayNames} {bestDayVerb} the best {bestDayNoun} by TIR. No high episode was detected during the reviewed week. CV was {cv7}% for the reviewed week.',
+      footerTemplate: 'n={readingCount7} readings - rolling 7-day review',
+      requiredFacts: [
+        'weekRange',
+        'tir7',
+        'tirDeltaPhrase',
+        'prevTir7',
+        'bestDayNames',
+        'bestDayVerb',
+        'bestDayNoun',
+        'cv7',
+        'readingCount7',
+      ],
+      priority: 21,
+    ),
+    InsightTemplate(
+      code: 'weekly_review_longest_only_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyReview,
+      type: InsightTypeCode.weeklyReview,
+      eyebrowTemplate: 'WEEK IN REVIEW - {weekRange}',
+      bodyTemplate:
+          'Last week TIR was {tir7}%, {tirDeltaPhrase} the prior week ({prevTir7}%). No complete daily TIR ranking was available. {longestHighDay} had the longest high episode: {longestHighStart} to {longestHighEnd}, peak {longestHighPeak}. CV was {cv7}% for the reviewed week.',
+      footerTemplate: 'n={readingCount7} readings - rolling 7-day review',
+      requiredFacts: [
+        'weekRange',
+        'tir7',
+        'tirDeltaPhrase',
+        'prevTir7',
+        'longestHighDay',
+        'longestHighStart',
+        'longestHighEnd',
+        'longestHighPeak',
+        'cv7',
+        'readingCount7',
+      ],
+      priority: 22,
+    ),
+    InsightTemplate(
+      code: 'weekly_review_no_best_no_longest_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyReview,
+      type: InsightTypeCode.weeklyReview,
+      eyebrowTemplate: 'WEEK IN REVIEW - {weekRange}',
+      bodyTemplate:
+          'Last week TIR was {tir7}%, {tirDeltaPhrase} the prior week ({prevTir7}%). No complete daily TIR ranking was available. No high episode was detected during the reviewed week. CV was {cv7}% for the reviewed week.',
+      footerTemplate: 'n={readingCount7} readings - rolling 7-day review',
+      requiredFacts: [
+        'weekRange',
+        'tir7',
+        'tirDeltaPhrase',
+        'prevTir7',
+        'cv7',
+        'readingCount7',
+      ],
+      priority: 23,
+    ),
+    InsightTemplate(
+      code: 'pattern_dawn_consistent_v2',
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.patternCard,
       type: InsightTypeCode.dawnPattern,
       iconKey: 'dawn',
       titleTemplate: '{dawnTitle}',
-      bodyTemplate: '{dawnBody}',
+      bodyTemplate:
+          'Glucose rises an average of +{averageRise} {glucoseUnit} between {windowLabel}. This pattern appeared on {significantDays} of {observedMornings} mornings.',
       footerTemplate:
-          'n={observedMornings} mornings - threshold +1.2 {glucoseUnit} - auto-detected',
-      requiredFacts: ['dawnTitle', 'dawnBody', 'observedMornings'],
+          'n={observedMornings} mornings - threshold +{riseThreshold} {glucoseUnit} - auto-detected',
+      requiredFacts: [
+        'dawnTitle',
+        'averageRise',
+        'windowLabel',
+        'significantDays',
+        'observedMornings',
+        'riseThreshold',
+      ],
       priority: 30,
+    ),
+    InsightTemplate(
+      code: 'pattern_dawn_check_v2',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.patternCard,
+      type: InsightTypeCode.dawnPattern,
+      iconKey: 'dawn',
+      titleTemplate: '{dawnTitle}',
+      bodyTemplate:
+          'The {windowLabel} window was measurable on {observedMornings} mornings, but only {significantDays} crossed the +{riseThreshold} {glucoseUnit} threshold.',
+      footerTemplate:
+          'n={observedMornings} mornings - threshold +{riseThreshold} {glucoseUnit} - auto-detected',
+      requiredFacts: [
+        'dawnTitle',
+        'windowLabel',
+        'significantDays',
+        'observedMornings',
+        'riseThreshold',
+      ],
+      priority: 31,
     ),
     InsightTemplate(
       code: 'pattern_volatile_period_v1',
@@ -149,7 +317,11 @@ class DefaultInsightTemplates {
       slot: InsightSlotCode.calendarSummary,
       type: InsightTypeCode.calendarBestDay,
       bodyTemplate: '{weekdayLabel} {dateLabel} (TIR {tir}%)',
-      requiredFacts: ['weekdayLabel', 'dateLabel', 'tir'],
+      requiredFacts: [
+        'weekdayLabel',
+        'dateLabel',
+        'tir',
+      ],
       priority: 10,
     ),
     InsightTemplate(
@@ -159,7 +331,11 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.calendarWeekdayWeekend,
       bodyTemplate:
           'Weekdays and weekends look about the same (weekday avg {weekdayTir}%, weekend avg {weekendTir}%).',
-      requiredFacts: ['samePattern', 'weekdayTir', 'weekendTir'],
+      requiredFacts: [
+        'samePattern',
+        'weekdayTir',
+        'weekendTir',
+      ],
       priority: 10,
     ),
     InsightTemplate(
@@ -169,7 +345,12 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.calendarWeekdayWeekend,
       bodyTemplate:
           'Weekends tend to be {delta}% lower TIR (Sat/Sun avg {weekendTir}% vs weekday {weekdayTir}%).',
-      requiredFacts: ['delta', 'weekdayTir', 'weekendTir', 'weekendLower'],
+      requiredFacts: [
+        'delta',
+        'weekdayTir',
+        'weekendTir',
+        'weekendLower',
+      ],
       priority: 20,
     ),
     InsightTemplate(
@@ -179,7 +360,12 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.calendarWeekdayWeekend,
       bodyTemplate:
           'Weekends tend to be {delta}% higher TIR (Sat/Sun avg {weekendTir}% vs weekday {weekdayTir}%).',
-      requiredFacts: ['delta', 'weekdayTir', 'weekendTir', 'weekendHigher'],
+      requiredFacts: [
+        'delta',
+        'weekdayTir',
+        'weekendTir',
+        'weekendHigher',
+      ],
       priority: 30,
     ),
     InsightTemplate(
@@ -198,7 +384,12 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.calendarBestStreak,
       bodyTemplate:
           'Your best stretch was {startDate}-{endDate}: {streakDays} consecutive days above {threshold}% TIR.',
-      requiredFacts: ['startDate', 'endDate', 'streakDays', 'threshold'],
+      requiredFacts: [
+        'startDate',
+        'endDate',
+        'streakDays',
+        'threshold',
+      ],
       priority: 10,
     ),
     InsightTemplate(
@@ -208,7 +399,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.calendarBestStreak,
       bodyTemplate:
           'Your longest run of days above {threshold}% TIR is too short to highlight yet.',
-      requiredFacts: ['shortStreak', 'threshold'],
+      requiredFacts: [
+        'shortStreak',
+        'threshold',
+      ],
       priority: 80,
     ),
     InsightTemplate(
@@ -260,7 +454,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.periodOverview,
       bodyTemplate: 'Not enough CGM data yet for period analysis.',
       footerTemplate: 'Based on {days} days | no readings available',
-      requiredFacts: ['notEnoughData', 'days'],
+      requiredFacts: [
+        'notEnoughData',
+        'days',
+      ],
       priority: 90,
     ),
     InsightTemplate(
@@ -280,7 +477,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.periodWeekdayWeekend,
       bodyTemplate:
           'Weekday time-in-range is {delta}% higher than weekend time-in-range in this window.',
-      requiredFacts: ['delta', 'weekdayHigher'],
+      requiredFacts: [
+        'delta',
+        'weekdayHigher',
+      ],
       priority: 20,
     ),
     InsightTemplate(
@@ -290,7 +490,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.periodWeekdayWeekend,
       bodyTemplate:
           'Weekend time-in-range is {delta}% higher than weekday time-in-range in this window.',
-      requiredFacts: ['delta', 'weekendHigher'],
+      requiredFacts: [
+        'delta',
+        'weekendHigher',
+      ],
       priority: 30,
     ),
     InsightTemplate(
@@ -313,13 +516,80 @@ class DefaultInsightTemplates {
       priority: 10,
     ),
     InsightTemplate(
+      code: 'weekly_pattern_same_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyPatternSummary,
+      type: InsightTypeCode.weeklyPatternComparison,
+      bodyTemplate:
+          'Weekday and weekend patterns look about the same across the past {countedWeeks} comparable weeks.',
+      requiredFacts: [
+        'samePattern',
+        'countedWeeks',
+      ],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'weekly_pattern_weekday_higher_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyPatternSummary,
+      type: InsightTypeCode.weeklyPatternComparison,
+      bodyTemplate:
+          'Weekday TIR is {delta}% higher than weekend TIR. This pattern appeared in {matchedWeeks} of {countedWeeks} comparable weeks.',
+      requiredFacts: [
+        'delta',
+        'matchedWeeks',
+        'countedWeeks',
+        'weekdayHigher',
+      ],
+      priority: 20,
+    ),
+    InsightTemplate(
+      code: 'weekly_pattern_weekend_higher_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyPatternSummary,
+      type: InsightTypeCode.weeklyPatternComparison,
+      bodyTemplate:
+          'Weekend TIR is {delta}% higher than weekday TIR. This pattern appeared in {matchedWeeks} of {countedWeeks} comparable weeks.',
+      requiredFacts: [
+        'delta',
+        'matchedWeeks',
+        'countedWeeks',
+        'weekendHigher',
+      ],
+      priority: 30,
+    ),
+    InsightTemplate(
+      code: 'weekly_pattern_not_enough_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyPatternSummary,
+      type: InsightTypeCode.weeklyPatternComparison,
+      bodyTemplate:
+          'Not enough weekly data yet to compare weekday and weekend patterns.',
+      requiredFacts: ['notEnoughData'],
+      priority: 90,
+    ),
+    InsightTemplate(
+      code: 'weekly_pattern_empty_state_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.weeklyPatternEmptyState,
+      type: InsightTypeCode.weeklyPatternNoData,
+      bodyTemplate:
+          'No CGM readings were found in the selected weekly window. Connect xDrip+ Local or Nightscout API to view weekly pattern analysis.',
+      priority: 10,
+    ),
+    InsightTemplate(
       code: 'agp_dawn_rise_v1',
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.agpObservation,
       type: InsightTypeCode.agpDawnRise,
       bodyTemplate:
           'Pre-dawn rise ({windowLabel}): median climbs +{avgRise} {glucoseUnit}. Consistent on {consistentDays}/{days} days.',
-      requiredFacts: ['windowLabel', 'avgRise', 'consistentDays', 'days'],
+      requiredFacts: [
+        'windowLabel',
+        'avgRise',
+        'consistentDays',
+        'days',
+      ],
       priority: 10,
     ),
     InsightTemplate(
@@ -329,7 +599,11 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.agpMiddayRecovery,
       bodyTemplate:
           'Midday recovery ({windowLabel}): median stays around {midMedian} {glucoseUnit}. Better controlled than the morning window.',
-      requiredFacts: ['windowLabel', 'midMedian', 'betterThanMorning'],
+      requiredFacts: [
+        'windowLabel',
+        'midMedian',
+        'betterThanMorning',
+      ],
       priority: 10,
     ),
     InsightTemplate(
@@ -339,7 +613,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.agpMiddayRecovery,
       bodyTemplate:
           'Midday recovery ({windowLabel}): median stays around {midMedian} {glucoseUnit}.',
-      requiredFacts: ['windowLabel', 'midMedian'],
+      requiredFacts: [
+        'windowLabel',
+        'midMedian',
+      ],
       priority: 20,
     ),
     InsightTemplate(
@@ -349,7 +626,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.agpNightStability,
       bodyTemplate:
           'Night stability ({windowLabel}): narrow p25-p75 band, your most predictable window.',
-      requiredFacts: ['windowLabel', 'stableNight'],
+      requiredFacts: [
+        'windowLabel',
+        'stableNight',
+      ],
       priority: 10,
     ),
     InsightTemplate(
@@ -359,7 +639,10 @@ class DefaultInsightTemplates {
       type: InsightTypeCode.agpNightStability,
       bodyTemplate:
           'Night window ({windowLabel}): variability is wider than the daytime average.',
-      requiredFacts: ['windowLabel', 'variableNight'],
+      requiredFacts: [
+        'windowLabel',
+        'variableNight',
+      ],
       priority: 20,
     ),
     InsightTemplate(
@@ -368,6 +651,109 @@ class DefaultInsightTemplates {
       slot: InsightSlotCode.agpObservation,
       type: InsightTypeCode.agpNoData,
       bodyTemplate: 'Not enough CGM data yet for time-window observations.',
+      requiredFacts: ['notEnoughData'],
+      priority: 90,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_dawn_consistent_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpDawnRise,
+      bodyTemplate:
+          'A consistent pre-dawn rise between {windowLabel} appears on {significantDays} of {observedDays} observed days, with glucose climbing roughly {averageRise} {glucoseUnit} over that window.',
+      requiredFacts: [
+        'dawnConsistent',
+        'windowLabel',
+        'significantDays',
+        'observedDays',
+        'averageRise',
+        'glucoseUnit',
+      ],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_dawn_absent_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpDawnRise,
+      bodyTemplate:
+          'The selected period does not show a consistent pre-dawn rise pattern; only {significantDays} of {observedDays} observed days crossed the +{riseThreshold} {glucoseUnit} rise threshold.',
+      requiredFacts: [
+        'dawnObserved',
+        'significantDays',
+        'observedDays',
+        'riseThreshold',
+        'glucoseUnit',
+      ],
+      priority: 20,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_dawn_not_enough_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpDawnRise,
+      bodyTemplate:
+          'The selected period does not contain enough paired {windowLabel} readings to evaluate a pre-dawn rise pattern.',
+      requiredFacts: ['dawnNotEnough', 'windowLabel'],
+      priority: 30,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_peak_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpMedianPeak,
+      bodyTemplate:
+          'The median curve peaks near {peakValue} {glucoseUnit} around {peakTime}.',
+      requiredFacts: [
+        'peakValue',
+        'peakTime',
+        'glucoseUnit',
+      ],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_variability_two_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpVariability,
+      bodyTemplate:
+          '{topPeriod} is the most variable period by CV ({topCv}%), followed by {secondPeriod} ({secondCv}%).',
+      requiredFacts: [
+        'topPeriod',
+        'topCv',
+        'secondPeriod',
+        'secondCv',
+      ],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_variability_one_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpVariability,
+      bodyTemplate: '{topPeriod} is the most variable period by CV ({topCv}%).',
+      requiredFacts: [
+        'topPeriod',
+        'topCv',
+      ],
+      priority: 20,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_variability_not_enough_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpVariability,
+      bodyTemplate:
+          'More period-level data is needed before identifying the most variable time window.',
+      requiredFacts: ['notEnoughData'],
+      priority: 90,
+    ),
+    InsightTemplate(
+      code: 'statistics_agp_summary_empty_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.agpSummary,
+      type: InsightTypeCode.agpNoData,
+      bodyTemplate: 'Not enough CGM data yet to draw an AGP profile.',
       requiredFacts: ['notEnoughData'],
       priority: 90,
     ),

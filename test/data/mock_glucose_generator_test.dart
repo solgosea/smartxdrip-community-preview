@@ -12,20 +12,14 @@ void main() {
     expect(readings.length, greaterThan(24000));
     expect(readings.first.timestamp.isBefore(anchor), isTrue);
     expect(
-      readings.last.timestamp.isAfter(
-        anchor.subtract(const Duration(hours: 1)),
-      ),
-      isTrue,
-    );
+        readings.last.timestamp
+            .isAfter(anchor.subtract(const Duration(hours: 1))),
+        isTrue);
 
-    final last14 =
-        readings
-            .where(
-              (r) => r.timestamp.isAfter(
-                anchor.subtract(const Duration(days: 14)),
-              ),
-            )
-            .toList();
+    final last14 = readings
+        .where((r) =>
+            r.timestamp.isAfter(anchor.subtract(const Duration(days: 14))))
+        .toList();
     final events = EpisodeDetector.detect(last14);
     final gaps = GlucoseGapDetector.detect(last14, source: 'mock');
 
@@ -37,7 +31,10 @@ void main() {
       events.where((e) => e.type == GlucoseEventType.lowEpisode),
       isNotEmpty,
     );
-    expect(events.where((e) => e.type == GlucoseEventType.rise), isNotEmpty);
+    expect(
+      events.where((e) => e.type == GlucoseEventType.rise),
+      isNotEmpty,
+    );
     expect(
       events.where((e) => e.type == GlucoseEventType.stableWindow),
       isNotEmpty,

@@ -19,11 +19,10 @@ class DataSourceConnectionService {
       final available = await source.isAvailable();
       return available
           ? ConnectionTestResult.success(
-            'xDrip+ Local is reachable at $baseUrl',
-          )
+              'xDrip+ Local is reachable at $baseUrl')
           : ConnectionTestResult.failure(
-            'xDrip+ Local was not detected at $baseUrl',
-          );
+              'xDrip+ Local was not detected at $baseUrl',
+            );
     } catch (_) {
       return ConnectionTestResult.failure(
         'xDrip+ Local was not detected at $baseUrl',
@@ -44,11 +43,11 @@ class DataSourceConnectionService {
       final available = await source.isAvailable();
       return available
           ? ConnectionTestResult.success(
-            'Nightscout API is reachable at $normalized',
-          )
+              'Nightscout API is reachable at $normalized',
+            )
           : ConnectionTestResult.failure(
-            'Nightscout API did not respond at $normalized',
-          );
+              'Nightscout API did not respond at $normalized',
+            );
     } catch (_) {
       return ConnectionTestResult.failure(
         'Nightscout API did not respond at $normalized',

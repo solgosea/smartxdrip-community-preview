@@ -5,7 +5,9 @@ import '../glucose_sync_step.dart';
 class FetchGlucoseReadingsStep extends GlucoseSyncStep {
   final GlucoseSyncRetryPolicy retryPolicy;
 
-  const FetchGlucoseReadingsStep({required this.retryPolicy});
+  const FetchGlucoseReadingsStep({
+    required this.retryPolicy,
+  });
 
   @override
   Future<void> execute(GlucoseSyncContext context) async {

@@ -15,7 +15,7 @@ All three must pass. CI will reject PRs that fail any of them.
 
 ## Branches
 
-- `main` is always releasable. Never push directly.
+- `main` — always releasable. Never push directly.
 - Feature branches: `feat/<short-description>`
 - Bug fixes: `fix/<short-description>`
 
@@ -25,12 +25,12 @@ One logical change per commit. Subject line in imperative mood, under 72 chars:
 
 ```
 fix: correct TIR calculation for partial-day windows
-feat: improve high episode context card
+feat: add calendar heatmap zoom gesture
 ```
 
 ## Pull requests
 
-- Keep PRs small and focused: one feature or one bug per PR.
+- Keep PRs small and focused — one feature or one bug per PR.
 - Fill in the PR template (what changed, how to test).
 - Link the related issue if one exists.
 

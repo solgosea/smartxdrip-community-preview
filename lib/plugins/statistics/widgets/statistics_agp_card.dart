@@ -7,7 +7,10 @@ import 'statistics_section_card.dart';
 class StatisticsAgpCard extends StatelessWidget {
   final StatisticsAgpViewModel viewModel;
 
-  const StatisticsAgpCard({super.key, required this.viewModel});
+  const StatisticsAgpCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +24,11 @@ class StatisticsAgpCard extends StatelessWidget {
             unit: viewModel.unit,
             low: viewModel.lowThreshold,
             high: viewModel.highThreshold,
+            profile: const AgpCompactChartProfile(),
             height: 180,
             annotations: viewModel.annotations,
+            showLegend: true,
+            enableScrub: true,
           ),
           const SizedBox(height: 12),
           Text(

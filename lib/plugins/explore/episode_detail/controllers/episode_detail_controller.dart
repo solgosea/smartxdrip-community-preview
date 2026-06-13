@@ -54,14 +54,13 @@ class EpisodeDetailController extends ChangeNotifier {
     required AnalysisFacade facade,
   }) async {
     final context = runtimeContext;
-    final snapshot =
-        context == null
-            ? null
-            : await runtime?.preheatKind(
-              context,
-              kind: kind,
-              reason: 'controller',
-            );
+    final snapshot = context == null
+        ? null
+        : await runtime?.preheatKind(
+            context,
+            kind: kind,
+            reason: 'controller',
+          );
     if (snapshot != null) return snapshot.viewModel;
     return mapper.map(kind: kind, facade: facade);
   }

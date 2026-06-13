@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../plugin_platform/placement/explore_plugin_resolver.dart';
+import '../models/explore_plugin_entry_models.dart';
 import '../runtime/explore_entry_state_store.dart';
 import '../runtime/explore_runtime_snapshot.dart';
 
@@ -10,7 +10,9 @@ class ExploreController extends ChangeNotifier {
   ExploreRuntimeSnapshot? _snapshot;
   bool _disposed = false;
 
-  ExploreController({required this.store}) {
+  ExploreController({
+    required this.store,
+  }) {
     _snapshot = store.snapshot;
     store.addListener(_handleStoreChanged);
   }
@@ -20,7 +22,9 @@ class ExploreController extends ChangeNotifier {
           .map(
             (section) => ExplorePluginSection(
               title: section.title,
-              resolvedEntries: section.resolvedEntries,
+              resolvedEntries: section.resolvedEntries
+                  .where((entry) => !_isFeatured(entry))
+                  .toList(growable: false),
             ),
           )
           .where((section) => section.resolvedEntries.isNotEmpty)
@@ -31,6 +35,10 @@ class ExploreController extends ChangeNotifier {
   DateTime? get refreshedAt => _snapshot?.refreshedAt;
 
   String? get refreshReason => _snapshot?.reason;
+
+  bool _isFeatured(ResolvedExplorePluginEntry resolved) {
+    return false;
+  }
 
   void _handleStoreChanged() {
     if (_disposed) return;

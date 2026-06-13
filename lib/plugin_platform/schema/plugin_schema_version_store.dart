@@ -34,11 +34,15 @@ class PluginSchemaVersionStore {
     required int schemaVersion,
   }) async {
     final nowMs = DateTime.now().millisecondsSinceEpoch;
-    await database.insert(tableName, {
-      'plugin_id': pluginId,
-      'schema_version': schemaVersion,
-      'installed_at_ms': nowMs,
-      'updated_at_ms': nowMs,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await database.insert(
+      tableName,
+      {
+        'plugin_id': pluginId,
+        'schema_version': schemaVersion,
+        'installed_at_ms': nowMs,
+        'updated_at_ms': nowMs,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 }

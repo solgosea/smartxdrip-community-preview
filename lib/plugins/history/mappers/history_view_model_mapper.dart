@@ -8,15 +8,18 @@ import 'package:smart_xdrip/domain/entities/glucose_event.dart';
 import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 import 'package:smart_xdrip/presentation/common/widgets/charts/glucose_line_chart.dart';
+import '../analyzers/history_template_text_renderer.dart';
 import '../models/history_view_model.dart';
 
 class HistoryViewModelMapper {
   final GlucoseUnitFormatService glucoseFormatter;
   final GlucoseThresholdFormatService thresholdFormatter;
+  final HistoryTemplateTextRenderer textRenderer;
 
   const HistoryViewModelMapper({
     this.glucoseFormatter = const GlucoseUnitFormatService(),
     this.thresholdFormatter = const GlucoseThresholdFormatService(),
+    this.textRenderer = const HistoryTemplateTextRenderer(),
   });
 
   HistoryViewModel map({
@@ -31,7 +34,7 @@ class HistoryViewModelMapper {
     return HistoryViewModel(
       dateNav: _dateNav(selectedDay, isToday),
       summaryChips: _summaryChips(tir, readings, settings),
-      curve: _curve(readings, events, settings),
+      curve: _curve(selectedDay, readings, events, settings),
       stats: _stats(tir, readings, settings),
       episodeCallouts: _episodeCallouts(events, unit),
       events: events.map((event) => _eventRow(event, settings)).toList(),
@@ -74,25 +77,32 @@ class HistoryViewModelMapper {
       ),
       HistorySummaryChipViewModel(
         text: 'Avg $meanLabel',
-        color:
-            (tir.mean >= settings.lowThreshold &&
-                    tir.mean <= settings.highThreshold)
-                ? AppColors.green
-                : AppColors.amber,
+        color: (tir.mean >= settings.lowThreshold &&
+                tir.mean <= settings.highThreshold)
+            ? AppColors.green
+            : AppColors.amber,
       ),
     ];
   }
 
   HistoryCurveViewModel _curve(
+    DateTime selectedDay,
     List<GlucoseReading> readings,
     List<GlucoseEvent> events,
     AppSettings settings,
   ) {
+    final dayStart = DateTime(
+      selectedDay.year,
+      selectedDay.month,
+      selectedDay.day,
+    );
     return HistoryCurveViewModel(
       readings: readings,
       unit: settings.unit,
       lowThreshold: settings.lowThreshold,
       highThreshold: settings.highThreshold,
+      timeRangeStart: dayStart,
+      timeRangeEnd: dayStart.add(const Duration(days: 1)),
       episodes: _chartEpisodes(events),
       markers: _chartMarkers(events),
     );
@@ -104,13 +114,17 @@ class HistoryViewModelMapper {
       final end = event.endTime;
       if (end == null) continue;
       if (event.type == GlucoseEventType.highEpisode) {
-        output.add(
-          ChartEpisode(start: event.time, end: end, color: AppColors.rose),
-        );
+        output.add(ChartEpisode(
+          start: event.time,
+          end: end,
+          color: AppColors.rose,
+        ));
       } else if (event.type == GlucoseEventType.lowEpisode) {
-        output.add(
-          ChartEpisode(start: event.time, end: end, color: AppColors.blue),
-        );
+        output.add(ChartEpisode(
+          start: event.time,
+          end: end,
+          color: AppColors.blue,
+        ));
       }
     }
     return output;
@@ -121,9 +135,8 @@ class HistoryViewModelMapper {
     for (final event in events) {
       switch (event.type) {
         case GlucoseEventType.rise:
-          output.add(
-            ChartEventMarker(time: event.time, color: AppColors.amber),
-          );
+          output
+              .add(ChartEventMarker(time: event.time, color: AppColors.amber));
           break;
         case GlucoseEventType.highEpisode:
           output.add(ChartEventMarker(time: event.time, color: AppColors.rose));
@@ -132,9 +145,8 @@ class HistoryViewModelMapper {
           output.add(ChartEventMarker(time: event.time, color: AppColors.blue));
           break;
         case GlucoseEventType.recovery:
-          output.add(
-            ChartEventMarker(time: event.time, color: AppColors.green),
-          );
+          output
+              .add(ChartEventMarker(time: event.time, color: AppColors.green));
           break;
         case GlucoseEventType.stableWindow:
         case GlucoseEventType.firstReading:
@@ -185,37 +197,39 @@ class HistoryViewModelMapper {
     List<GlucoseEvent> events,
     GlucoseUnit unit,
   ) {
-    final episodes =
-        events
-            .where(
-              (event) =>
-                  event.type == GlucoseEventType.highEpisode ||
-                  event.type == GlucoseEventType.lowEpisode,
-            )
-            .toList()
-          ..sort((a, b) => a.time.compareTo(b.time));
+    final episodes = events
+        .where((event) =>
+            event.type == GlucoseEventType.highEpisode ||
+            event.type == GlucoseEventType.lowEpisode)
+        .toList()
+      ..sort((a, b) => a.time.compareTo(b.time));
 
     return episodes.map((event) {
       final isHigh = event.type == GlucoseEventType.highEpisode;
       final color = isHigh ? AppColors.rose : AppColors.blue;
-      final value =
-          glucoseFormatter
-              .value(event.peakOrNadir ?? event.value, unit)
-              .fullLabel;
+      final value = glucoseFormatter
+          .value(event.peakOrNadir ?? event.value, unit)
+          .fullLabel;
       final extras = <String>[];
       if (event.isNocturnal && !isHigh) extras.add('Nocturnal low');
       if (event.ratePerMin != null && event.ratePerMin!.abs() > 0.05) {
         extras.add('rate ${_formatRate(event.ratePerMin, unit)}');
       }
-      final extraText = extras.isEmpty ? '' : '. ${extras.join(', ')}.';
+      final summaryTemplate = extras.isEmpty
+          ? HistoryTextTemplate.episodeCalloutNoExtra
+          : HistoryTextTemplate.episodeCallout;
 
       return HistoryEpisodeCalloutViewModel(
         color: color,
         icon:
             isHigh ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
         label: isHigh ? 'High episode' : 'Low episode',
-        summary:
-            'at ${_hm(event.time)} - $value, lasted ${event.durationMinutes} min$extraText',
+        summary: textRenderer.render(summaryTemplate, {
+          'time': _hm(event.time),
+          'value': value,
+          'durationMinutes': event.durationMinutes,
+          'extraText': extras.join(', '),
+        }),
         actionLabel: 'View episode analysis ->',
         route: isHigh ? '/explore/high-episode' : '/explore/low-episode',
       );
@@ -224,11 +238,8 @@ class HistoryViewModelMapper {
 
   HistoryEventRowViewModel _eventRow(GlucoseEvent event, AppSettings settings) {
     final spec = _eventIconSpec(event.type);
-    final tint = _eventIconTint(
-      event.type,
-      event.peakOrNadir ?? event.value,
-      settings,
-    );
+    final tint =
+        _eventIconTint(event.type, event.peakOrNadir ?? event.value, settings);
     return HistoryEventRowViewModel(
       time: _hm(event.time),
       name: _eventName(event.type),
@@ -244,45 +255,45 @@ class HistoryViewModelMapper {
   }
 
   String _eventName(GlucoseEventType type) => switch (type) {
-    GlucoseEventType.highEpisode => 'Rise detected',
-    GlucoseEventType.lowEpisode => 'Low episode',
-    GlucoseEventType.rise => 'Rise detected',
-    GlucoseEventType.recovery => 'Recovery to range',
-    GlucoseEventType.stableWindow => 'Stable window',
-    GlucoseEventType.firstReading => 'First reading of day',
-    GlucoseEventType.dawnPhenomenon => 'Dawn phenomenon',
-  };
+        GlucoseEventType.highEpisode => 'Rise detected',
+        GlucoseEventType.lowEpisode => 'Low episode',
+        GlucoseEventType.rise => 'Rise detected',
+        GlucoseEventType.recovery => 'Recovery to range',
+        GlucoseEventType.stableWindow => 'Stable window',
+        GlucoseEventType.firstReading => 'First reading of day',
+        GlucoseEventType.dawnPhenomenon => 'Dawn phenomenon',
+      };
 
   ({IconData icon, Color color}) _eventIconSpec(GlucoseEventType type) =>
       switch (type) {
         GlucoseEventType.highEpisode => (
-          icon: Icons.arrow_upward_rounded,
-          color: AppColors.rose,
-        ),
+            icon: Icons.arrow_upward_rounded,
+            color: AppColors.rose
+          ),
         GlucoseEventType.lowEpisode => (
-          icon: Icons.arrow_downward_rounded,
-          color: AppColors.blue,
-        ),
+            icon: Icons.arrow_downward_rounded,
+            color: AppColors.blue
+          ),
         GlucoseEventType.rise => (
-          icon: Icons.trending_up_rounded,
-          color: AppColors.amber,
-        ),
+            icon: Icons.trending_up_rounded,
+            color: AppColors.amber
+          ),
         GlucoseEventType.recovery => (
-          icon: Icons.south_east_rounded,
-          color: AppColors.green,
-        ),
+            icon: Icons.south_east_rounded,
+            color: AppColors.green
+          ),
         GlucoseEventType.stableWindow => (
-          icon: Icons.timeline_rounded,
-          color: AppColors.green,
-        ),
+            icon: Icons.timeline_rounded,
+            color: AppColors.green
+          ),
         GlucoseEventType.firstReading => (
-          icon: Icons.wb_sunny_outlined,
-          color: AppColors.amber,
-        ),
+            icon: Icons.wb_sunny_outlined,
+            color: AppColors.amber
+          ),
         GlucoseEventType.dawnPhenomenon => (
-          icon: Icons.wb_twilight_rounded,
-          color: AppColors.amber,
-        ),
+            icon: Icons.wb_twilight_rounded,
+            color: AppColors.amber
+          ),
       };
 
   ({Color bg, Color border})? _eventIconTint(
@@ -314,10 +325,9 @@ class HistoryViewModelMapper {
   }
 
   String _eventDetail(GlucoseEvent event, AppSettings settings) {
-    final highValue =
-        glucoseFormatter
-            .value(settings.highThreshold, settings.unit)
-            .valueLabel;
+    final highValue = glucoseFormatter
+        .value(settings.highThreshold, settings.unit)
+        .valueLabel;
     final lowValue =
         glucoseFormatter.value(settings.lowThreshold, settings.unit).valueLabel;
     final unit = settings.unit;
@@ -326,40 +336,68 @@ class HistoryViewModelMapper {
       final duration = event.durationMinutes;
       final rateText =
           rate != null ? glucoseFormatter.rate(rate, unit).fullLabel : '';
-      return [
-        if (rateText.isNotEmpty) rateText,
-        if (duration > 0) '$duration min above $highValue',
-      ].join(' - ');
+      final hasRate = rateText.isNotEmpty;
+      final hasDuration = duration > 0;
+      final template = hasRate && hasDuration
+          ? HistoryTextTemplate.highEventDetail
+          : hasRate
+              ? HistoryTextTemplate.highEventDetailRateOnly
+              : hasDuration
+                  ? HistoryTextTemplate.highEventDetailDurationOnly
+                  : HistoryTextTemplate.highEventDetailEmpty;
+      return textRenderer.render(template, {
+        'rate': rateText,
+        'durationMinutes': duration,
+        'highThreshold': highValue,
+      });
     }
     if (event.type == GlucoseEventType.lowEpisode) {
       final duration = event.durationMinutes;
-      return [
-        if (event.isNocturnal) 'Nocturnal',
-        if (duration > 0) '$duration min below $lowValue',
-      ].join(' - ');
+      final hasDuration = duration > 0;
+      final template = event.isNocturnal && hasDuration
+          ? HistoryTextTemplate.lowEventDetail
+          : event.isNocturnal
+              ? HistoryTextTemplate.lowEventDetailNocturnalOnly
+              : hasDuration
+                  ? HistoryTextTemplate.lowEventDetailDurationOnly
+                  : HistoryTextTemplate.lowEventDetailEmpty;
+      return textRenderer.render(template, {
+        'durationMinutes': duration,
+        'lowThreshold': lowValue,
+      });
     }
-    if (event.type == GlucoseEventType.firstReading) return 'Fasting glucose';
+    if (event.type == GlucoseEventType.firstReading) {
+      return textRenderer.render(
+        HistoryTextTemplate.firstReadingDetail,
+        const {},
+      );
+    }
     if (event.type == GlucoseEventType.recovery) {
       final rate = event.ratePerMin;
       if (rate == null) return 'Back in range';
-      return 'Back in range - ${glucoseFormatter.rate(rate, unit).fullLabel}';
+      return textRenderer.render(HistoryTextTemplate.recoveryDetail, {
+        'rate': glucoseFormatter.rate(rate, unit).fullLabel,
+      });
     }
     if (event.type == GlucoseEventType.stableWindow) {
-      return 'Low variability window';
+      return textRenderer.render(
+        HistoryTextTemplate.stableWindowDetail,
+        const {},
+      );
     }
     return '';
   }
 
   String _eventValueLabel(GlucoseEvent event, GlucoseUnit unit) {
-    final value =
-        glucoseFormatter
-            .value(event.peakOrNadir ?? event.value, unit)
-            .fullLabel;
-    final suffix =
-        event.type == GlucoseEventType.highEpisode
-            ? ' - peak'
-            : (event.type == GlucoseEventType.rise ? ' - local peak' : '');
-    return '$value$suffix';
+    final value = glucoseFormatter
+        .value(event.peakOrNadir ?? event.value, unit)
+        .fullLabel;
+    final template = event.type == GlucoseEventType.highEpisode
+        ? HistoryTextTemplate.highValueSuffix
+        : event.type == GlucoseEventType.rise
+            ? HistoryTextTemplate.riseValueSuffix
+            : HistoryTextTemplate.plainValueSuffix;
+    return textRenderer.render(template, {'value': value});
   }
 
   Color _eventValueColor(GlucoseEvent event, AppSettings settings) {
@@ -403,8 +441,7 @@ class HistoryViewModelMapper {
   }
 
   bool _isElevated(double value, AppSettings settings) {
-    final lowerBand =
-        settings.highThreshold -
+    final lowerBand = settings.highThreshold -
         (settings.highThreshold - settings.lowThreshold) * 0.15;
     return value >= lowerBand && value <= settings.highThreshold;
   }
@@ -425,8 +462,8 @@ class HistoryViewModelMapper {
 
   double _peak(List<GlucoseReading> readings) {
     if (readings.isEmpty) return 0;
-    return readings
-        .map((reading) => reading.value)
-        .reduce((a, b) => a > b ? a : b);
+    return readings.map((reading) => reading.value).reduce(
+          (a, b) => a > b ? a : b,
+        );
   }
 }

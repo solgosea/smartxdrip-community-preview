@@ -96,7 +96,10 @@ class SettingsViewModelMapper {
     return '${mb.toStringAsFixed(1)} MB';
   }
 
-  double _fillRatio({required int daysCovered, required int retentionDays}) {
+  double _fillRatio({
+    required int daysCovered,
+    required int retentionDays,
+  }) {
     if (retentionDays <= 0) return 0;
     return (daysCovered / retentionDays).clamp(0.0, 1.0).toDouble();
   }

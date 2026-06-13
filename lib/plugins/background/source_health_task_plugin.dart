@@ -1,3 +1,5 @@
+import '../../plugin_platform/graph/plugin_slot_key.dart';
+import '../../plugin_platform/composition/plugin_placement_spec.dart';
 import '../../plugin_platform/contracts/plugin_data_requirement.dart';
 import '../../plugin_platform/contracts/plugin_entry.dart';
 import '../../plugin_platform/contracts/plugin_id.dart';
@@ -23,12 +25,25 @@ class SourceHealthTaskPlugin extends SmartFeaturePlugin {
   PluginReleaseStage get releaseStage => PluginReleaseStage.stable;
 
   @override
-  Set<PluginPlacement> get placements => const {PluginPlacement.backgroundTask};
+  Set<PluginPlacement> get placements => const {
+        PluginPlacement.backgroundTask,
+      };
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.sourceConnection,
-  };
+        PluginDataRequirement.sourceConnection,
+      };
+  @override
+  List<PluginPlacementSpec> get placementSpecs => [
+        PluginPlacementSpec(
+          pluginId: id,
+          slot: const PluginSlotKey('app.backgroundTask'),
+          renderKey: 'source.health_check',
+          title: 'Source Health Check',
+          order: 10,
+          dataRequirements: dataRequirements,
+        ),
+      ];
 
   @override
   BackgroundTaskPluginEntry get backgroundTaskEntry =>

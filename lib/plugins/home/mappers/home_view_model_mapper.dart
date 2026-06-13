@@ -31,19 +31,16 @@ class HomeViewModelMapper {
   }) {
     final settings = facade.settings;
     final unit = settings.unit;
-    final latest =
-        facade.latestReading ??
+    final latest = facade.latestReading ??
         GlucoseReading(timestamp: DateTime.now(), value: 0);
     final chartReadings = facade.readingsForLastHours(selectedRange.hours);
     final tir24h = facade.tirForReadings(facade.readingsForLastHours(24));
-    final cv7d =
-        facade.averageCvForLastDays(7) ??
+    final cv7d = facade.averageCvForLastDays(7) ??
         facade.tirForReadings(facade.readingsForLastDays(7)).cv;
     final generated = facade.insightBodiesFor(AnalysisModuleCode.insights);
-    final insightText =
-        generated.isNotEmpty
-            ? generated.first
-            : (facade.compactDailySummary() ?? 'Not enough CGM data yet.');
+    final insightText = generated.isNotEmpty
+        ? generated.first
+        : (facade.compactDailySummary() ?? 'Not enough CGM data yet.');
 
     return HomeViewModel(
       syncStatus: syncStatus,

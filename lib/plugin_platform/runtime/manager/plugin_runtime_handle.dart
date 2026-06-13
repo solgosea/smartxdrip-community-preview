@@ -5,5 +5,8 @@ class PluginRuntimeHandle {
   final PluginRuntime runtime;
   final PluginRuntimeStartPolicy startPolicy;
 
-  const PluginRuntimeHandle({required this.runtime, required this.startPolicy});
+  const PluginRuntimeHandle({
+    required this.runtime,
+    required this.startPolicy,
+  });
 }

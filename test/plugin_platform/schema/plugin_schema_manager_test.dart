@@ -19,8 +19,8 @@ void main() {
   });
 
   test('installs registered plugin schemas and records versions', () async {
-    final registry =
-        PluginSchemaRegistry()..register(const _TestSchemaContributor());
+    final registry = PluginSchemaRegistry()
+      ..register(const _TestSchemaContributor());
     final manager = PluginSchemaManager(
       databaseProvider: () async => database,
       registry: registry,

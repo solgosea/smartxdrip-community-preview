@@ -103,18 +103,19 @@ class AlertSoundSelectorSheet extends StatelessWidget {
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: importing ? null : onImportCustom,
-                icon:
-                    importing
-                        ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.green,
-                          ),
-                        )
-                        : const Icon(Icons.folder_open_rounded),
-                label: Text(importing ? 'Importing...' : 'Choose audio file'),
+                icon: importing
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.green,
+                        ),
+                      )
+                    : const Icon(Icons.folder_open_rounded),
+                label: Text(
+                  importing ? 'Importing...' : 'Choose audio file',
+                ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.green,
                   side: const BorderSide(color: AppColors.borderMid),
@@ -181,10 +182,9 @@ class _SoundOptionTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color:
-              selected
-                  ? AppColors.green.withValues(alpha: .12)
-                  : AppColors.bgCard,
+          color: selected
+              ? AppColors.green.withValues(alpha: .12)
+              : AppColors.bgCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected ? AppColors.green : AppColors.border,
@@ -217,7 +217,10 @@ class _SoundOptionTile extends StatelessWidget {
           ),
           subtitle: Text(
             _subtitleFor(sound),
-            style: const TextStyle(color: AppColors.textSoft, fontSize: 11),
+            style: const TextStyle(
+              color: AppColors.textSoft,
+              fontSize: 11,
+            ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -225,7 +228,10 @@ class _SoundOptionTile extends StatelessWidget {
               if (playable)
                 TextButton.icon(
                   onPressed: isPreviewing ? null : () => onPreview(sound),
-                  icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                  icon: const Icon(
+                    Icons.play_arrow_rounded,
+                    size: 16,
+                  ),
                   label: Text(isPreviewing ? 'Playing' : 'Preview'),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.green,

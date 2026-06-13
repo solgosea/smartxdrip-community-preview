@@ -5,7 +5,10 @@ import '../models/statistics_view_model.dart';
 class StatisticsExtremeCell extends StatelessWidget {
   final StatisticsExtremeCellViewModel viewModel;
 
-  const StatisticsExtremeCell({super.key, required this.viewModel});
+  const StatisticsExtremeCell({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

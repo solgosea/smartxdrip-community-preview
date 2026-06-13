@@ -18,9 +18,7 @@ class DataSourceSyncStrategyPolicy {
     required AppSettings settings,
     required List<DataSourceSyncStrategy> strategies,
   }) {
-    return enabledStrategies(
-      settings: settings,
-      strategies: strategies,
-    ).isNotEmpty;
+    return enabledStrategies(settings: settings, strategies: strategies)
+        .isNotEmpty;
   }
 }

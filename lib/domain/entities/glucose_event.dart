@@ -19,7 +19,7 @@ class GlucoseEvent {
   final double? ratePerMin;
   final LowSeverity? lowSeverity;
   final bool isNocturnal;
-  final double? areaOutOfRange; // mmol-min
+  final double? areaOutOfRange; // mmol·min
 
   const GlucoseEvent({
     required this.type,

@@ -35,13 +35,11 @@ class CgmReadingsFixture {
       } else if (hour == 10) {
         value = 9.4 - (i % 6) * 0.08;
       }
-      output.add(
-        GlucoseReading(
-          timestamp: rows[i].timestamp,
-          value: value,
-          ratePerMin: rows[i].ratePerMin,
-        ),
-      );
+      output.add(GlucoseReading(
+        timestamp: rows[i].timestamp,
+        value: value,
+        ratePerMin: rows[i].ratePerMin,
+      ));
     }
     return output;
   }

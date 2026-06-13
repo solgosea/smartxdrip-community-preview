@@ -51,9 +51,10 @@ class GlucoseSyncCoordinator {
             error: 'sync_pipeline_no_result',
           );
     } catch (error) {
-      return RecordSyncFailureStep(
-        errorClassifier: errorClassifier,
-      ).execute(context, error);
+      return RecordSyncFailureStep(errorClassifier: errorClassifier).execute(
+        context,
+        error,
+      );
     }
   }
 

@@ -10,17 +10,21 @@ class GlucoseTrendDirectionMapper {
       'singleup' || 'single_up' || 'up' => GlucoseTrendDirection.singleUp,
       'fortyfiveup' ||
       'forty_five_up' ||
-      '45up' => GlucoseTrendDirection.fortyFiveUp,
+      '45up' =>
+        GlucoseTrendDirection.fortyFiveUp,
       'flat' || 'steady' => GlucoseTrendDirection.flat,
       'fortyfivedown' ||
       'forty_five_down' ||
-      '45down' => GlucoseTrendDirection.fortyFiveDown,
+      '45down' =>
+        GlucoseTrendDirection.fortyFiveDown,
       'singledown' ||
       'single_down' ||
-      'down' => GlucoseTrendDirection.singleDown,
+      'down' =>
+        GlucoseTrendDirection.singleDown,
       'doubledown' ||
       'double_down' ||
-      'downdown' => GlucoseTrendDirection.doubleDown,
+      'downdown' =>
+        GlucoseTrendDirection.doubleDown,
       _ => GlucoseTrendDirection.unknown,
     };
   }

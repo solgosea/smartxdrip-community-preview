@@ -24,227 +24,220 @@ import '../../_support/test_database.dart';
 
 void main() {
   group('data sync mechanism coverage', () {
-    test(
-      'single-source sync is idempotent and records source success',
-      () async {
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final now = DateTime.now();
-        final readings = [
-          GlucoseReading(
-            timestamp: now.subtract(const Duration(minutes: 15)),
-            value: 6.1,
-          ),
-          GlucoseReading(
-            timestamp: now.subtract(const Duration(minutes: 10)),
-            value: 6.3,
-          ),
-          GlucoseReading(
-            timestamp: now.subtract(const Duration(minutes: 5)),
-            value: 6.5,
-          ),
-        ];
-        final source = FakeGlucoseSource(
-          type: DataSource.nightscout,
-          readings: readings,
-        );
-        final coordinator = GlucoseSyncCoordinator(database: database);
+    test('single-source sync is idempotent and records source success',
+        () async {
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final now = DateTime.now();
+      final readings = [
+        GlucoseReading(
+          timestamp: now.subtract(const Duration(minutes: 15)),
+          value: 6.1,
+        ),
+        GlucoseReading(
+          timestamp: now.subtract(const Duration(minutes: 10)),
+          value: 6.3,
+        ),
+        GlucoseReading(
+          timestamp: now.subtract(const Duration(minutes: 5)),
+          value: 6.5,
+        ),
+      ];
+      final source = FakeGlucoseSource(
+        type: DataSource.nightscout,
+        readings: readings,
+      );
+      final coordinator = GlucoseSyncCoordinator(database: database);
 
-        final first = await coordinator.syncOnce(
-          source: source,
-          settings: const AppSettings(
-            nightscoutBaseUrl: 'http://localhost:1337',
-            nightscoutSyncEnabled: true,
-          ),
-        );
-        final second = await coordinator.syncOnce(
-          source: source,
-          settings: const AppSettings(
-            nightscoutBaseUrl: 'http://localhost:1337',
-            nightscoutSyncEnabled: true,
-          ),
-        );
-
-        expect(first.success, isTrue);
-        expect(second.success, isTrue);
-        expect(await database.rawReadings.count(), readings.length);
-        expect(await database.count(), readings.length);
-
-        final state = await database.getSourceState(DataSource.nightscout.name);
-        expect(state?.lastSuccessAt, isNotNull);
-        expect(state?.lastAttemptAt, isNotNull);
-        expect(state?.lastError, isNull);
-        expect(
-          state?.lastCursor,
-          readings.last.timestamp.millisecondsSinceEpoch.toString(),
-        );
-      },
-    );
-
-    test(
-      'sync failure records source error and leaves canonical data untouched',
-      () async {
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final coordinator = GlucoseSyncCoordinator(database: database);
-
-        final result = await coordinator.syncOnce(
-          source: FakeGlucoseSource(
-            type: DataSource.xdripHttp,
-            readings: const [],
-            availabilityError: Exception('socket closed'),
-          ),
-          settings: const AppSettings(
-            xdripBaseUrl: 'http://127.0.0.1:17580',
-            xdripSyncEnabled: true,
-          ),
-        );
-
-        expect(result.success, isFalse);
-        expect(await database.count(), 0);
-        expect(await database.rawReadings.count(), 0);
-
-        final state = await database.getSourceState(DataSource.xdripHttp.name);
-        expect(state?.lastAttemptAt, isNotNull);
-        expect(state?.lastSuccessAt, isNull);
-        expect(state?.lastError, isNotNull);
-      },
-    );
-
-    test(
-      'dual source merge prefers recent xDrip and historical Nightscout',
-      () async {
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final now = DateTime.now();
-        final recentTime = now.subtract(const Duration(minutes: 5));
-        final historicalTime = now.subtract(const Duration(hours: 2));
-
-        final nightscoutServer = MockCgmHttpServer(
-          entries: CgmReadingsFixture.nightscoutEntries([
-            GlucoseReading(timestamp: recentTime, value: 6.7),
-            GlucoseReading(timestamp: historicalTime, value: 6.1),
-          ]),
-        );
-        final xdripServer = MockCgmHttpServer(
-          entries: CgmReadingsFixture.nightscoutEntries([
-            GlucoseReading(timestamp: recentTime, value: 7.4),
-            GlucoseReading(timestamp: historicalTime, value: 8.4),
-          ]),
-        );
-        await nightscoutServer.start();
-        await xdripServer.start();
-        addTearDown(nightscoutServer.stop);
-        addTearDown(xdripServer.stop);
-
-        final settings = AppSettings(
-          nightscoutBaseUrl: nightscoutServer.baseUri.toString(),
+      final first = await coordinator.syncOnce(
+        source: source,
+        settings: const AppSettings(
+          nightscoutBaseUrl: 'http://localhost:1337',
           nightscoutSyncEnabled: true,
-          xdripBaseUrl: xdripServer.baseUri.toString(),
-          xdripSyncEnabled: true,
-        );
+        ),
+      );
+      final second = await coordinator.syncOnce(
+        source: source,
+        settings: const AppSettings(
+          nightscoutBaseUrl: 'http://localhost:1337',
+          nightscoutSyncEnabled: true,
+        ),
+      );
 
-        final result = await GlucoseSourceSyncOrchestrator(
-          database: database,
-        ).syncConfiguredSources(settings: settings);
+      expect(first.success, isTrue);
+      expect(second.success, isTrue);
+      expect(await database.rawReadings.count(), readings.length);
+      expect(await database.count(), readings.length);
 
-        expect(result.success, isTrue);
-        expect(await database.rawReadings.count(), 4);
-
-        final recent = await database.range(
-          recentTime.subtract(const Duration(minutes: 1)),
-          recentTime.add(const Duration(minutes: 1)),
-        );
-        final historical = await database.range(
-          historicalTime.subtract(const Duration(minutes: 1)),
-          historicalTime.add(const Duration(minutes: 1)),
-        );
-        expect(recent.single.value, closeTo(7.4, 0.08));
-        expect(historical.single.value, closeTo(6.1, 0.08));
-      },
-    );
+      final state = await database.getSourceState(DataSource.nightscout.name);
+      expect(state?.lastSuccessAt, isNotNull);
+      expect(state?.lastAttemptAt, isNotNull);
+      expect(state?.lastError, isNull);
+      expect(
+        state?.lastCursor,
+        readings.last.timestamp.millisecondsSinceEpoch.toString(),
+      );
+    });
 
     test(
-      'polling decision service reacts to synced low glucose state',
-      () async {
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final now = DateTime.now();
-        await database.upsertMany([
+        'sync failure records source error and leaves canonical data untouched',
+        () async {
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final coordinator = GlucoseSyncCoordinator(database: database);
+
+      final result = await coordinator.syncOnce(
+        source: FakeGlucoseSource(
+          type: DataSource.xdripHttp,
+          readings: const [],
+          availabilityError: Exception('socket closed'),
+        ),
+        settings: const AppSettings(
+          xdripBaseUrl: 'http://127.0.0.1:17580',
+          xdripSyncEnabled: true,
+        ),
+      );
+
+      expect(result.success, isFalse);
+      expect(await database.count(), 0);
+      expect(await database.rawReadings.count(), 0);
+
+      final state = await database.getSourceState(DataSource.xdripHttp.name);
+      expect(state?.lastAttemptAt, isNotNull);
+      expect(state?.lastSuccessAt, isNull);
+      expect(state?.lastError, isNotNull);
+    });
+
+    test('dual source merge prefers recent xDrip and historical Nightscout',
+        () async {
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final now = DateTime.now();
+      final recentTime = now.subtract(const Duration(minutes: 5));
+      final historicalTime = now.subtract(const Duration(hours: 2));
+
+      final nightscoutServer = MockCgmHttpServer(
+        entries: CgmReadingsFixture.nightscoutEntries([
+          GlucoseReading(timestamp: recentTime, value: 6.7),
+          GlucoseReading(timestamp: historicalTime, value: 6.1),
+        ]),
+      );
+      final xdripServer = MockCgmHttpServer(
+        entries: CgmReadingsFixture.nightscoutEntries([
+          GlucoseReading(timestamp: recentTime, value: 7.4),
+          GlucoseReading(timestamp: historicalTime, value: 8.4),
+        ]),
+      );
+      await nightscoutServer.start();
+      await xdripServer.start();
+      addTearDown(nightscoutServer.stop);
+      addTearDown(xdripServer.stop);
+
+      final settings = AppSettings(
+        nightscoutBaseUrl: nightscoutServer.baseUri.toString(),
+        nightscoutSyncEnabled: true,
+        xdripBaseUrl: xdripServer.baseUri.toString(),
+        xdripSyncEnabled: true,
+      );
+
+      final result = await GlucoseSourceSyncOrchestrator(database: database)
+          .syncConfiguredSources(settings: settings);
+
+      expect(result.success, isTrue);
+      expect(await database.rawReadings.count(), 4);
+
+      final recent = await database.range(
+        recentTime.subtract(const Duration(minutes: 1)),
+        recentTime.add(const Duration(minutes: 1)),
+      );
+      final historical = await database.range(
+        historicalTime.subtract(const Duration(minutes: 1)),
+        historicalTime.add(const Duration(minutes: 1)),
+      );
+      expect(recent.single.value, closeTo(7.4, 0.08));
+      expect(historical.single.value, closeTo(6.1, 0.08));
+    });
+
+    test('polling decision service reacts to synced low glucose state',
+        () async {
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final now = DateTime.now();
+      await database.upsertMany(
+        [
           GlucoseReading(
             timestamp: now.subtract(const Duration(minutes: 1)),
             value: 3.4,
           ),
-        ], source: DataSource.xdripHttp.name);
-        await database.recordSourceSuccess(DataSource.xdripHttp.name);
+        ],
+        source: DataSource.xdripHttp.name,
+      );
+      await database.recordSourceSuccess(DataSource.xdripHttp.name);
 
-        final service = PollingDecisionService(
-          contextBuilder: PollingContextBuilder(
-            database: database,
-            sourceStateLoader: (kind) => _sourceStateFor(database, kind),
-          ),
-        );
-
-        final decision = await service.decide(
-          settings: const AppSettings(
-            xdripBaseUrl: 'http://127.0.0.1:17580',
-            xdripSyncEnabled: true,
-          ),
-          mode: PollingMode.background,
-        );
-
-        expect(decision.nextInterval, const Duration(seconds: 30));
-        expect(decision.riskLevel, PollingRiskLevel.dangerous);
-      },
-    );
-
-    test(
-      'background sync snapshot exposes dynamic next polling interval',
-      () async {
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final lowTime = DateTime.now().subtract(const Duration(minutes: 1));
-        final xdripServer = MockCgmHttpServer(
-          entries: CgmReadingsFixture.nightscoutEntries([
-            GlucoseReading(timestamp: lowTime, value: 3.3),
-          ]),
-        );
-        await xdripServer.start();
-        addTearDown(xdripServer.stop);
-
-        final settings = AppSettings(
-          xdripBaseUrl: xdripServer.baseUri.toString(),
-          xdripSyncEnabled: true,
-        );
-        final pollingDecisionService = PollingDecisionService(
-          contextBuilder: PollingContextBuilder(
-            database: database,
-            sourceStateLoader: (kind) => _sourceStateFor(database, kind),
-          ),
-        );
-        final coordinator = BackgroundSyncCoordinator(
-          settingsStore: _FixedSettingsStore(settings),
+      final service = PollingDecisionService(
+        contextBuilder: PollingContextBuilder(
           database: database,
-          runtimeCoordinator: DataSourceRuntimeCoordinator(
-            syncStateLoader: (kind) => _sourceStateFor(database, kind),
-            xdripSupported: true,
-          ),
-          repository: GlucoseRepositoryImpl(db: database),
-          pollingDecisionService: pollingDecisionService,
-        );
-        addTearDown(coordinator.dispose);
+          sourceStateLoader: (kind) => _sourceStateFor(database, kind),
+        ),
+      );
 
-        final snapshot = await coordinator.runOnce();
+      final decision = await service.decide(
+        settings: const AppSettings(
+          xdripBaseUrl: 'http://127.0.0.1:17580',
+          xdripSyncEnabled: true,
+        ),
+        mode: PollingMode.background,
+      );
 
-        expect(snapshot.status.name, 'synced');
-        expect(snapshot.nextSyncInterval, const Duration(seconds: 30));
-        expect(await database.count(), 1);
-        expect(
-          await database.getSourceState(DataSource.xdripHttp.name),
-          isNotNull,
-        );
-      },
-    );
+      expect(decision.nextInterval, const Duration(seconds: 30));
+      expect(decision.riskLevel, PollingRiskLevel.dangerous);
+    });
+
+    test('background sync snapshot exposes dynamic next polling interval',
+        () async {
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final lowTime = DateTime.now().subtract(const Duration(minutes: 1));
+      final xdripServer = MockCgmHttpServer(
+        entries: CgmReadingsFixture.nightscoutEntries([
+          GlucoseReading(timestamp: lowTime, value: 3.3),
+        ]),
+      );
+      await xdripServer.start();
+      addTearDown(xdripServer.stop);
+
+      final settings = AppSettings(
+        xdripBaseUrl: xdripServer.baseUri.toString(),
+        xdripSyncEnabled: true,
+      );
+      final pollingDecisionService = PollingDecisionService(
+        contextBuilder: PollingContextBuilder(
+          database: database,
+          sourceStateLoader: (kind) => _sourceStateFor(database, kind),
+        ),
+      );
+      final coordinator = BackgroundSyncCoordinator(
+        settingsStore: _FixedSettingsStore(settings),
+        database: database,
+        runtimeCoordinator: DataSourceRuntimeCoordinator(
+          syncStateLoader: (kind) => _sourceStateFor(database, kind),
+          xdripSupported: true,
+        ),
+        repository: GlucoseRepositoryImpl(
+          db: database,
+        ),
+        pollingDecisionService: pollingDecisionService,
+      );
+      addTearDown(coordinator.dispose);
+
+      final snapshot = await coordinator.runOnce();
+
+      expect(snapshot.status.name, 'synced');
+      expect(snapshot.nextSyncInterval, const Duration(seconds: 30));
+      expect(await database.count(), 1);
+      expect(
+          await database.getSourceState(DataSource.xdripHttp.name), isNotNull);
+    });
 
     test('background sync runs post-sync tasks after glucose sync', () async {
       final database = TestDatabase.create();
@@ -297,11 +290,11 @@ Future<SourceSyncState?> _sourceStateFor(
 ) {
   return switch (kind) {
     DataSourceKind.xdripLocal => database.getSourceState(
-      DataSource.xdripHttp.name,
-    ),
+        DataSource.xdripHttp.name,
+      ),
     DataSourceKind.nightscout => database.getSourceState(
-      DataSource.nightscout.name,
-    ),
+        DataSource.nightscout.name,
+      ),
   };
 }
 

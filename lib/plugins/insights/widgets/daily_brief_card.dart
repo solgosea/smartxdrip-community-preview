@@ -5,7 +5,11 @@ class DailyBriefCard extends StatelessWidget {
   final String text;
   final String footer;
 
-  const DailyBriefCard({super.key, required this.text, required this.footer});
+  const DailyBriefCard({
+    super.key,
+    required this.text,
+    required this.footer,
+  });
 
   @override
   Widget build(BuildContext context) {

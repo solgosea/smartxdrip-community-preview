@@ -34,7 +34,9 @@ class PollingDecisionService {
       );
       decisions.add(policyEngine.decide(context));
     }
-    decisions.sort((a, b) => a.nextInterval.compareTo(b.nextInterval));
+    decisions.sort(
+      (a, b) => a.nextInterval.compareTo(b.nextInterval),
+    );
     return decisions.first;
   }
 

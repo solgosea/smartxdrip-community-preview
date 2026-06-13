@@ -6,7 +6,9 @@ import 'background_runtime_strategy_registry.dart';
 class BackgroundRuntimePolicy {
   final BackgroundRuntimeStrategyRegistry registry;
 
-  const BackgroundRuntimePolicy({required this.registry});
+  const BackgroundRuntimePolicy({
+    required this.registry,
+  });
 
   Future<BackgroundRuntimeDecision> decide(
     BackgroundRuntimeContext context,

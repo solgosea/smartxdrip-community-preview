@@ -11,27 +11,25 @@ class AlertRuleRowMapper {
   const AlertRuleRowMapper();
 
   Map<String, Object?> toRow(AlertRule rule) => {
-    'id': rule.id,
-    'rule_set_id': rule.ruleSetId,
-    'category': rule.category.code,
-    'enabled': rule.enabled ? 1 : 0,
-    'comparator': rule.comparator.code,
-    'threshold_value': rule.thresholdValue,
-    'threshold_unit': rule.thresholdUnit,
-    'level': rule.level.code,
-    'channels_json': jsonEncode(
-      rule.channels.map((channel) => channel.code).toList(),
-    ),
-    'sound_policy_json':
-        rule.soundPolicy == null
+        'id': rule.id,
+        'rule_set_id': rule.ruleSetId,
+        'category': rule.category.code,
+        'enabled': rule.enabled ? 1 : 0,
+        'comparator': rule.comparator.code,
+        'threshold_value': rule.thresholdValue,
+        'threshold_unit': rule.thresholdUnit,
+        'level': rule.level.code,
+        'channels_json':
+            jsonEncode(rule.channels.map((channel) => channel.code).toList()),
+        'sound_policy_json': rule.soundPolicy == null
             ? null
             : jsonEncode(rule.soundPolicy!.toJson()),
-    'repeat_minutes': rule.repeatMinutes,
-    'priority': rule.priority,
-    'metadata_json': jsonEncode(rule.metadata),
-    'created_at': rule.createdAt.toIso8601String(),
-    'updated_at': rule.updatedAt.toIso8601String(),
-  };
+        'repeat_minutes': rule.repeatMinutes,
+        'priority': rule.priority,
+        'metadata_json': jsonEncode(rule.metadata),
+        'created_at': rule.createdAt.toIso8601String(),
+        'updated_at': rule.updatedAt.toIso8601String(),
+      };
 
   AlertRule fromRow(Map<String, Object?> row) {
     return AlertRule(
@@ -39,9 +37,8 @@ class AlertRuleRowMapper {
       ruleSetId: row['rule_set_id'] as String,
       category: AlertCategory.fromCode(row['category'] as String? ?? ''),
       enabled: (row['enabled'] as num?)?.round() == 1,
-      comparator: AlertRuleComparator.fromCode(
-        row['comparator'] as String? ?? '',
-      ),
+      comparator:
+          AlertRuleComparator.fromCode(row['comparator'] as String? ?? ''),
       thresholdValue: (row['threshold_value'] as num?)?.toDouble(),
       thresholdUnit: row['threshold_unit'] as String?,
       level: AlertLevel.fromCode(row['level'] as String? ?? ''),

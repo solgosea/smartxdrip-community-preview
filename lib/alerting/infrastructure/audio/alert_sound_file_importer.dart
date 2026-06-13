@@ -35,19 +35,19 @@ class AlertSoundFileImporter {
     }
 
     final directory = await getApplicationDocumentsDirectory();
-    final soundDirectory = Directory(p.join(directory.path, 'alert_sounds'));
+    final soundDirectory = Directory(
+      p.join(directory.path, 'alert_sounds'),
+    );
     await soundDirectory.create(recursive: true);
 
-    final extension =
-        p.extension(picked.name).isNotEmpty
-            ? p.extension(picked.name)
-            : p.extension(sourcePath).isNotEmpty
+    final extension = p.extension(picked.name).isNotEmpty
+        ? p.extension(picked.name)
+        : p.extension(sourcePath).isNotEmpty
             ? p.extension(sourcePath)
             : '.audio';
-    final name =
-        picked.name.trim().isNotEmpty
-            ? p.basenameWithoutExtension(picked.name)
-            : 'Custom alert';
+    final name = picked.name.trim().isNotEmpty
+        ? p.basenameWithoutExtension(picked.name)
+        : 'Custom alert';
     final safeName = name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]+'), '_');
     final importedPath = p.join(
       soundDirectory.path,
@@ -55,6 +55,9 @@ class AlertSoundFileImporter {
     );
     await source.copy(importedPath);
 
-    return AlertSoundRef.file(uri: importedPath, displayName: name);
+    return AlertSoundRef.file(
+      uri: importedPath,
+      displayName: name,
+    );
   }
 }

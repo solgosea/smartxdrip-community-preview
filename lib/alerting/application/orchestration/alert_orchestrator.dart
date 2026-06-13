@@ -19,7 +19,8 @@ class AlertOrchestrator {
       AlertControlActionType.acknowledge ||
       AlertControlActionType.recover ||
       AlertControlActionType.disableRule ||
-      AlertControlActionType.stop => _stopActionTarget(action),
+      AlertControlActionType.stop =>
+        _stopActionTarget(action),
     };
   }
 
@@ -37,6 +38,10 @@ class AlertOrchestrator {
         occurredAt: DateTime.now(),
       ),
     );
+  }
+
+  Future<List<AlertActuatorResult>> stopEvent(String eventId) {
+    return commandBus.stopEvent(eventId);
   }
 
   Future<List<AlertActuatorResult>> stopAll() {

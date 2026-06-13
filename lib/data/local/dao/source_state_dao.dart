@@ -13,17 +13,16 @@ class SourceStateDao {
     String sourceKey, {
     String subjectId = GlucoseSubject.selfId,
   }) async {
-    await _upsert(
-      sourceKey,
-      subjectId: subjectId,
-      lastAttemptAt: DateTime.now(),
-    );
+    await _upsert(sourceKey,
+        subjectId: subjectId, lastAttemptAt: DateTime.now());
   }
 
   Future<void> recordSuccess(
     String sourceKey, {
     String? cursor,
     String subjectId = GlucoseSubject.selfId,
+    int? fetchedCount,
+    int? storedCount,
   }) async {
     final now = DateTime.now();
     await _upsert(
@@ -32,6 +31,8 @@ class SourceStateDao {
       lastAttemptAt: now,
       lastSuccessAt: now,
       lastCursor: cursor,
+      lastFetchedCount: fetchedCount,
+      lastStoredCount: storedCount,
     );
   }
 
@@ -67,6 +68,8 @@ class SourceStateDao {
       lastAttemptAt: _date(row['last_attempt_at_ms']),
       lastCursor: row['last_cursor'] as String?,
       lastError: row['last_error'] as String?,
+      lastFetchedCount: (row['last_fetched_count'] as num?)?.toInt(),
+      lastStoredCount: (row['last_stored_count'] as num?)?.toInt(),
       updatedAt: _date(row['updated_at_ms']) ?? DateTime.now(),
     );
   }
@@ -78,20 +81,28 @@ class SourceStateDao {
     DateTime? lastAttemptAt,
     String? lastCursor,
     String? lastError,
+    int? lastFetchedCount,
+    int? lastStoredCount,
   }) async {
     final database = await _db();
     final existing = await get(sourceKey, subjectId: subjectId);
-    await database.insert(GlucoseTables.sourceState, {
-      'source_key': sourceKey,
-      'subject_id': subjectId,
-      'last_success_at_ms':
-          (lastSuccessAt ?? existing?.lastSuccessAt)?.millisecondsSinceEpoch,
-      'last_attempt_at_ms':
-          (lastAttemptAt ?? existing?.lastAttemptAt)?.millisecondsSinceEpoch,
-      'last_cursor': lastCursor ?? existing?.lastCursor,
-      'last_error': lastError,
-      'updated_at_ms': DateTime.now().millisecondsSinceEpoch,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await database.insert(
+      GlucoseTables.sourceState,
+      {
+        'source_key': sourceKey,
+        'subject_id': subjectId,
+        'last_success_at_ms':
+            (lastSuccessAt ?? existing?.lastSuccessAt)?.millisecondsSinceEpoch,
+        'last_attempt_at_ms':
+            (lastAttemptAt ?? existing?.lastAttemptAt)?.millisecondsSinceEpoch,
+        'last_cursor': lastCursor ?? existing?.lastCursor,
+        'last_error': lastError,
+        'last_fetched_count': lastFetchedCount ?? existing?.lastFetchedCount,
+        'last_stored_count': lastStoredCount ?? existing?.lastStoredCount,
+        'updated_at_ms': DateTime.now().millisecondsSinceEpoch,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   DateTime? _date(Object? value) =>

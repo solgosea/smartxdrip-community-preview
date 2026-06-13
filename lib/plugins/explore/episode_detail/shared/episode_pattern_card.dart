@@ -10,8 +10,7 @@ class PatternDayIndicator {
   const PatternDayIndicator({required this.label, required this.active});
 }
 
-/// Pattern Analysis card with stat ratio, day indicators, narrative text,
-/// and a caveat.
+/// Pattern Analysis card.
 class EpisodePatternCard extends StatelessWidget {
   final String bigStat; // e.g. "5/14"
   final String description; // e.g. "Morning-window highs in the last 14 days"
@@ -20,7 +19,7 @@ class EpisodePatternCard extends StatelessWidget {
   final Color activeDotColor; // dot color when active
   final String patternText; // narrative paragraph
   final String? extraNote; // optional second mono note (low only)
-  final String caveat; // e.g. "n=5 - correlation - not causal"
+  final String caveat; // e.g. "n=5 · correlation · not causal"
 
   const EpisodePatternCard({
     super.key,
@@ -40,7 +39,6 @@ class EpisodePatternCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
-        // Slightly raised tint vs the regular bgCard.
         color: AppColors.bgCard2,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
@@ -90,15 +88,12 @@ class EpisodePatternCard extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children:
-                indicators
-                    .map(
-                      (d) => _DayDot(
-                        label: d.label,
-                        color: d.active ? activeDotColor : AppColors.textDim,
-                      ),
-                    )
-                    .toList(),
+            children: indicators
+                .map((d) => _DayDot(
+                      label: d.label,
+                      color: d.active ? activeDotColor : AppColors.textDim,
+                    ))
+                .toList(),
           ),
           const SizedBox(height: 10),
           Text(

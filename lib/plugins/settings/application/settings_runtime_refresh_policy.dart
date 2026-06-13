@@ -7,12 +7,14 @@ class SettingsRuntimeRefreshPolicy {
     return switch (eventType) {
       PluginRuntimeEventType.settingsChanged ||
       PluginRuntimeEventType.subjectDataChanged ||
-      PluginRuntimeEventType.datasourceChanged => true,
+      PluginRuntimeEventType.datasourceChanged =>
+        true,
       PluginRuntimeEventType.appStarted ||
       PluginRuntimeEventType.appResumed ||
       PluginRuntimeEventType.appPaused ||
       PluginRuntimeEventType.activeSubjectChanged ||
-      PluginRuntimeEventType.custom => false,
+      PluginRuntimeEventType.custom =>
+        false,
     };
   }
 }

@@ -7,7 +7,9 @@ import 'alert_actuator.dart';
 class VibrationAlertActuator implements AlertActuator {
   final AlertVibrationGateway gateway;
 
-  const VibrationAlertActuator({this.gateway = const AlertVibrationGateway()});
+  const VibrationAlertActuator({
+    this.gateway = const AlertVibrationGateway(),
+  });
 
   @override
   bool supports(AlertActuatorCommand command) {
@@ -15,7 +17,8 @@ class VibrationAlertActuator implements AlertActuator {
       AlertActuatorCommandType.vibrate ||
       AlertActuatorCommandType.stopEvent ||
       AlertActuatorCommandType.stopTarget ||
-      AlertActuatorCommandType.stopAll => true,
+      AlertActuatorCommandType.stopAll =>
+        true,
       _ => false,
     };
   }

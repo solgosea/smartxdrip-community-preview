@@ -4,15 +4,8 @@ import 'package:smart_xdrip/application/analysis/analysis_facade.dart';
 import 'package:smart_xdrip/application/analysis/analysis_refresh_result.dart';
 import 'package:smart_xdrip/application/analysis/analysis_session_store.dart';
 import 'package:smart_xdrip/domain/analysis/analysis_snapshot.dart';
-import 'package:smart_xdrip/domain/data_source/data_source_action.dart';
-import 'package:smart_xdrip/domain/data_source/data_source_connection_snapshot.dart';
-import 'package:smart_xdrip/domain/data_source/data_source_connection_status.dart';
-import 'package:smart_xdrip/domain/data_source/data_source_kind.dart';
-import 'package:smart_xdrip/domain/data_source/data_source_sync_strategy_action.dart';
 import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
-import 'package:smart_xdrip/domain/sync_status/sync_status_level.dart';
-import 'package:smart_xdrip/domain/sync_status/sync_status_snapshot.dart';
 import 'package:smart_xdrip/domain/subject/analysis_subject.dart';
 import 'package:smart_xdrip/domain/subject/analysis_subject_origin.dart';
 import 'package:smart_xdrip/plugin_platform/runtime/events/plugin_runtime_event.dart';
@@ -48,10 +41,7 @@ void main() {
 
     expect(cache.stale, isFalse);
     expect(cache.snapshots.single.subjectId, 'self');
-    expect(
-      cache.snapshots.single.viewModel.dataSources.single.name,
-      'Nightscout API',
-    );
+    expect(cache.snapshots.single.viewModel.header.title, 'My Profile');
     expect(cache.freshSnapshot(subjectId: 'self'), isNotNull);
   });
 
@@ -113,36 +103,13 @@ ProfileHostServices _hostServices(DateTime now) {
     changeSignal: _NoopListenable(),
     facadeProvider: AnalysisFacade.current,
     settingsProvider: () => const AppSettings(nightscoutSyncEnabled: true),
-    syncStatusSnapshot:
-        () async => SyncStatusSnapshot(
-          sourceLabel: 'Nightscout API',
-          level: SyncStatusLevel.waitingFirstSync,
-          active: true,
-          lastAttemptAt: now,
-        ),
-    xdripSupported: () => false,
-    dataSourceSnapshots:
-        ({required bool xdripSupported}) async => [
-          const DataSourceConnectionSnapshot(
-            kind: DataSourceKind.nightscout,
-            status: DataSourceConnectionStatus.syncing,
-            action: DataSourceConnectionAction.sync,
-            strategyAction: DataSourceSyncStrategyAction.disable,
-            title: 'Nightscout API',
-            subtitle: 'Configured endpoint',
-            trailing: 'Sync',
-            strategyTrailing: 'On',
-            active: true,
-            detected: true,
-            configured: true,
-            strategyEnabled: true,
-            supported: true,
-          ),
-        ],
   );
 }
 
-void _seedAnalysisStore(DateTime now, {required String subjectId}) {
+void _seedAnalysisStore(
+  DateTime now, {
+  required String subjectId,
+}) {
   final readings = List.generate(
     72,
     (index) => GlucoseReading(
@@ -168,10 +135,9 @@ void _seedAnalysisStore(DateTime now, {required String subjectId}) {
       id: subjectId,
       displayName: subjectId,
       sourceLabel: 'Test source',
-      origin:
-          subjectId == 'self'
-              ? AnalysisSubjectOrigin.self
-              : const AnalysisSubjectOrigin('external'),
+      origin: subjectId == 'self'
+          ? AnalysisSubjectOrigin.self
+          : const AnalysisSubjectOrigin('remote'),
     ),
   );
 }

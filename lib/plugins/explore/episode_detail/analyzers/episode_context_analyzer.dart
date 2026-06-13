@@ -57,27 +57,19 @@ class EpisodeContextAnalyzer {
     ];
     final ranked = <PeriodVariability>[];
     for (final bucket in periods) {
-      final rows =
-          readings
-              .where(
-                (r) => _isInsideHourWindow(
-                  r.timestamp.hour,
-                  bucket.start,
-                  bucket.end,
-                ),
-              )
-              .toList();
+      final rows = readings
+          .where((r) =>
+              _isInsideHourWindow(r.timestamp.hour, bucket.start, bucket.end))
+          .toList();
       final cv = _cv(rows);
       if (cv == null) continue;
-      ranked.add(
-        PeriodVariability(
-          label: bucket.label,
-          windowText: bucket.windowText,
-          cv: cv,
-          rank: 0,
-          total: 0,
-        ),
-      );
+      ranked.add(PeriodVariability(
+        label: bucket.label,
+        windowText: bucket.windowText,
+        cv: cv,
+        rank: 0,
+        total: 0,
+      ));
     }
     if (ranked.isEmpty) return null;
     ranked.sort((a, b) => b.cv.compareTo(a.cv));
@@ -111,7 +103,7 @@ class EpisodeContextAnalyzer {
     if (mean == 0) return null;
     final variance =
         rows.map((r) => math.pow(r.value - mean, 2)).reduce((a, b) => a + b) /
-        rows.length;
+            rows.length;
     return math.sqrt(variance) / mean * 100;
   }
 }

@@ -22,11 +22,11 @@ class SoundAlertConfig implements AlertStrategyConfig {
 
   @override
   Map<String, Object?> toJson() => {
-    'enabled': enabled,
-    'sound': sound.toJson(),
-    'repeatCritical': repeatCritical,
-    'maxDurationSeconds': maxDurationSeconds,
-  };
+        'enabled': enabled,
+        'sound': sound.toJson(),
+        'repeatCritical': repeatCritical,
+        'maxDurationSeconds': maxDurationSeconds,
+      };
 
   static SoundAlertConfig fromJson(Map<String, Object?> json) {
     final rawSound = (json['sound'] as Map?)?.cast<String, Object?>();

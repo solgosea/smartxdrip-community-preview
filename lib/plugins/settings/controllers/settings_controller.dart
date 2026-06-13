@@ -123,7 +123,10 @@ class SettingsController extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    _viewModel = mapper.map(analysis: analysis, saving: _saving);
+    _viewModel = mapper.map(
+      analysis: analysis,
+      saving: _saving,
+    );
     notifyListeners();
   }
 }

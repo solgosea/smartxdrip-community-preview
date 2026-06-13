@@ -1,3 +1,4 @@
+import '../composition/plugin_composition_registry.dart';
 import '../runtime/contracts/plugin_runtime.dart';
 import '../runtime/manager/plugin_runtime_manager.dart';
 import '../runtime/manager/plugin_runtime_start_policy.dart';
@@ -9,12 +10,15 @@ class PluginInstallContext {
   final PluginRuntimeManager runtimeManager;
   final PluginServiceRegistry services;
   final PluginSchemaRegistry schemaRegistry;
+  final PluginCompositionRegistry compositionRegistry;
 
-  const PluginInstallContext({
+  PluginInstallContext({
     required this.runtimeManager,
     required this.services,
     required this.schemaRegistry,
-  });
+    PluginCompositionRegistry? compositionRegistry,
+  }) : compositionRegistry =
+            compositionRegistry ?? PluginCompositionRegistry();
 
   void registerRuntime(
     PluginRuntime runtime, {

@@ -9,8 +9,9 @@ import 'handlers/data_source_health_handler.dart';
 import 'handlers/nightscout_health_handler.dart';
 import 'handlers/xdrip_local_health_handler.dart';
 
-typedef SourceSyncStateLoader =
-    Future<SourceSyncState?> Function(DataSourceKind kind);
+typedef SourceSyncStateLoader = Future<SourceSyncState?> Function(
+  DataSourceKind kind,
+);
 
 class DataSourceRuntimeCoordinator {
   final SourceSyncStateLoader syncStateLoader;
@@ -117,10 +118,9 @@ class DataSourceRuntimeCoordinator {
     return _store(
       DataSourceRuntimeSnapshot(
         kind: kind,
-        healthStatus:
-            result.success
-                ? DataSourceHealthStatus.reachable
-                : DataSourceHealthStatus.unreachable,
+        healthStatus: result.success
+            ? DataSourceHealthStatus.reachable
+            : DataSourceHealthStatus.unreachable,
         supported: true,
         configured: true,
         active: _active(current, kind),
@@ -144,10 +144,9 @@ class DataSourceRuntimeCoordinator {
   DataSourceRuntimeSnapshot _defaultSnapshot(DataSourceKind kind) {
     return DataSourceRuntimeSnapshot(
       kind: kind,
-      healthStatus:
-          _supported(kind)
-              ? DataSourceHealthStatus.unchecked
-              : DataSourceHealthStatus.unsupported,
+      healthStatus: _supported(kind)
+          ? DataSourceHealthStatus.unchecked
+          : DataSourceHealthStatus.unsupported,
       supported: _supported(kind),
       configured: false,
       active: false,

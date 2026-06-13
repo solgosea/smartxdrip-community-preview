@@ -17,5 +17,5 @@ class DataSourceConnectionResult {
   }) : this(success: true, message: message, nextSettings: nextSettings);
 
   const DataSourceConnectionResult.failure(String message)
-    : this(success: false, message: message);
+      : this(success: false, message: message);
 }

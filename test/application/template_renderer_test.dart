@@ -5,10 +5,10 @@ void main() {
   test('renders insight templates with numeric values', () {
     const renderer = TemplateRenderer();
 
-    final text = renderer.render('TIR {tir}% and mean {mean} mmol/L', {
-      'tir': 82,
-      'mean': 6.42,
-    });
+    final text = renderer.render(
+      'TIR {tir}% and mean {mean} mmol/L',
+      {'tir': 82, 'mean': 6.42},
+    );
 
     expect(text, 'TIR 82% and mean 6.4 mmol/L');
   });

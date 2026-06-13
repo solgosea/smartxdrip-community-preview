@@ -4,10 +4,20 @@ import 'package:smart_xdrip/presentation/common/widgets/charts/glucose_line_char
 import '../models/history_view_model.dart';
 import 'history_curve_legend.dart';
 
-class HistoryCurveCard extends StatelessWidget {
+class HistoryCurveCard extends StatefulWidget {
   final HistoryCurveViewModel viewModel;
 
-  const HistoryCurveCard({super.key, required this.viewModel});
+  const HistoryCurveCard({
+    super.key,
+    required this.viewModel,
+  });
+
+  @override
+  State<HistoryCurveCard> createState() => _HistoryCurveCardState();
+}
+
+class _HistoryCurveCardState extends State<HistoryCurveCard> {
+  bool _inspecting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +31,12 @@ class HistoryCurveCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 12, 14, 6),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   '24-HOUR CURVE',
                   style: TextStyle(
                     fontFamily: 'JetBrainsMono',
@@ -36,26 +46,37 @@ class HistoryCurveCard extends StatelessWidget {
                     letterSpacing: 1.2,
                   ),
                 ),
-                HistoryCurveLegend(),
+                AnimatedOpacity(
+                  opacity: _inspecting ? 0.42 : 1,
+                  duration: const Duration(milliseconds: 140),
+                  child: const HistoryCurveLegend(),
+                ),
               ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(2, 0, 2, 6),
             child: GlucoseLineChart(
-              readings: viewModel.readings,
-              unit: viewModel.unit,
-              low: viewModel.lowThreshold,
-              high: viewModel.highThreshold,
+              readings: widget.viewModel.readings,
+              unit: widget.viewModel.unit,
+              low: widget.viewModel.lowThreshold,
+              high: widget.viewModel.highThreshold,
+              timeRangeStart: widget.viewModel.timeRangeStart,
+              timeRangeEnd: widget.viewModel.timeRangeEnd,
               height: 180,
               showCurrentDot: false,
+              enableInspection: true,
+              onInspectionChanged: (value) {
+                if (_inspecting == value || !mounted) return;
+                setState(() => _inspecting = value);
+              },
               coloringMode: ChartColoringMode.byEpisode,
               thresholdLineMode: ThresholdLineMode.colored,
               xLabelMode: XLabelMode.hourOnly,
               xLabelCount: 7,
               showMidYLabel: true,
-              episodes: viewModel.episodes,
-              markers: viewModel.markers,
+              episodes: widget.viewModel.episodes,
+              markers: widget.viewModel.markers,
             ),
           ),
         ],

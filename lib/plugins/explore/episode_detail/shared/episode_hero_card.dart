@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../../foundation/theme/app_colors.dart';
 
 /// Hero card displayed at the top of an episode detail page.
-///
-/// Layout:
-///   row 1: [PEAK/NADIR VALUE label + 36px value + unit]    [DURATION label + 24px value + range]
-///   row 2: 3 mini stats (onset rate / recovery rate / area out of target)
-///
-/// `themeColor` controls the hero tint, the big value color, and one of the
-/// three mini stats (onset for high, descent for low).
 class EpisodeHeroCard extends StatelessWidget {
   /// "Peak Value" or "Nadir Value".
   final String valueLabel;
@@ -17,16 +10,16 @@ class EpisodeHeroCard extends StatelessWidget {
   final Color valueColor; // rose for high, blue for low
 
   final String durationText; // e.g. "38 min"
-  final String durationRange; // e.g. "07:45 - 08:23"
+  final String durationRange; // e.g. "07:45 – 08:23"
 
   final String onsetRateLabel; // "Onset rate" or "Descent rate"
   final String onsetRateText; // e.g. "+0.28 mmol/L/min"
   final Color onsetRateColor; // amber for high, blue for low
 
-  final String recoveryRateText; // e.g. "-0.14 mmol/L/min"
+  final String recoveryRateText; // e.g. "−0.14 mmol/L/min"
 
   final String areaLabel; // "Area above target" or "Area below target"
-  final String areaText; // e.g. "18.4 mmol-min"
+  final String areaText; // e.g. "18.4 mmol·min"
   final Color areaColor; // rose for high, blue for low
 
   final Color heroBg; // tinted background (rose/blue at 0.06)
@@ -68,7 +61,6 @@ class EpisodeHeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row 1: peak/nadir on the left, duration on the right.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -133,7 +125,6 @@ class EpisodeHeroCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          // Row 2: 3 mini stats with semantic coloring.
           Row(
             children: [
               Expanded(

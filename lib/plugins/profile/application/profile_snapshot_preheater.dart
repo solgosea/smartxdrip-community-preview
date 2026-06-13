@@ -16,19 +16,12 @@ class ProfileSnapshotPreheater {
   Future<ProfileRuntimeSnapshot> preheat() async {
     final facade = hostServices.facadeProvider();
     final settings = hostServices.settingsProvider();
-    final syncStatus = await hostServices.syncStatusSnapshot();
-    final snapshots = await hostServices.dataSourceSnapshots(
-      xdripSupported: hostServices.xdripSupported(),
-    );
     return ProfileRuntimeSnapshot(
       subjectId: facade.activeSubject.id,
       viewModel: mapper.map(
         facade: facade,
         settings: settings,
-        syncStatus: syncStatus,
-        dataSourceSnapshots: snapshots,
       ),
-      sourceSnapshots: snapshots,
       updatedAt: now(),
     );
   }

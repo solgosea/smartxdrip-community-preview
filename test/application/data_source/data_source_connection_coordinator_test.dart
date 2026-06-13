@@ -12,63 +12,57 @@ void main() {
   group('DataSourceConnectionCoordinator', () {
     final coordinator = DataSourceConnectionCoordinator();
 
-    test(
-      'xDrip disconnect clears only local config and local strategy',
-      () async {
-        const settings = AppSettings(
-          xdripBaseUrl: 'http://127.0.0.1:17580',
-          xdripSyncEnabled: true,
-          nightscoutBaseUrl: 'http://localhost:1337',
-          nightscoutToken: 'token',
-          nightscoutSyncEnabled: true,
-        );
+    test('xDrip disconnect clears only local config and local strategy',
+        () async {
+      const settings = AppSettings(
+        xdripBaseUrl: 'http://127.0.0.1:17580',
+        xdripSyncEnabled: true,
+        nightscoutBaseUrl: 'http://localhost:1337',
+        nightscoutToken: 'token',
+        nightscoutSyncEnabled: true,
+      );
 
-        final result = await coordinator.disconnect(
-          kind: DataSourceKind.xdripLocal,
-          settings: settings,
-        );
+      final result = await coordinator.disconnect(
+        kind: DataSourceKind.xdripLocal,
+        settings: settings,
+      );
 
-        expect(result.success, isTrue);
-        expect(result.nextSettings, isNotNull);
-        expect(result.nextSettings!.xdripBaseUrl, isNull);
-        expect(result.nextSettings!.xdripApiSecret, isNull);
-        expect(result.nextSettings!.xdripSyncEnabled, isFalse);
-        expect(
-          result.nextSettings!.nightscoutBaseUrl,
-          settings.nightscoutBaseUrl,
-        );
-        expect(result.nextSettings!.nightscoutToken, settings.nightscoutToken);
-        expect(result.nextSettings!.nightscoutSyncEnabled, isTrue);
-      },
-    );
+      expect(result.success, isTrue);
+      expect(result.nextSettings, isNotNull);
+      expect(result.nextSettings!.xdripBaseUrl, isNull);
+      expect(result.nextSettings!.xdripApiSecret, isNull);
+      expect(result.nextSettings!.xdripSyncEnabled, isFalse);
+      expect(
+          result.nextSettings!.nightscoutBaseUrl, settings.nightscoutBaseUrl);
+      expect(result.nextSettings!.nightscoutToken, settings.nightscoutToken);
+      expect(result.nextSettings!.nightscoutSyncEnabled, isTrue);
+    });
 
-    test(
-      'Nightscout disconnect clears only API config and API strategy',
-      () async {
-        const settings = AppSettings(
-          xdripBaseUrl: 'http://127.0.0.1:17580',
-          xdripApiSecret: 'secret',
-          xdripSyncEnabled: true,
-          nightscoutBaseUrl: 'http://localhost:1337',
-          nightscoutToken: 'token',
-          nightscoutSyncEnabled: true,
-        );
+    test('Nightscout disconnect clears only API config and API strategy',
+        () async {
+      const settings = AppSettings(
+        xdripBaseUrl: 'http://127.0.0.1:17580',
+        xdripApiSecret: 'secret',
+        xdripSyncEnabled: true,
+        nightscoutBaseUrl: 'http://localhost:1337',
+        nightscoutToken: 'token',
+        nightscoutSyncEnabled: true,
+      );
 
-        final result = await coordinator.disconnect(
-          kind: DataSourceKind.nightscout,
-          settings: settings,
-        );
+      final result = await coordinator.disconnect(
+        kind: DataSourceKind.nightscout,
+        settings: settings,
+      );
 
-        expect(result.success, isTrue);
-        expect(result.nextSettings, isNotNull);
-        expect(result.nextSettings!.nightscoutBaseUrl, isNull);
-        expect(result.nextSettings!.nightscoutToken, isNull);
-        expect(result.nextSettings!.nightscoutSyncEnabled, isFalse);
-        expect(result.nextSettings!.xdripBaseUrl, settings.xdripBaseUrl);
-        expect(result.nextSettings!.xdripApiSecret, settings.xdripApiSecret);
-        expect(result.nextSettings!.xdripSyncEnabled, isTrue);
-      },
-    );
+      expect(result.success, isTrue);
+      expect(result.nextSettings, isNotNull);
+      expect(result.nextSettings!.nightscoutBaseUrl, isNull);
+      expect(result.nextSettings!.nightscoutToken, isNull);
+      expect(result.nextSettings!.nightscoutSyncEnabled, isFalse);
+      expect(result.nextSettings!.xdripBaseUrl, settings.xdripBaseUrl);
+      expect(result.nextSettings!.xdripApiSecret, settings.xdripApiSecret);
+      expect(result.nextSettings!.xdripSyncEnabled, isTrue);
+    });
 
     test('reachable but disabled source is visible but not active', () async {
       const settings = AppSettings(
@@ -116,37 +110,35 @@ void main() {
       );
     });
 
-    test(
-      'active source leaves sync timing to shared status component',
-      () async {
-        const settings = AppSettings(
-          nightscoutBaseUrl: 'http://localhost:1337',
-          nightscoutSyncEnabled: true,
-        );
-        final syncedAt = DateTime.now().subtract(const Duration(minutes: 3));
+    test('active source leaves sync timing to shared status component',
+        () async {
+      const settings = AppSettings(
+        nightscoutBaseUrl: 'http://localhost:1337',
+        nightscoutSyncEnabled: true,
+      );
+      final syncedAt = DateTime.now().subtract(const Duration(minutes: 3));
 
-        final snapshots = await coordinator.snapshots(
-          settings: settings,
-          xdripState: null,
-          nightscoutState: SourceSyncState(
-            sourceKey: 'nightscout',
-            lastSuccessAt: syncedAt,
-            lastAttemptAt: syncedAt,
-            updatedAt: syncedAt,
-          ),
-          xdripSupported: false,
-          nightscoutRuntime: const DataSourceRuntimeSnapshot(
-            kind: DataSourceKind.nightscout,
-            healthStatus: DataSourceHealthStatus.reachable,
-            supported: true,
-            configured: true,
-            active: true,
-          ),
-        );
+      final snapshots = await coordinator.snapshots(
+        settings: settings,
+        xdripState: null,
+        nightscoutState: SourceSyncState(
+          sourceKey: 'nightscout',
+          lastSuccessAt: syncedAt,
+          lastAttemptAt: syncedAt,
+          updatedAt: syncedAt,
+        ),
+        xdripSupported: false,
+        nightscoutRuntime: const DataSourceRuntimeSnapshot(
+          kind: DataSourceKind.nightscout,
+          healthStatus: DataSourceHealthStatus.reachable,
+          supported: true,
+          configured: true,
+          active: true,
+        ),
+      );
 
-        final nightscout = snapshots.single;
-        expect(nightscout.subtitle, 'Sync enabled');
-      },
-    );
+      final nightscout = snapshots.single;
+      expect(nightscout.subtitle, 'Sync enabled');
+    });
   });
 }

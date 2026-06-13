@@ -1,1 +1,7 @@
-enum PollingRiskLevel { normal, stale, elevated, dangerous, failing }
+enum PollingRiskLevel {
+  normal,
+  stale,
+  elevated,
+  dangerous,
+  failing,
+}

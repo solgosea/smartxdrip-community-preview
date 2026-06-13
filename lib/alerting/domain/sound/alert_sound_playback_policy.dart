@@ -14,17 +14,17 @@ class AlertSoundPlaybackPolicy {
   });
 
   const AlertSoundPlaybackPolicy.single()
-    : mode = AlertSoundLoopMode.single,
-      repeatCount = 1,
-      intervalSeconds = 1,
-      maxDurationSeconds = null;
+      : mode = AlertSoundLoopMode.single,
+        repeatCount = 1,
+        intervalSeconds = 1,
+        maxDurationSeconds = null;
 
   Map<String, Object?> toJson() => {
-    'mode': mode.code,
-    'repeatCount': repeatCount,
-    'intervalSeconds': intervalSeconds,
-    'maxDurationSeconds': maxDurationSeconds,
-  };
+        'mode': mode.code,
+        'repeatCount': repeatCount,
+        'intervalSeconds': intervalSeconds,
+        'maxDurationSeconds': maxDurationSeconds,
+      };
 
   static AlertSoundPlaybackPolicy fromJson(Map<String, Object?> json) {
     return AlertSoundPlaybackPolicy(

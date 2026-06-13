@@ -5,12 +5,15 @@ import 'active_subject_store.dart';
 class ActiveSubjectService {
   final ActiveSubjectStore store;
 
-  const ActiveSubjectService({required this.store});
+  const ActiveSubjectService({
+    required this.store,
+  });
 
   AnalysisSubject get current => store.current;
 
-  ActiveSubjectSnapshot snapshot() =>
-      ActiveSubjectSnapshot(subject: store.current);
+  ActiveSubjectSnapshot snapshot() => ActiveSubjectSnapshot(
+        subject: store.current,
+      );
 
   Future<void> restore() async {
     await store.restore();

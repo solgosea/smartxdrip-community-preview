@@ -10,15 +10,15 @@ class AlertNotificationChannelRef {
   });
 
   const AlertNotificationChannelRef.critical()
-    : id = 'smartxdrip_critical_alerts',
-      name = 'Critical glucose alerts',
-      description = 'Urgent glucose safety alerts.';
+      : id = 'smartxdrip_critical_alerts',
+        name = 'Critical glucose alerts',
+        description = 'Urgent glucose safety alerts.';
 
   Map<String, Object?> toJson() => {
-    'id': id,
-    'name': name,
-    'description': description,
-  };
+        'id': id,
+        'name': name,
+        'description': description,
+      };
 
   static AlertNotificationChannelRef fromJson(Map<String, Object?> json) {
     return AlertNotificationChannelRef(

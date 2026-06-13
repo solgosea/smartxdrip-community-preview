@@ -44,37 +44,22 @@ class EpisodeWindowAnalyzer {
       high ? const Duration(minutes: 55) : const Duration(minutes: 20),
     );
     final end = (event.endTime ?? event.time).add(const Duration(hours: 2));
-    final readings =
-        allReadings
-            .where(
-              (r) => !r.timestamp.isBefore(start) && !r.timestamp.isAfter(end),
-            )
-            .toList();
-    final earlyPre =
-        readings
-            .where(
-              (r) =>
-                  !r.timestamp.isBefore(start) &&
-                  r.timestamp.isBefore(preMidpoint),
-            )
-            .toList();
-    final leadUp =
-        readings
-            .where(
-              (r) =>
-                  !r.timestamp.isBefore(preMidpoint) &&
-                  r.timestamp.isBefore(event.time),
-            )
-            .toList();
-    final extreme =
-        readings.isEmpty
-            ? null
-            : readings.reduce(
-              (a, b) =>
-                  high
-                      ? (a.value > b.value ? a : b)
-                      : (a.value < b.value ? a : b),
-            );
+    final readings = allReadings
+        .where((r) => !r.timestamp.isBefore(start) && !r.timestamp.isAfter(end))
+        .toList();
+    final earlyPre = readings
+        .where((r) =>
+            !r.timestamp.isBefore(start) && r.timestamp.isBefore(preMidpoint))
+        .toList();
+    final leadUp = readings
+        .where((r) =>
+            !r.timestamp.isBefore(preMidpoint) &&
+            r.timestamp.isBefore(event.time))
+        .toList();
+    final extreme = readings.isEmpty
+        ? null
+        : readings.reduce((a, b) =>
+            high ? (a.value > b.value ? a : b) : (a.value < b.value ? a : b));
 
     return EpisodeWindowAnalysis(
       start: start,
@@ -115,7 +100,7 @@ class EpisodeWindowAnalyzer {
     if (mean == 0) return null;
     final variance =
         rows.map((r) => math.pow(r.value - mean, 2)).reduce((a, b) => a + b) /
-        rows.length;
+            rows.length;
     return math.sqrt(variance) / mean * 100;
   }
 }

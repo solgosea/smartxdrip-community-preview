@@ -5,11 +5,11 @@ enum AlertChannel {
   vibration;
 
   String get code => switch (this) {
-    AlertChannel.inApp => 'in_app',
-    AlertChannel.localNotification => 'local_notification',
-    AlertChannel.sound => 'sound',
-    AlertChannel.vibration => 'vibration',
-  };
+        AlertChannel.inApp => 'in_app',
+        AlertChannel.localNotification => 'local_notification',
+        AlertChannel.sound => 'sound',
+        AlertChannel.vibration => 'vibration',
+      };
 
   static AlertChannel fromCode(String code) {
     return AlertChannel.values.firstWhere(

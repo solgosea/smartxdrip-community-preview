@@ -119,13 +119,13 @@ void main() {
         (await coordinator.refreshOne(
           DataSourceKind.xdripLocal,
           settings: settings,
-        )).healthStatus,
+        ))
+            .healthStatus,
         DataSourceHealthStatus.reachable,
       );
 
-      xdripHandler.result = const ConnectionTestResult.failure(
-        'service closed',
-      );
+      xdripHandler.result =
+          const ConnectionTestResult.failure('service closed');
 
       final downgraded = await coordinator.refreshOne(
         DataSourceKind.xdripLocal,

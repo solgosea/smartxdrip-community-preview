@@ -38,10 +38,9 @@ class VibrationAlertStrategy implements AlertStrategy<VibrationAlertConfig> {
       );
     }
     try {
-      final pattern =
-          event.level == AlertLevel.critical
-              ? config.criticalPattern
-              : config.warningPattern;
+      final pattern = event.level == AlertLevel.critical
+          ? config.criticalPattern
+          : config.warningPattern;
       if (commandBus != null) {
         final results = await commandBus!.dispatch(
           AlertActuatorCommand.vibrate(

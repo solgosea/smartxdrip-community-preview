@@ -6,7 +6,10 @@ import 'insight_mini_stat.dart';
 class WeeklyReviewCard extends StatelessWidget {
   final WeeklyReviewViewModel viewModel;
 
-  const WeeklyReviewCard({super.key, required this.viewModel});
+  const WeeklyReviewCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

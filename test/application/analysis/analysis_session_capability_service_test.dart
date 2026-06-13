@@ -19,60 +19,57 @@ void main() {
     store.setActiveSubject(ActiveSubjectDefaults.self);
 
     final summary =
-        AnalysisSessionCapabilityService(
-          store: AnalysisSessionStore.instance,
-        ).summarize();
+        AnalysisSessionCapabilityService(store: AnalysisSessionStore.instance)
+            .summarize();
 
     expect(summary.activeSubject.isSelf, isTrue);
     expect(summary.hasConfiguredSource, isFalse);
     expect(summary.hasGlucoseData, isFalse);
   });
 
-  test(
-    'external subject with canonical snapshot is treated as sourced data',
-    () {
-      final store = AnalysisSessionStore.instance;
-      const subject = AnalysisSubject(
-        id: 'external:child-a',
-        displayName: 'Child A',
-        sourceLabel: 'External Nightscout',
-        origin: AnalysisSubjectOrigin('external'),
-      );
-      final now = DateTime(2026, 6, 6, 8);
-      store.update(
-        AnalysisRefreshResult(
-          snapshot: AnalysisSnapshot(
-            generatedAt: now,
-            windowStart: now.subtract(const Duration(hours: 1)),
-            windowEnd: now,
-            readings: [GlucoseReading(timestamp: now, value: 6.4)],
-            dailySummaries: const [],
-            periodSummaries: const [],
-            events: [
-              GlucoseEvent(
-                type: GlucoseEventType.stableWindow,
-                time: now,
-                value: 6.4,
-              ),
-            ],
-          ),
-          insights: const [],
+  test('remote subject with canonical snapshot is treated as sourced data', () {
+    final store = AnalysisSessionStore.instance;
+    const subject = AnalysisSubject(
+      id: 'remote:child-a',
+      displayName: 'Child A',
+      sourceLabel: 'Remote Nightscout',
+      origin: AnalysisSubjectOrigin('remote'),
+    );
+    final now = DateTime(2026, 6, 6, 8);
+    store.update(
+      AnalysisRefreshResult(
+        snapshot: AnalysisSnapshot(
+          generatedAt: now,
+          windowStart: now.subtract(const Duration(hours: 1)),
+          windowEnd: now,
+          readings: [
+            GlucoseReading(timestamp: now, value: 6.4),
+          ],
+          dailySummaries: const [],
+          periodSummaries: const [],
+          events: [
+            GlucoseEvent(
+              type: GlucoseEventType.stableWindow,
+              time: now,
+              value: 6.4,
+            ),
+          ],
         ),
-        settings: const AppSettings(),
-        subject: subject,
-      );
+        insights: const [],
+      ),
+      settings: const AppSettings(),
+      subject: subject,
+    );
 
-      final summary =
-          AnalysisSessionCapabilityService(
-            store: AnalysisSessionStore.instance,
-          ).summarize();
+    final summary =
+        AnalysisSessionCapabilityService(store: AnalysisSessionStore.instance)
+            .summarize();
 
-      expect(summary.activeSubject.id, subject.id);
-      expect(summary.hasConfiguredSource, isTrue);
-      expect(summary.hasGlucoseData, isTrue);
-      expect(summary.hasGlucoseEvents, isTrue);
-    },
-  );
+    expect(summary.activeSubject.id, subject.id);
+    expect(summary.hasConfiguredSource, isTrue);
+    expect(summary.hasGlucoseData, isTrue);
+    expect(summary.hasGlucoseEvents, isTrue);
+  });
 }
 
 void _resetStore() {

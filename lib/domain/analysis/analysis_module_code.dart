@@ -4,6 +4,7 @@ enum AnalysisModuleCode {
   agp,
   period,
   heatmap,
+  weeklyPattern,
   insights,
   glucoseEvents,
   highEpisode,

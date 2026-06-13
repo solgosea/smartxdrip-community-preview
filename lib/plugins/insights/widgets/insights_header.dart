@@ -13,6 +13,10 @@ class InsightsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PageHeader(title: 'Insights', subtitle: dateText, onBack: onBack);
+    return PageHeader(
+      title: 'Insights',
+      subtitle: dateText,
+      onBack: onBack,
+    );
   }
 }

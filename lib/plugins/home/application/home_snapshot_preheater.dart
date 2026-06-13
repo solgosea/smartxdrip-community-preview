@@ -20,13 +20,18 @@ class HomeSnapshotPreheater {
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
 
-  Future<HomeRuntimeSnapshot> preheat({required HomeChartRange range}) async {
+  Future<HomeRuntimeSnapshot> preheat({
+    required HomeChartRange range,
+  }) async {
     final facade = facadeProvider();
     final syncStatus = await hostServices.syncStatusSnapshot();
     final viewModel = mapper.map(
       facade: facade,
       selectedRange: range,
-      syncStatus: syncStatusMapper.map(syncStatus),
+      syncStatus: syncStatusMapper.map(
+        syncStatus,
+        runtimeStatus: hostServices.syncRuntimeStatus(),
+      ),
     );
     return HomeRuntimeSnapshot(
       subjectId: facade.activeSubject.id,

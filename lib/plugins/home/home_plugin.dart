@@ -1,5 +1,9 @@
+import 'package:smart_xdrip/plugin_platform/graph/plugin_slot_key.dart';
+import 'package:smart_xdrip/plugin_platform/composition/plugin_placement_spec.dart';
 import 'package:flutter/material.dart';
 
+import '../../application/plugin_host/app_host_actions.dart';
+import '../../application/plugin_host/app_host_services.dart';
 import '../../plugin_platform/contracts/plugin_data_requirement.dart';
 import '../../plugin_platform/contracts/plugin_entry.dart';
 import '../../plugin_platform/contracts/plugin_id.dart';
@@ -7,10 +11,13 @@ import '../../plugin_platform/contracts/plugin_placement.dart';
 import '../../plugin_platform/contracts/plugin_release_stage.dart';
 import '../../plugin_platform/contracts/plugin_route.dart';
 import '../../plugin_platform/contracts/smart_feature_plugin.dart';
+import '../../plugin_platform/graph/plugin_node_kind.dart';
+import '../../plugin_platform/graph/plugin_slot.dart';
 import '../../plugin_platform/install/plugin_install_context.dart';
 import '../../plugin_platform/runtime/manager/plugin_runtime_start_policy.dart';
 import 'application/home_host_services.dart';
 import 'application/home_snapshot_preheater.dart';
+import 'composition/home_slots.dart';
 import 'pages/home_page.dart';
 import 'runtime/home_plugin_runtime.dart';
 import 'runtime/home_runtime_cache.dart';
@@ -31,38 +38,68 @@ class HomePlugin extends SmartFeaturePlugin {
   PluginReleaseStage get releaseStage => PluginReleaseStage.stable;
 
   @override
+  PluginNodeKind get nodeKind => PluginNodeKind.container;
+
+  @override
+  List<PluginSlot> get slots => HomeSlots.all;
+
+  @override
   Set<PluginPlacement> get placements => const {PluginPlacement.mainTab};
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.glucoseReadings,
-    PluginDataRequirement.syncStatus,
-    PluginDataRequirement.appSettings,
-  };
+        PluginDataRequirement.glucoseReadings,
+        PluginDataRequirement.syncStatus,
+        PluginDataRequirement.appSettings,
+      };
+  @override
+  List<PluginPlacementSpec> get placementSpecs => [
+        PluginPlacementSpec(
+          pluginId: id,
+          slot: const PluginSlotKey('app.mainTab'),
+          renderKey: '/home',
+          title: 'Home',
+          order: 0,
+          dataRequirements: dataRequirements,
+        ),
+      ];
 
   @override
   MainTabPluginEntry get mainTabEntry => const MainTabPluginEntry(
-    label: 'Home',
-    route: '/home',
-    icon: Icons.home_outlined,
-    activeIcon: Icons.home,
-    order: 0,
-  );
+        label: 'Home',
+        route: '/home',
+        icon: Icons.home_outlined,
+        activeIcon: Icons.home,
+        order: 0,
+      );
 
   @override
   List<PluginRoute> get routes => [
-    PluginRoute(path: '/home', builder: (_) => const HomePage()),
-  ];
+        PluginRoute(path: '/home', builder: (_) => const HomePage()),
+      ];
 
   @override
   void install(PluginInstallContext context) {
+    final host = context.services.get<AppHostServices>();
+    final actions = context.services.get<AppHostActions>();
+    final hostServices = HomeHostServices(
+      changeSignal: host.changeSignal,
+      syncStatusSnapshot: host.syncStatusSnapshot,
+      syncRuntimeStatus: host.syncRuntimeStatus,
+      switchToSelfSubject: actions.switchToSelfSubject,
+      updateUnit: (unit) {
+        final current = host.settingsProvider();
+        return actions.updateSettings(current.copyWith(unit: unit));
+      },
+    );
     final cache = HomeRuntimeCache();
     final runtime = HomePluginRuntime(
       cache: cache,
       preheater: HomeSnapshotPreheater(
-        hostServices: context.services.get<HomeHostServices>(),
+        hostServices: hostServices,
       ),
     );
+    context.services.register<HomeHostServices>(hostServices);
     context.services.register<HomeRuntimeCache>(cache);
     context.services.register<HomePluginRuntime>(runtime);
     context.registerRuntime(

@@ -15,14 +15,18 @@ class SqliteAlertStrategyConfigRepository
     implements AlertStrategyConfigRepository {
   final Future<Database> Function() databaseProvider;
 
-  const SqliteAlertStrategyConfigRepository({required this.databaseProvider});
+  const SqliteAlertStrategyConfigRepository({
+    required this.databaseProvider,
+  });
 
   @override
   Future<AlertStrategyConfigSet> load() async {
     await _ensureDefaults();
     final database = await databaseProvider();
     final rows = await database.query(AlertingTables.strategyConfigs);
-    final byKey = {for (final row in rows) row['strategy_key'] as String: row};
+    final byKey = {
+      for (final row in rows) row['strategy_key'] as String: row,
+    };
 
     return AlertStrategyConfigSet(
       global: AlertingGlobalConfig.fromJson(
@@ -40,17 +44,22 @@ class SqliteAlertStrategyConfigRepository
   }
 
   @override
-  Future<void> saveGlobal(AlertingGlobalConfig config) =>
-      _save(AlertingGlobalConfig.strategyKey, config.enabled, config.toJson());
+  Future<void> saveGlobal(AlertingGlobalConfig config) => _save(
+        AlertingGlobalConfig.strategyKey,
+        config.enabled,
+        config.toJson(),
+      );
 
   @override
-  Future<void> save(AlertStrategyConfig config) =>
-      _save(config.strategyKey, config.enabled, config.toJson());
+  Future<void> save(AlertStrategyConfig config) => _save(
+        config.strategyKey,
+        config.enabled,
+        config.toJson(),
+      );
 
   Future<void> _ensureDefaults() async {
     final database = await databaseProvider();
-    final count =
-        Sqflite.firstIntValue(
+    final count = Sqflite.firstIntValue(
           await database.rawQuery(
             'SELECT COUNT(*) FROM ${AlertingTables.strategyConfigs}',
           ),
@@ -70,12 +79,16 @@ class SqliteAlertStrategyConfigRepository
     Map<String, Object?> config,
   ) async {
     final database = await databaseProvider();
-    await database.insert(AlertingTables.strategyConfigs, {
-      'strategy_key': key,
-      'enabled': enabled ? 1 : 0,
-      'config_json': jsonEncode(config),
-      'updated_at': DateTime.now().toIso8601String(),
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await database.insert(
+      AlertingTables.strategyConfigs,
+      {
+        'strategy_key': key,
+        'enabled': enabled ? 1 : 0,
+        'config_json': jsonEncode(config),
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Map<String, Object?> _payload(Map<String, Object?>? row) {

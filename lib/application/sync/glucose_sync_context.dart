@@ -29,8 +29,8 @@ class GlucoseSyncContext {
     required this.settings,
     this.subjectId = GlucoseSubject.selfId,
   }) : policy = GlucoseSyncPolicy.fromSettings(
-         initialSyncDays: settings.initialSyncDays,
-       );
+          initialSyncDays: settings.initialSyncDays,
+        );
 
   String get sourceKey => source.type.name;
   bool get stopped => result != null;

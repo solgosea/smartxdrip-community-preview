@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:smart_xdrip/presentation/common/sync_status/sync_status_compact_panel.dart';
+import '../../../domain/entities/app_settings.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 import '../models/home_view_model.dart';
+import 'home_header_status_panel.dart';
+import 'home_header_title_block.dart';
 
 class HomeHeader extends StatelessWidget {
   final HomeViewModel viewModel;
   final VoidCallback onSwitchBackToSelf;
+  final ValueChanged<GlucoseUnit> onUnitChanged;
 
   const HomeHeader({
     super.key,
     required this.viewModel,
     required this.onSwitchBackToSelf,
+    required this.onUnitChanged,
   });
 
   @override
@@ -21,22 +25,16 @@ class HomeHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'CGM COMPANION',
-                style: TextStyle(
-                  fontFamily: 'JetBrainsMono',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.98,
-                  color: AppColors.textDim,
+              Expanded(
+                child: HomeHeaderTitleBlock(
+                  unit: viewModel.unit,
+                  onUnitChanged: onUnitChanged,
                 ),
               ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 190),
-                child: SyncStatusCompactPanel(viewModel: viewModel.syncStatus),
-              ),
+              const SizedBox(width: 12),
+              HomeHeaderStatusPanel(viewModel: viewModel.syncStatus),
             ],
           ),
           if (!viewModel.activeSubject.isSelf) ...[
@@ -84,7 +82,7 @@ class _ActiveSubjectPill extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '$name - $source',
+                '$name · $source',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(

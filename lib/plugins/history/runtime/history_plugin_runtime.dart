@@ -62,7 +62,9 @@ class HistoryPluginRuntime implements PluginRuntime {
     _subscription = null;
   }
 
-  Future<HistoryRuntimeSnapshot?> preheatDay({required DateTime day}) async {
+  Future<HistoryRuntimeSnapshot?> preheatDay({
+    required DateTime day,
+  }) async {
     final normalizedDay = DateTime(day.year, day.month, day.day);
     _lastRequestedDay = normalizedDay;
     final snapshot = await preheater.preheat(day: normalizedDay);

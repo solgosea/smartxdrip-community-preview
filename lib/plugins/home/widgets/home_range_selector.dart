@@ -17,37 +17,33 @@ class HomeRangeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children:
-          ranges.map((range) {
-            final selected = selectedRange == range;
-            return Padding(
-              padding: const EdgeInsets.only(left: 6),
-              child: GestureDetector(
-                onTap: () => onChanged(range),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: selected ? AppColors.bgCard2 : Colors.transparent,
-                    border: Border.all(
-                      color: selected ? AppColors.borderMid : AppColors.border,
-                    ),
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: Text(
-                    range.label,
-                    style: TextStyle(
-                      fontFamily: 'JetBrainsMono',
-                      fontSize: 10,
-                      color: selected ? AppColors.green : AppColors.textSoft,
-                    ),
-                  ),
+      children: ranges.map((range) {
+        final selected = selectedRange == range;
+        return Padding(
+          padding: const EdgeInsets.only(left: 6),
+          child: GestureDetector(
+            onTap: () => onChanged(range),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+              decoration: BoxDecoration(
+                color: selected ? AppColors.bgCard2 : Colors.transparent,
+                border: Border.all(
+                  color: selected ? AppColors.borderMid : AppColors.border,
+                ),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                range.label,
+                style: TextStyle(
+                  fontFamily: 'JetBrainsMono',
+                  fontSize: 10,
+                  color: selected ? AppColors.green : AppColors.textSoft,
                 ),
               ),
-            );
-          }).toList(),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

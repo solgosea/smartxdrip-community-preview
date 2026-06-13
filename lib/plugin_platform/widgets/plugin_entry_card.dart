@@ -10,7 +10,11 @@ class PluginEntryCard extends StatelessWidget {
   final ExplorePluginEntry entry;
   final PluginRuntimeState? state;
 
-  const PluginEntryCard({super.key, required this.entry, this.state});
+  const PluginEntryCard({
+    super.key,
+    required this.entry,
+    this.state,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +30,9 @@ class PluginEntryCard extends StatelessWidget {
           color: AppColors.bgCard,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color:
-                enabled
-                    ? entry.accentColor?.withOpacity(0.18) ?? AppColors.border
-                    : AppColors.border.withOpacity(0.5),
+            color: enabled
+                ? entry.accentColor?.withOpacity(0.18) ?? AppColors.border
+                : AppColors.border.withOpacity(0.5),
           ),
         ),
         child: Row(

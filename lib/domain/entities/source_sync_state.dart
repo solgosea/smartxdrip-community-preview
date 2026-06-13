@@ -4,6 +4,8 @@ class SourceSyncState {
   final DateTime? lastAttemptAt;
   final String? lastCursor;
   final String? lastError;
+  final int? lastFetchedCount;
+  final int? lastStoredCount;
   final DateTime updatedAt;
 
   const SourceSyncState({
@@ -13,5 +15,7 @@ class SourceSyncState {
     this.lastAttemptAt,
     this.lastCursor,
     this.lastError,
+    this.lastFetchedCount,
+    this.lastStoredCount,
   });
 }

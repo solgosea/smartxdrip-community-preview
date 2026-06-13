@@ -9,11 +9,10 @@ class InsightsViewModelMapper {
     final insights = facade.insights;
     final daily = _firstForSlot(insights, InsightSlotCode.dailyBrief);
     final weekly = _firstForSlot(insights, InsightSlotCode.weeklyReview);
-    final patterns =
-        insights
-            .where((insight) => insight.slot == InsightSlotCode.patternCard)
-            .toList()
-          ..sort((a, b) => a.generatedAt.compareTo(b.generatedAt));
+    final patterns = insights
+        .where((insight) => insight.slot == InsightSlotCode.patternCard)
+        .toList()
+      ..sort((a, b) => a.generatedAt.compareTo(b.generatedAt));
     final anchor = facade.latestReading?.timestamp ?? DateTime.now();
 
     return InsightsViewModel(
@@ -43,10 +42,9 @@ class InsightsViewModelMapper {
         InsightMiniStatViewModel(
           value: _factString(facts, 'longestHighValue'),
           label: _factString(facts, 'longestHighLabel'),
-          tone:
-              facts['hasLongestHigh'] == true
-                  ? InsightMiniStatTone.warning
-                  : InsightMiniStatTone.neutral,
+          tone: facts['hasLongestHigh'] == true
+              ? InsightMiniStatTone.warning
+              : InsightMiniStatTone.neutral,
         ),
       ],
     );
@@ -65,9 +63,8 @@ class InsightsViewModelMapper {
     List<NarrativeInsight> insights,
     InsightSlotCode slot,
   ) {
-    final rows =
-        insights.where((insight) => insight.slot == slot).toList()
-          ..sort((a, b) => b.generatedAt.compareTo(a.generatedAt));
+    final rows = insights.where((insight) => insight.slot == slot).toList()
+      ..sort((a, b) => b.generatedAt.compareTo(a.generatedAt));
     return rows.isEmpty ? null : rows.first;
   }
 

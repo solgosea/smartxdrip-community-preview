@@ -5,7 +5,9 @@ import '../../suppression/alert_suppression_policy_registry.dart';
 class AlertDeliveryGate {
   final AlertSuppressionPolicyRegistry suppressionRegistry;
 
-  const AlertDeliveryGate({required this.suppressionRegistry});
+  const AlertDeliveryGate({
+    required this.suppressionRegistry,
+  });
 
   Future<AlertSuppressionDecision> evaluate(AlertEvent event) {
     return suppressionRegistry.evaluate(event);

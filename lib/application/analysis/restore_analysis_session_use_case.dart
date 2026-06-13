@@ -37,22 +37,20 @@ class RestoreAnalysisSessionUseCase {
       limit: 90,
       subjectId: subjectId,
     );
-    final events =
-        pattern == null
-            ? await database.latestEvents(limit: 200, subjectId: subjectId)
-            : await database.eventsBetween(
-              pattern.windowStart,
-              pattern.windowEnd,
-              subjectId: subjectId,
-            );
+    final events = pattern == null
+        ? await database.latestEvents(limit: 200, subjectId: subjectId)
+        : await database.eventsBetween(
+            pattern.windowStart,
+            pattern.windowEnd,
+            subjectId: subjectId,
+          );
     final windowKey = _windowKey(pattern?.key);
-    final periods =
-        windowKey == null
-            ? const <PeriodGlucoseSummary>[]
-            : await database.periodStatsForWindow(
-              windowKey,
-              subjectId: subjectId,
-            );
+    final periods = windowKey == null
+        ? const <PeriodGlucoseSummary>[]
+        : await database.periodStatsForWindow(
+            windowKey,
+            subjectId: subjectId,
+          );
     final now = DateTime.now();
     final windowStart =
         pattern?.windowStart ?? now.subtract(const Duration(days: 90));

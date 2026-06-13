@@ -50,7 +50,11 @@ class GlucoseUnitFormatService {
     );
   }
 
-  GlucoseDisplayRange range(double lowMmol, double highMmol, GlucoseUnit unit) {
+  GlucoseDisplayRange range(
+    double lowMmol,
+    double highMmol,
+    GlucoseUnit unit,
+  ) {
     final low = value(lowMmol, unit);
     final high = value(highMmol, unit);
     return GlucoseDisplayRange(
@@ -66,8 +70,9 @@ class GlucoseUnitFormatService {
   GlucoseDisplayRate rate(double mmolPerMin, GlucoseUnit unit) {
     final displayValue = converter.rateFromMmolPerMin(mmolPerMin, unit);
     final sign = displayValue >= 0 ? '+' : '';
-    final label =
-        '$sign${displayValue.toStringAsFixed(precisionPolicy.rateDecimals(unit))}';
+    final label = '$sign${displayValue.toStringAsFixed(
+      precisionPolicy.rateDecimals(unit),
+    )}';
     final unitText = rateUnitLabel(unit);
     return GlucoseDisplayRate(
       value: displayValue,

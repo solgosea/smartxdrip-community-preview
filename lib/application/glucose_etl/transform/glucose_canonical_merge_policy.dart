@@ -22,23 +22,22 @@ class GlucoseCanonicalMergePolicy {
     }
 
     final sorted = [...candidates]..sort((a, b) {
-      final aScore = _score(a, now);
-      final bScore = _score(b, now);
-      final scoreCompare = bScore.compareTo(aScore);
-      if (scoreCompare != 0) return scoreCompare;
+        final aScore = _score(a, now);
+        final bScore = _score(b, now);
+        final scoreCompare = bScore.compareTo(aScore);
+        if (scoreCompare != 0) return scoreCompare;
 
-      final aDistance = (a.timestamp.millisecondsSinceEpoch - bucketMs).abs();
-      final bDistance = (b.timestamp.millisecondsSinceEpoch - bucketMs).abs();
-      final distanceCompare = aDistance.compareTo(bDistance);
-      if (distanceCompare != 0) return distanceCompare;
+        final aDistance = (a.timestamp.millisecondsSinceEpoch - bucketMs).abs();
+        final bDistance = (b.timestamp.millisecondsSinceEpoch - bucketMs).abs();
+        final distanceCompare = aDistance.compareTo(bDistance);
+        if (distanceCompare != 0) return distanceCompare;
 
-      final sourceCompare = _sourceOrder(
-        a.source,
-      ).compareTo(_sourceOrder(b.source));
-      if (sourceCompare != 0) return sourceCompare;
+        final sourceCompare =
+            _sourceOrder(a.source).compareTo(_sourceOrder(b.source));
+        if (sourceCompare != 0) return sourceCompare;
 
-      return a.id.compareTo(b.id);
-    });
+        return a.id.compareTo(b.id);
+      });
 
     final winner = sorted.first;
     return CanonicalGlucoseCandidate(

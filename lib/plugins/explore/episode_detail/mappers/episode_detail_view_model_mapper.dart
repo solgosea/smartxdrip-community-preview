@@ -14,6 +14,7 @@ import '../shared/episode_similar_card.dart';
 
 import '../analyzers/episode_context_analyzer.dart';
 import '../analyzers/episode_detail_formatters.dart';
+import '../analyzers/episode_detail_template_text_renderer.dart';
 import '../analyzers/episode_focus_selector.dart';
 import '../analyzers/episode_window_analyzer.dart';
 import '../models/episode_detail_view_model.dart';
@@ -25,12 +26,14 @@ class EpisodeDetailViewModelMapper {
   final EpisodeWindowAnalyzer windowAnalyzer;
   final EpisodeContextAnalyzer contextAnalyzer;
   final GlucoseUnitFormatService glucoseFormatter;
+  final EpisodeDetailTemplateTextRenderer textRenderer;
 
   const EpisodeDetailViewModelMapper({
     this.focusSelector = const EpisodeFocusSelector(),
     this.windowAnalyzer = const EpisodeWindowAnalyzer(),
     this.contextAnalyzer = const EpisodeContextAnalyzer(),
     this.glucoseFormatter = const GlucoseUnitFormatService(),
+    this.textRenderer = const EpisodeDetailTemplateTextRenderer(),
   });
 
   EpisodeDetailViewModel map({
@@ -41,22 +44,16 @@ class EpisodeDetailViewModelMapper {
     final settings = analysis.settings;
     final unit = settings.unit;
     final allReadings = analysis.readingsForLastDays(90);
-    final eventType =
-        kind == EpisodeKind.high
-            ? GlucoseEventType.highEpisode
-            : GlucoseEventType.lowEpisode;
-    final detected =
-        analysis.eventsForLastDays(90).isNotEmpty
-            ? analysis.eventsForLastDays(90)
-            : analysis.detectEventsForReadings(allReadings);
-    final events =
-        detected.where((event) => event.type == eventType).toList()
-          ..sort((a, b) => a.time.compareTo(b.time));
-    final recentEvents = _eventsInLastDays(
-      events,
-      30,
-      analysis.latestReading?.timestamp,
-    );
+    final eventType = kind == EpisodeKind.high
+        ? GlucoseEventType.highEpisode
+        : GlucoseEventType.lowEpisode;
+    final detected = analysis.eventsForLastDays(90).isNotEmpty
+        ? analysis.eventsForLastDays(90)
+        : analysis.detectEventsForReadings(allReadings);
+    final events = detected.where((event) => event.type == eventType).toList()
+      ..sort((a, b) => a.time.compareTo(b.time));
+    final recentEvents =
+        _eventsInLastDays(events, 30, analysis.latestReading?.timestamp);
     final focus = focusSelector.latestOfType(
       recentEvents.isNotEmpty ? recentEvents : events,
       type: eventType,
@@ -68,9 +65,10 @@ class EpisodeDetailViewModelMapper {
 
     final high = kind == EpisodeKind.high;
     final themeColor = high ? AppColors.rose : AppColors.blue;
-    final endTime =
-        focus.endTime ??
-        focus.time.add(Duration(minutes: math.max(focus.durationMinutes, 0)));
+    final endTime = focus.endTime ??
+        focus.time.add(
+          Duration(minutes: math.max(focus.durationMinutes, 0)),
+        );
     final duration = math.max(focus.durationMinutes, 0);
     final window = windowAnalyzer.analyze(
       event: focus,
@@ -125,6 +123,8 @@ class EpisodeDetailViewModelMapper {
         onsetTime: focus.time,
         peakOrNadirTime: window.extremeReading?.timestamp ?? focus.time,
         recoveryTime: endTime,
+        timeRangeStart: window.start,
+        timeRangeEnd: window.end,
         themeColor: themeColor,
         episode: ChartEpisode(
           start: focus.time,
@@ -139,15 +139,13 @@ class EpisodeDetailViewModelMapper {
         high: high,
         unit: unit,
       ),
-      pattern:
-          high
-              ? _highPattern(events, analysis.latestReading?.timestamp)
-              : _lowPattern(events, analysis.latestReading?.timestamp),
+      pattern: high
+          ? _highPattern(events, analysis.latestReading?.timestamp)
+          : _lowPattern(events, analysis.latestReading?.timestamp),
       severity: high ? null : _lowSeverity(extreme, settings),
-      similarHeader:
-          high
-              ? 'Similar Episodes (Past 30 Days)'
-              : 'Similar Episodes (Past 90 Days)',
+      similarHeader: high
+          ? 'Similar Episodes (Past 30 Days)'
+          : 'Similar Episodes (Past 90 Days)',
       similarCards: _similarCards(
         current: focus,
         events: high ? recentEvents : events,
@@ -155,10 +153,12 @@ class EpisodeDetailViewModelMapper {
         themeColor: themeColor,
         unit: unit,
       ),
-      disclaimer:
-          high
-              ? 'This is observational CGM analysis only and is not medical advice. Consult your healthcare provider for clinical decisions.'
-              : 'Low glucose episodes require clinical interpretation. This is observational CGM analysis only and is not medical advice.',
+      disclaimer: textRenderer.render(
+        high
+            ? EpisodeDetailTextTemplate.highDisclaimer
+            : EpisodeDetailTextTemplate.lowDisclaimer,
+        const {},
+      ),
       emptyText: '',
     );
   }
@@ -178,10 +178,12 @@ class EpisodeDetailViewModelMapper {
       similarHeader: '',
       similarCards: const [],
       disclaimer: '',
-      emptyText:
-          high
-              ? 'No high glucose episodes detected in the last 30 days.'
-              : 'No low glucose episodes detected in the last 30 days.',
+      emptyText: textRenderer.render(
+        high
+            ? EpisodeDetailTextTemplate.highEmpty
+            : EpisodeDetailTextTemplate.lowEmpty,
+        const {},
+      ),
     );
   }
 
@@ -192,12 +194,21 @@ class EpisodeDetailViewModelMapper {
     required bool high,
     required GlucoseUnit unit,
   }) {
-    final baseline =
-        window.baselineLow == null || window.baselineHigh == null
-            ? 'Baseline range unavailable; not enough readings before onset'
-            : high
-            ? 'Pre-onset baseline ${glucoseFormatter.range(window.baselineLow!, window.baselineHigh!, unit).fullLabel}'
-            : 'Pre-episode range ${glucoseFormatter.range(window.baselineLow!, window.baselineHigh!, unit).fullLabel}';
+    final baseline = window.baselineLow == null || window.baselineHigh == null
+        ? textRenderer.render(
+            EpisodeDetailTextTemplate.baselineUnavailable,
+            const {},
+          )
+        : textRenderer.render(
+            high
+                ? EpisodeDetailTextTemplate.highBaseline
+                : EpisodeDetailTextTemplate.lowBaseline,
+            {
+              'range': glucoseFormatter
+                  .range(window.baselineLow!, window.baselineHigh!, unit)
+                  .fullLabel,
+            },
+          );
     final typicalSlope = contextAnalyzer.typicalSlopeForHours(
       allReadings,
       startHour: high ? 4 : 0,
@@ -213,27 +224,34 @@ class EpisodeDetailViewModelMapper {
       allReadings,
       focus.time.hour,
     );
-    final variabilityText =
-        variability == null
-            ? 'Time-window variability unavailable; not enough historical readings'
-            : '${variability.label} window (${variability.windowText}) CV ${variability.cv.toStringAsFixed(0)}%, rank ${variability.rank}/${variability.total} by variability';
+    final variabilityText = variability == null
+        ? textRenderer.render(
+            EpisodeDetailTextTemplate.variabilityUnavailable,
+            const {},
+          )
+        : textRenderer.render(
+            EpisodeDetailTextTemplate.variabilityAvailable,
+            {
+              'label': variability.label,
+              'windowText': variability.windowText,
+              'cv': variability.cv.toStringAsFixed(0),
+              'rank': variability.rank,
+              'total': variability.total,
+            },
+          );
 
     return [
       EpisodeContextRow(
         icon: 'B',
-        timeWindow: EpisodeDetailFormatters.range(
-          window.start,
-          window.preMidpoint,
-        ),
+        timeWindow:
+            EpisodeDetailFormatters.range(window.start, window.preMidpoint),
         description: baseline,
         contextTag: '~2h before',
       ),
       EpisodeContextRow(
         icon: 'T',
-        timeWindow: EpisodeDetailFormatters.range(
-          window.preMidpoint,
-          focus.time,
-        ),
+        timeWindow:
+            EpisodeDetailFormatters.range(window.preMidpoint, focus.time),
         description: slopeText,
         contextTag: 'lead-up',
       ),
@@ -253,23 +271,40 @@ class EpisodeDetailViewModelMapper {
     required GlucoseUnit unit,
   }) {
     if (slope == null) {
-      return 'Lead-up readings limited; slope cannot be estimated from this window';
+      return textRenderer.render(
+        EpisodeDetailTextTemplate.slopeUnavailable,
+        const {},
+      );
     }
-    final slopePart =
-        high
-            ? 'Lead-up rise ${EpisodeDetailFormatters.rate(slope, unit: unit, forcePositive: slope >= 0)}'
-            : 'Lead-up descent ${EpisodeDetailFormatters.rate(slope, unit: unit)}';
+    final slopeText = EpisodeDetailFormatters.rate(
+      slope,
+      unit: unit,
+      forcePositive: high && slope >= 0,
+    );
     if (typicalSlope == null) {
-      return '$slopePart; historical comparison unavailable';
+      return textRenderer.render(
+        high
+            ? EpisodeDetailTextTemplate.highSlopeNoComparison
+            : EpisodeDetailTextTemplate.lowSlopeNoComparison,
+        {'slope': slopeText},
+      );
     }
     final diff = slope - typicalSlope;
-    final direction =
-        diff.abs() < 0.01
-            ? 'near'
-            : diff > 0
+    final direction = diff.abs() < 0.01
+        ? 'near'
+        : diff > 0
             ? 'above'
             : 'below';
-    return '$slopePart; $direction historical window average (${EpisodeDetailFormatters.rate(typicalSlope, unit: unit)})';
+    return textRenderer.render(
+      high
+          ? EpisodeDetailTextTemplate.highSlopeComparison
+          : EpisodeDetailTextTemplate.lowSlopeComparison,
+      {
+        'slope': slopeText,
+        'direction': direction,
+        'typicalSlope': EpisodeDetailFormatters.rate(typicalSlope, unit: unit),
+      },
+    );
   }
 
   EpisodePatternViewModel _highPattern(
@@ -280,10 +315,18 @@ class EpisodeDetailViewModelMapper {
     final morning =
         recent.where((e) => e.time.hour >= 6 && e.time.hour < 12).toList();
     final range = _timeRange(morning);
-    final patternText =
-        morning.isEmpty
-            ? 'No morning-window high episodes were detected in the 14-day analysis window.'
-            : '${morning.length} morning-window high episodes were detected in the last 14 days. ${range == null ? 'The time cluster cannot be estimated from the current sample.' : 'Events occurred between $range.'}';
+    final patternText = morning.isEmpty
+        ? textRenderer
+            .render(EpisodeDetailTextTemplate.highPatternEmpty, const {})
+        : textRenderer.render(
+            range == null
+                ? EpisodeDetailTextTemplate.highPatternNoCluster
+                : EpisodeDetailTextTemplate.highPatternClustered,
+            {
+              'count': morning.length,
+              'range': range,
+            },
+          );
     return EpisodePatternViewModel(
       bigStat: '${morning.length}/14',
       description: 'Morning-window highs in the last 14 days',
@@ -308,10 +351,18 @@ class EpisodeDetailViewModelMapper {
     final recent = _eventsInLastDays(lowEvents, 30, anchor);
     final nocturnal = recent.where((e) => e.isNocturnal).toList();
     final range = _timeRange(nocturnal);
-    final patternText =
-        nocturnal.isEmpty
-            ? 'No nocturnal low episodes were detected in the 30-day analysis window.'
-            : '${nocturnal.length} nocturnal low episodes were detected in the past 30 days. ${range == null ? 'The time cluster cannot be estimated from the current sample.' : 'They occurred between $range.'}';
+    final patternText = nocturnal.isEmpty
+        ? textRenderer
+            .render(EpisodeDetailTextTemplate.lowPatternEmpty, const {})
+        : textRenderer.render(
+            range == null
+                ? EpisodeDetailTextTemplate.lowPatternNoCluster
+                : EpisodeDetailTextTemplate.lowPatternClustered,
+            {
+              'count': nocturnal.length,
+              'range': range,
+            },
+          );
     return EpisodePatternViewModel(
       bigStat: '${nocturnal.length}/30',
       description: 'Nocturnal low episodes in past 30 days',
@@ -342,19 +393,15 @@ class EpisodeDetailViewModelMapper {
     final out = <PatternDayIndicator>[];
     for (var i = 0; i < days; i++) {
       final day = current.subtract(Duration(days: i * strideDays));
-      final hadEvent = events.any(
-        (event) =>
-            event.time.year == day.year &&
-            event.time.month == day.month &&
-            event.time.day == day.day &&
-            predicate(event),
-      );
-      out.add(
-        PatternDayIndicator(
-          label: EpisodeDetailFormatters.shortDate(day),
-          active: hadEvent,
-        ),
-      );
+      final hadEvent = events.any((event) =>
+          event.time.year == day.year &&
+          event.time.month == day.month &&
+          event.time.day == day.day &&
+          predicate(event));
+      out.add(PatternDayIndicator(
+        label: EpisodeDetailFormatters.shortDate(day),
+        active: hadEvent,
+      ));
     }
     return out;
   }
@@ -374,8 +421,12 @@ class EpisodeDetailViewModelMapper {
         other++;
       }
     }
-    String pct(int count) => '${(count / events.length * 100).round()}%';
-    return 'Low episode distribution: ${pct(nocturnal)} nocturnal (00:00-06:00) | ${pct(afternoon)} afternoon | ${pct(other)} other';
+    int pct(int count) => (count / events.length * 100).round();
+    return textRenderer.render(EpisodeDetailTextTemplate.lowDistribution, {
+      'nocturnalPct': pct(nocturnal),
+      'afternoonPct': pct(afternoon),
+      'otherPct': pct(other),
+    });
   }
 
   List<EpisodeSimilarCardData> _similarCards({
@@ -385,22 +436,18 @@ class EpisodeDetailViewModelMapper {
     required Color themeColor,
     required GlucoseUnit unit,
   }) {
-    final others =
-        events.reversed
-            .where(
-              (event) =>
-                  !identical(event, current) && event.time != current.time,
-            )
-            .take(3)
-            .toList();
+    final others = events.reversed
+        .where(
+            (event) => !identical(event, current) && event.time != current.time)
+        .take(3)
+        .toList();
     return others.map((event) {
       final value = event.peakOrNadir ?? event.value;
       final duration = math.max(event.durationMinutes, 0);
       final rate = event.ratePerMin ?? 0.0;
-      final range =
-          event.endTime == null
-              ? ''
-              : ' | ${EpisodeDetailFormatters.range(event.time, event.endTime!)}';
+      final range = event.endTime == null
+          ? ''
+          : ' | ${EpisodeDetailFormatters.range(event.time, event.endTime!)}';
       return EpisodeSimilarCardData(
         date: EpisodeDetailFormatters.shortDate(event.time),
         peakOrNadir: glucoseFormatter.value(value, unit).valueLabel,
@@ -415,10 +462,9 @@ class EpisodeDetailViewModelMapper {
 
   EpisodeSeverityViewModel _lowSeverity(double nadir, AppSettings settings) {
     final unit = settings.unit;
-    final current =
-        nadir < 2.8
-            ? EpisodeSeverityLevel.severe
-            : nadir < 3.0
+    final current = nadir < 2.8
+        ? EpisodeSeverityLevel.severe
+        : nadir < 3.0
             ? EpisodeSeverityLevel.significant
             : EpisodeSeverityLevel.mild;
     final nadirLabel = glucoseFormatter.value(nadir, unit).fullLabel;
@@ -426,32 +472,38 @@ class EpisodeDetailViewModelMapper {
         '(${glucoseFormatter.range(low, high, unit).fullLabel})';
     String under(double threshold) =>
         '(<${glucoseFormatter.value(threshold, unit).valueLabel} ${glucoseFormatter.unitLabel(unit)})';
+    final description = textRenderer.render(
+      EpisodeDetailTextTemplate.lowSeverityDescription,
+      {'nadirLabel': nadirLabel},
+    );
     return EpisodeSeverityViewModel(
       rows: [
         EpisodeSeverityRowViewModel(
           level: EpisodeSeverityLevel.mild,
           label: 'Mild',
           range: range(3.0, settings.lowThreshold),
-          description: '$nadirLabel is compared with this threshold band.',
+          description: description,
           isCurrent: current == EpisodeSeverityLevel.mild,
         ),
         EpisodeSeverityRowViewModel(
           level: EpisodeSeverityLevel.significant,
           label: 'Significant',
           range: range(2.8, 3.0),
-          description: '$nadirLabel is compared with this threshold band.',
+          description: description,
           isCurrent: current == EpisodeSeverityLevel.significant,
         ),
         EpisodeSeverityRowViewModel(
           level: EpisodeSeverityLevel.severe,
           label: 'Severe',
           range: under(2.8),
-          description: '$nadirLabel is compared with this threshold band.',
+          description: description,
           isCurrent: current == EpisodeSeverityLevel.severe,
         ),
       ],
-      footnote:
-          'Severity is derived from the episode nadir value in the current CGM event.',
+      footnote: textRenderer.render(
+        EpisodeDetailTextTemplate.lowSeverityFootnote,
+        const {},
+      ),
     );
   }
 
@@ -464,10 +516,8 @@ class EpisodeDetailViewModelMapper {
     final current = anchor ?? events.last.time;
     final cutoff = current.subtract(Duration(days: days));
     return events
-        .where(
-          (event) =>
-              !event.time.isBefore(cutoff) && !event.time.isAfter(current),
-        )
+        .where((event) =>
+            !event.time.isBefore(cutoff) && !event.time.isAfter(current))
         .toList();
   }
 
@@ -505,22 +555,21 @@ class EpisodeDetailViewModelMapper {
   ) {
     if (event.areaOutOfRange != null) return event.areaOutOfRange!;
     final threshold = high ? settings.highThreshold : settings.lowThreshold;
-    final distance =
-        high
-            ? math.max(0, extreme - threshold)
-            : math.max(0, threshold - extreme);
+    final distance = high
+        ? math.max(0, extreme - threshold)
+        : math.max(0, threshold - extreme);
     return distance * math.max(duration, 1).toDouble();
   }
 
   String? _timeRange(List<GlucoseEvent> events) {
     if (events.isEmpty) return null;
-    final minutes =
-        events.map((event) => event.time.hour * 60 + event.time.minute).toList()
-          ..sort();
+    final minutes = events
+        .map((event) => event.time.hour * 60 + event.time.minute)
+        .toList()
+      ..sort();
     final start = minutes.first;
     final end = minutes.last;
-    String fmt(int value) =>
-        '${(value ~/ 60).toString().padLeft(2, '0')}:'
+    String fmt(int value) => '${(value ~/ 60).toString().padLeft(2, '0')}:'
         '${(value % 60).toString().padLeft(2, '0')}';
     return '${fmt(start)}-${fmt(end)}';
   }

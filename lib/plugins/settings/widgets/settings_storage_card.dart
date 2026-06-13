@@ -6,7 +6,10 @@ import '../models/settings_view_model.dart';
 class SettingsStorageCard extends StatelessWidget {
   final SettingsStorageViewModel viewModel;
 
-  const SettingsStorageCard({super.key, required this.viewModel});
+  const SettingsStorageCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

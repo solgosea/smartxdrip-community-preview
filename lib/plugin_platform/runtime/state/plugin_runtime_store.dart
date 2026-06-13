@@ -9,12 +9,15 @@ class PluginRuntimeStore extends ChangeNotifier {
   final Map<PluginId, PluginRuntimeSnapshot> _snapshots = {};
   final DateTime Function() _now;
 
-  PluginRuntimeStore({DateTime Function()? now}) : _now = now ?? DateTime.now;
+  PluginRuntimeStore({
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now;
 
   List<PluginRuntimeSnapshot> get snapshots =>
       List.unmodifiable(_snapshots.values);
 
-  PluginRuntimeSnapshot? snapshotFor(PluginId pluginId) => _snapshots[pluginId];
+  PluginRuntimeSnapshot? snapshotFor(PluginId pluginId) =>
+      _snapshots[pluginId];
 
   void register(
     PluginId pluginId, {

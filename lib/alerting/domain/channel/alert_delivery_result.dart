@@ -19,20 +19,20 @@ class AlertDeliveryResult {
     required this.channel,
     this.message = 'Delivered.',
     this.result = const {},
-  }) : success = true,
-       skipped = false;
+  })  : success = true,
+        skipped = false;
 
   const AlertDeliveryResult.skipped({
     required this.channel,
     this.message = 'Skipped.',
     this.result = const {},
-  }) : success = false,
-       skipped = true;
+  })  : success = false,
+        skipped = true;
 
   const AlertDeliveryResult.failed({
     required this.channel,
     required this.message,
     this.result = const {},
-  }) : success = false,
-       skipped = false;
+  })  : success = false,
+        skipped = false;
 }

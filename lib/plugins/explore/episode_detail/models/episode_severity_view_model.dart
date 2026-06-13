@@ -1,4 +1,8 @@
-enum EpisodeSeverityLevel { mild, significant, severe }
+enum EpisodeSeverityLevel {
+  mild,
+  significant,
+  severe,
+}
 
 class EpisodeSeverityRowViewModel {
   final EpisodeSeverityLevel level;
@@ -20,5 +24,8 @@ class EpisodeSeverityViewModel {
   final List<EpisodeSeverityRowViewModel> rows;
   final String footnote;
 
-  const EpisodeSeverityViewModel({required this.rows, required this.footnote});
+  const EpisodeSeverityViewModel({
+    required this.rows,
+    required this.footnote,
+  });
 }

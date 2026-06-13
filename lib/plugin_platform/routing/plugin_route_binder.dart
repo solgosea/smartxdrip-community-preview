@@ -7,7 +7,10 @@ class PluginRouteBinder {
   const PluginRouteBinder();
 
   GoRoute bind(PluginRoute route) {
-    return GoRoute(path: route.path, builder: route.build);
+    return GoRoute(
+      path: route.path,
+      builder: route.build,
+    );
   }
 
   List<GoRoute> bindAll(Iterable<SmartFeaturePlugin> plugins) {

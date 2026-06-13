@@ -5,7 +5,10 @@ import 'statistics_metric_card.dart';
 class StatisticsMetricGrid extends StatelessWidget {
   final List<StatisticsMetricCardViewModel> metrics;
 
-  const StatisticsMetricGrid({super.key, required this.metrics});
+  const StatisticsMetricGrid({
+    super.key,
+    required this.metrics,
+  });
 
   @override
   Widget build(BuildContext context) {

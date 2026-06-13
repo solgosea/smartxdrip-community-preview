@@ -26,10 +26,9 @@ class SqliteAlertRuleRepository implements AlertRuleRepository {
     final database = await databaseProvider();
     final rows = await database.query(
       AlertingTables.ruleSets,
-      where:
-          subjectId == null
-              ? 'rule_set_key = ? AND subject_id IS NULL'
-              : 'rule_set_key = ? AND subject_id = ?',
+      where: subjectId == null
+          ? 'rule_set_key = ? AND subject_id IS NULL'
+          : 'rule_set_key = ? AND subject_id = ?',
       whereArgs: subjectId == null ? [ruleSetKey] : [ruleSetKey, subjectId],
       limit: 1,
     );

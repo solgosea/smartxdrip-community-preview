@@ -5,7 +5,9 @@ import '../contracts/plugin_capability.dart';
 class PluginCapabilityContextFactory {
   final AnalysisSessionStore analysisStore;
 
-  const PluginCapabilityContextFactory({required this.analysisStore});
+  const PluginCapabilityContextFactory({
+    required this.analysisStore,
+  });
 
   factory PluginCapabilityContextFactory.current() =>
       PluginCapabilityContextFactory(

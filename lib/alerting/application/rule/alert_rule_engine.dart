@@ -7,7 +7,9 @@ import 'alert_rule_registry.dart';
 class AlertRuleEngine {
   final AlertRuleRegistry registry;
 
-  const AlertRuleEngine({this.registry = AlertRuleRegistry.defaults});
+  const AlertRuleEngine({
+    this.registry = AlertRuleRegistry.defaults,
+  });
 
   List<AlertRuleEvaluationResult> evaluate({
     required List<GlucoseReading> readings,

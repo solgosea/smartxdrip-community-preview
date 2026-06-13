@@ -1,16 +1,13 @@
-import '../../../domain/data_source/data_source_connection_snapshot.dart';
 import '../models/profile_view_model.dart';
 
 class ProfileRuntimeSnapshot {
   final String subjectId;
   final ProfileViewModel viewModel;
-  final List<DataSourceConnectionSnapshot> sourceSnapshots;
   final DateTime updatedAt;
 
   const ProfileRuntimeSnapshot({
     required this.subjectId,
     required this.viewModel,
-    required this.sourceSnapshots,
     required this.updatedAt,
   });
 }

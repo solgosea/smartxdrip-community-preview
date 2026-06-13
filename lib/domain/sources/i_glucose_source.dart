@@ -1,10 +1,10 @@
 import '../entities/glucose_reading.dart';
 
-/// Data source identifier used to track which backend produced the reading.
+/// Data source identifier — used to track which backend produced the reading.
 enum DataSource { xdripHttp, nightscout }
 
-/// Abstract source interface for each concrete source.
-/// implements this. Repository chooses between sources at runtime.
+/// Source interface for glucose readings. The repository chooses between
+/// registered sources at runtime.
 abstract class IGlucoseSource {
   DataSource get type;
 
@@ -20,6 +20,6 @@ abstract class IGlucoseSource {
     required DateTime to,
   });
 
-  /// Health check: does the source respond?
+  /// Health check for source availability.
   Future<bool> isAvailable();
 }

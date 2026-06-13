@@ -21,30 +21,27 @@ import 'package:smart_xdrip/alerting/suppression/alert_suppression_policy.dart';
 import 'package:smart_xdrip/alerting/suppression/alert_suppression_policy_registry.dart';
 
 void main() {
-  test(
-    'AlertingCenter suppresses delivery before loading config or pipeline',
-    () async {
-      final events = _MemoryAlertEventRepository();
-      final suppression =
-          AlertSuppressionPolicyRegistry()
-            ..register(const _AlwaysSuppressPolicy());
-      final center = AlertingCenter(
-        eventRepository: events,
-        configRepository: _FailingConfigRepository(),
-        policyEngine: const AlertPolicyEngine(),
-        deliveryGate: AlertDeliveryGate(suppressionRegistry: suppression),
-        deliveryPipeline: AlertDeliveryPipeline(
-          registry: AlertStrategyRegistry(const []),
-          logRepository: _FailingDeliveryLogRepository(),
-        ),
-      );
+  test('AlertingCenter suppresses delivery before loading config or pipeline',
+      () async {
+    final events = _MemoryAlertEventRepository();
+    final suppression = AlertSuppressionPolicyRegistry()
+      ..register(const _AlwaysSuppressPolicy());
+    final center = AlertingCenter(
+      eventRepository: events,
+      configRepository: _FailingConfigRepository(),
+      policyEngine: const AlertPolicyEngine(),
+      deliveryGate: AlertDeliveryGate(suppressionRegistry: suppression),
+      deliveryPipeline: AlertDeliveryPipeline(
+        registry: AlertStrategyRegistry(const []),
+        logRepository: _FailingDeliveryLogRepository(),
+      ),
+    );
 
-      final results = await center.ingest(_event());
+    final results = await center.ingest(_event());
 
-      expect(results.single.skipped, isTrue);
-      expect((await events.byId('alert-1'))!.state, AlertEventState.suppressed);
-    },
-  );
+    expect(results.single.skipped, isTrue);
+    expect((await events.byId('alert-1'))!.state, AlertEventState.suppressed);
+  });
 }
 
 AlertEvent _event() {
@@ -139,6 +136,6 @@ class _FailingDeliveryLogRepository implements AlertDeliveryLogRepository {
 
   @override
   Future<List<Map<String, Object?>>> latestForEvent(
-    String alertEventId,
-  ) async => const [];
+          String alertEventId) async =>
+      const [];
 }

@@ -2,7 +2,10 @@ class HistoryDayQuery {
   final String subjectId;
   final DateTime day;
 
-  const HistoryDayQuery({required this.subjectId, required this.day});
+  const HistoryDayQuery({
+    required this.subjectId,
+    required this.day,
+  });
 
   DateTime get normalizedDay => DateTime(day.year, day.month, day.day);
 

@@ -1,1 +1,6 @@
-enum DataSourceSyncStrategyAction { none, enable, disable, syncNow }
+enum DataSourceSyncStrategyAction {
+  none,
+  enable,
+  disable,
+  syncNow,
+}

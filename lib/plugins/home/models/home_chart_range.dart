@@ -1,4 +1,5 @@
 enum HomeChartRange {
+  oneHour('1h', 1),
   fourHours('4h', 4),
   eightHours('8h', 8),
   twentyFourHours('24h', 24);

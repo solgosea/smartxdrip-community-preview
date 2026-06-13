@@ -25,7 +25,11 @@ class TargetRangeDraft {
   }
 }
 
-enum TargetRangeMarker { low, high, veryHigh }
+enum TargetRangeMarker {
+  low,
+  high,
+  veryHigh,
+}
 
 class TargetRangeValuePolicy {
   static const minMmol = 2.0;
@@ -34,7 +38,9 @@ class TargetRangeValuePolicy {
 
   final GlucoseUnitConverter converter;
 
-  const TargetRangeValuePolicy({this.converter = const GlucoseUnitConverter()});
+  const TargetRangeValuePolicy({
+    this.converter = const GlucoseUnitConverter(),
+  });
 
   TargetRangeDraft normalized(TargetRangeDraft draft) {
     final low = draft.lowMmol.clamp(minMmol, maxMmol - minimumGapMmol * 2);
@@ -59,22 +65,29 @@ class TargetRangeValuePolicy {
     final snapped = _snap(valueMmol, unit);
     return switch (marker) {
       TargetRangeMarker.low => draft.copyWith(
-        lowMmol:
-            snapped.clamp(minMmol, draft.highMmol - minimumGapMmol).toDouble(),
-      ),
+          lowMmol: snapped
+              .clamp(
+                minMmol,
+                draft.highMmol - minimumGapMmol,
+              )
+              .toDouble(),
+        ),
       TargetRangeMarker.high => draft.copyWith(
-        highMmol:
-            snapped
-                .clamp(
-                  draft.lowMmol + minimumGapMmol,
-                  draft.veryHighMmol - minimumGapMmol,
-                )
-                .toDouble(),
-      ),
+          highMmol: snapped
+              .clamp(
+                draft.lowMmol + minimumGapMmol,
+                draft.veryHighMmol - minimumGapMmol,
+              )
+              .toDouble(),
+        ),
       TargetRangeMarker.veryHigh => draft.copyWith(
-        veryHighMmol:
-            snapped.clamp(draft.highMmol + minimumGapMmol, maxMmol).toDouble(),
-      ),
+          veryHighMmol: snapped
+              .clamp(
+                draft.highMmol + minimumGapMmol,
+                maxMmol,
+              )
+              .toDouble(),
+        ),
     };
   }
 

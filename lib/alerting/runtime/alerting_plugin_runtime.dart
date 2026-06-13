@@ -10,6 +10,7 @@ import '../application/ingress/alerting_center.dart';
 import '../application/queue/alert_queue_consumer.dart';
 import '../application/source/alert_ingress_source_sink.dart';
 import '../application/source/alert_source_registry.dart';
+import 'alert_runtime_coordinator.dart';
 
 class AlertingPluginRuntime implements PluginRuntime {
   static const id = PluginId('core.alerting');
@@ -18,6 +19,8 @@ class AlertingPluginRuntime implements PluginRuntime {
   final AlertQueueConsumer queueConsumer;
   final AlertSourceRegistry sourceRegistry;
   final AlertIngressSourceSink sourceSink;
+  final AlertRuntimeCoordinator runtimeCoordinator;
+  final Future<void> Function()? configureNotificationActions;
 
   StreamSubscription<PluginRuntimeEvent>? _runtimeSubscription;
 
@@ -26,6 +29,8 @@ class AlertingPluginRuntime implements PluginRuntime {
     required this.queueConsumer,
     required this.sourceRegistry,
     required this.sourceSink,
+    required this.runtimeCoordinator,
+    this.configureNotificationActions,
   });
 
   @override
@@ -36,6 +41,7 @@ class AlertingPluginRuntime implements PluginRuntime {
 
   @override
   Future<void> start(PluginRuntimeContext context) async {
+    await configureNotificationActions?.call();
     queueConsumer.scheduleDrain();
     await sourceRegistry.startAll(sourceSink);
     _runtimeSubscription ??= context.eventBus.events.listen((event) {
@@ -48,6 +54,7 @@ class AlertingPluginRuntime implements PluginRuntime {
   @override
   Future<void> resume(PluginRuntimeContext context) async {
     context.markRunning(pluginId);
+    await configureNotificationActions?.call();
     await sourceRegistry.startAll(sourceSink);
     queueConsumer.scheduleDrain();
   }

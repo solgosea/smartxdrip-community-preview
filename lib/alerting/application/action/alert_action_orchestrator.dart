@@ -46,6 +46,7 @@ class AlertActionOrchestrator {
       AlertAction.acknowledge => AlertControlActionType.acknowledge,
       AlertAction.dismiss || AlertAction.stop => AlertControlActionType.stop,
     };
+    await actuatorOrchestrator.stopEvent(event.id);
     if (targetId != null &&
         targetId.isNotEmpty &&
         type != null &&
@@ -57,6 +58,5 @@ class AlertActionOrchestrator {
       );
       return;
     }
-    await actuatorOrchestrator.stopAll();
   }
 }

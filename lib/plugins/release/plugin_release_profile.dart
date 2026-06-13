@@ -1,1 +1,6 @@
-enum PluginReleaseProfile { ossPreview, publicBeta, fullInternal, hackathon }
+enum PluginReleaseProfile {
+  ossPreview,
+  publicBeta,
+  fullInternal,
+  hackathon,
+}

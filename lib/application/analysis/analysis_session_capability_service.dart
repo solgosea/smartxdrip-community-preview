@@ -6,7 +6,9 @@ import 'analysis_session_store.dart';
 class AnalysisSessionCapabilityService {
   final AnalysisSessionStore store;
 
-  const AnalysisSessionCapabilityService({required this.store});
+  const AnalysisSessionCapabilityService({
+    required this.store,
+  });
 
   AnalysisSessionSnapshotSummary summarize() {
     final snapshot = store.snapshot;

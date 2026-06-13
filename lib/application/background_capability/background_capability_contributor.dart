@@ -4,6 +4,5 @@ abstract class BackgroundCapabilityContributor {
   String get pluginId;
 
   void installBackgroundCapabilities(
-    BackgroundCapabilityInstallContext context,
-  );
+      BackgroundCapabilityInstallContext context);
 }

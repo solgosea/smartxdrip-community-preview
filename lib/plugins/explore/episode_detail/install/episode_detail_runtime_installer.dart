@@ -15,8 +15,7 @@ class EpisodeDetailRuntimeInstaller {
     if (existingCache != null && existingRuntime != null) return;
 
     final cache = existingCache ?? EpisodeDetailRuntimeCache();
-    final runtime =
-        existingRuntime ??
+    final runtime = existingRuntime ??
         EpisodeDetailPluginRuntime(
           cache: cache,
           preheater: EpisodeDetailSnapshotPreheater(

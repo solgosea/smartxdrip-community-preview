@@ -22,15 +22,19 @@ class SqliteAlertDeliveryLogRepository implements AlertDeliveryLogRepository {
   @override
   Future<void> insertPlan(AlertDeliveryPlan plan) async {
     final database = await databaseProvider();
-    await database.insert(AlertingTables.deliveryPlans, {
-      'id': plan.id,
-      'alert_event_id': plan.event.id,
-      'level': plan.event.level.name,
-      'channels_json': jsonEncode(plan.channels.map((e) => e.code).toList()),
-      'state': plan.state.name,
-      'created_at': plan.createdAt.toIso8601String(),
-      'updated_at': plan.updatedAt.toIso8601String(),
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await database.insert(
+      AlertingTables.deliveryPlans,
+      {
+        'id': plan.id,
+        'alert_event_id': plan.event.id,
+        'level': plan.event.level.name,
+        'channels_json': jsonEncode(plan.channels.map((e) => e.code).toList()),
+        'state': plan.state.name,
+        'created_at': plan.createdAt.toIso8601String(),
+        'updated_at': plan.updatedAt.toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   @override
@@ -40,10 +44,9 @@ class SqliteAlertDeliveryLogRepository implements AlertDeliveryLogRepository {
     required String strategyKey,
     required AlertDeliveryResult result,
   }) async {
-    final status =
-        result.skipped
-            ? AlertDeliveryState.skipped
-            : result.success
+    final status = result.skipped
+        ? AlertDeliveryState.skipped
+        : result.success
             ? AlertDeliveryState.delivered
             : AlertDeliveryState.failed;
     final now = DateTime.now();
@@ -74,7 +77,10 @@ class SqliteAlertDeliveryLogRepository implements AlertDeliveryLogRepository {
       alertEventId: alertEventId,
       planId: planId,
       strategyKey: strategyKey,
-      result: AlertDeliveryResult.skipped(channel: channel, message: message),
+      result: AlertDeliveryResult.skipped(
+        channel: channel,
+        message: message,
+      ),
     );
   }
 

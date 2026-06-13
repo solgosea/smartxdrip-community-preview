@@ -22,21 +22,19 @@ void main() {
     expect(source.stopped, isTrue);
   });
 
-  test(
-    'registry auto starts sources registered after the sink is active',
-    () async {
-      final registry = AlertSourceRegistry();
-      final sink = _FakeAlertSourceSink();
+  test('registry auto starts sources registered after the sink is active',
+      () async {
+    final registry = AlertSourceRegistry();
+    final sink = _FakeAlertSourceSink();
 
-      await registry.startAll(sink);
-      final source = _FakeAlertSource();
-      registry.register(source);
-      await pumpEventQueue();
+    await registry.startAll(sink);
+    final source = _FakeAlertSource();
+    registry.register(source);
+    await pumpEventQueue();
 
-      expect(source.started, isTrue);
-      expect(sink.inputs.single.messageType, 'fake.alert');
-    },
-  );
+    expect(source.started, isTrue);
+    expect(sink.inputs.single.messageType, 'fake.alert');
+  });
 }
 
 class _FakeAlertSource implements AlertSource {

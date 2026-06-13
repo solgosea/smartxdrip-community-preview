@@ -51,7 +51,7 @@ class TirCalculator {
 
     final sdVal = _sqrt(variance);
     final cv = mean > 0 ? (sdVal / mean) * 100 : 0.0;
-    // GMI = 3.31 + 0.02392 * mean_mg/dL
+    // GMI = 3.31 + 0.02392 × mean_mg/dL
     final gmi = 3.31 + 0.02392 * (mean * 18.0);
 
     return TirResult(
@@ -78,15 +78,14 @@ class TirCalculator {
   }
 
   static TirResult _empty() => const TirResult(
-    tir: 0,
-    tar: 0,
-    tbr: 0,
-    tarVeryHigh: 0,
-    tbrVeryLow: 0,
-    mean: 0,
-    sd: 0,
-    cv: 0,
-    gmi: 0,
-    readingCount: 0,
-  );
+      tir: 0,
+      tar: 0,
+      tbr: 0,
+      tarVeryHigh: 0,
+      tbrVeryLow: 0,
+      mean: 0,
+      sd: 0,
+      cv: 0,
+      gmi: 0,
+      readingCount: 0);
 }

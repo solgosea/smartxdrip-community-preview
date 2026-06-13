@@ -4,5 +4,8 @@ class GlucoseTrendSample {
   final GlucoseReading reading;
   final String? direction;
 
-  const GlucoseTrendSample({required this.reading, this.direction});
+  const GlucoseTrendSample({
+    required this.reading,
+    this.direction,
+  });
 }

@@ -1,1 +1,5 @@
-enum PluginRuntimeCapability { passive, task, runtime }
+enum PluginRuntimeCapability {
+  passive,
+  task,
+  runtime,
+}

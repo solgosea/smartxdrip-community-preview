@@ -6,6 +6,10 @@ import '../contracts/plugin_placement.dart';
 import '../contracts/plugin_release_stage.dart';
 import '../contracts/plugin_route.dart';
 import '../contracts/smart_feature_plugin.dart';
+import '../composition/plugin_placement_spec.dart';
+import '../graph/plugin_node.dart';
+import '../graph/plugin_node_kind.dart';
+import '../graph/plugin_slot.dart';
 
 class ConfiguredFeaturePlugin extends SmartFeaturePlugin {
   final SmartFeaturePlugin delegate;
@@ -36,6 +40,18 @@ class ConfiguredFeaturePlugin extends SmartFeaturePlugin {
 
   @override
   List<PluginRoute> get routes => delegate.routes;
+
+  @override
+  PluginNodeKind get nodeKind => delegate.nodeKind;
+
+  @override
+  List<PluginSlot> get slots => delegate.slots;
+
+  @override
+  List<PluginPlacementSpec> get placementSpecs => delegate.placementSpecs;
+
+  @override
+  PluginNode get node => delegate.node;
 
   @override
   MainTabPluginEntry? get mainTabEntry => delegate.mainTabEntry;

@@ -6,8 +6,7 @@ class EpisodeDetailFormatters {
 
   static const _glucoseFormatter = GlucoseUnitFormatService();
 
-  static String hm(DateTime t) =>
-      '${t.hour.toString().padLeft(2, '0')}:'
+  static String hm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:'
       '${t.minute.toString().padLeft(2, '0')}';
 
   static String shortDate(DateTime t) {

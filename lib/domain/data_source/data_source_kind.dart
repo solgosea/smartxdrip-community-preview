@@ -1,1 +1,4 @@
-enum DataSourceKind { xdripLocal, nightscout }
+enum DataSourceKind {
+  xdripLocal,
+  nightscout,
+}

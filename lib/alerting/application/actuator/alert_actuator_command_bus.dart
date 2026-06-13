@@ -4,8 +4,9 @@ import '../../shared/alert_id_generator.dart';
 import 'alert_actuator_command_queue.dart';
 import 'alert_actuator_dispatcher.dart';
 
-typedef AlertActuatorBackgroundForwarder =
-    Future<void> Function(AlertActuatorCommand command);
+typedef AlertActuatorBackgroundForwarder = Future<void> Function(
+  AlertActuatorCommand command,
+);
 
 class AlertActuatorCommandBus {
   final AlertActuatorCommandQueue queue;
@@ -62,7 +63,9 @@ class AlertActuatorCommandBus {
     );
   }
 
-  Future<List<AlertActuatorResult>> stopAll({bool forwardToBackground = true}) {
+  Future<List<AlertActuatorResult>> stopAll({
+    bool forwardToBackground = true,
+  }) {
     return dispatch(
       AlertActuatorCommand.stopAll(
         id: idGenerator.newId('act'),

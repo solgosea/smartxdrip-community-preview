@@ -37,7 +37,10 @@ class HistorySummaryChipViewModel {
   final String text;
   final Color color;
 
-  const HistorySummaryChipViewModel({required this.text, required this.color});
+  const HistorySummaryChipViewModel({
+    required this.text,
+    required this.color,
+  });
 }
 
 class HistoryCurveViewModel {
@@ -45,6 +48,8 @@ class HistoryCurveViewModel {
   final GlucoseUnit unit;
   final double lowThreshold;
   final double highThreshold;
+  final DateTime timeRangeStart;
+  final DateTime timeRangeEnd;
   final List<ChartEpisode> episodes;
   final List<ChartEventMarker> markers;
 
@@ -53,6 +58,8 @@ class HistoryCurveViewModel {
     required this.unit,
     required this.lowThreshold,
     required this.highThreshold,
+    required this.timeRangeStart,
+    required this.timeRangeEnd,
     required this.episodes,
     required this.markers,
   });
@@ -120,5 +127,8 @@ class HistoryEventTagViewModel {
   final String text;
   final Color color;
 
-  const HistoryEventTagViewModel({required this.text, required this.color});
+  const HistoryEventTagViewModel({
+    required this.text,
+    required this.color,
+  });
 }

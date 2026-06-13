@@ -13,7 +13,10 @@ class SourceRecordIdentityPolicy {
     return '$source:$ts:$value:$rate';
   }
 
-  String rawId({required String source, required String sourceRecordId}) {
+  String rawId({
+    required String source,
+    required String sourceRecordId,
+  }) {
     return '$source:$sourceRecordId';
   }
 }

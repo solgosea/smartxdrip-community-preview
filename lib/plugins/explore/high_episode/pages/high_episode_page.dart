@@ -48,7 +48,9 @@ class _HighEpisodePageState extends State<HighEpisodePage> {
     if (controller == null) {
       return const Scaffold(
         backgroundColor: AppColors.bg,
-        body: Center(child: CircularProgressIndicator(color: AppColors.rose)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.rose),
+        ),
       );
     }
     return AnimatedBuilder(

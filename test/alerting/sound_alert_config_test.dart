@@ -10,9 +10,7 @@ void main() {
     expect(config.sound.source, AlertSoundSource.asset);
     expect(config.sound.uri, AlertBuiltinSounds.urgentPulse.uri);
     expect(
-      config.sound.displayName,
-      AlertBuiltinSounds.urgentPulse.displayName,
-    );
+        config.sound.displayName, AlertBuiltinSounds.urgentPulse.displayName);
 
     final restored = SoundAlertConfig.fromJson(const {});
 

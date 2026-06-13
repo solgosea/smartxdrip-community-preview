@@ -1,1 +1,5 @@
-enum ForegroundReconcileMode { skip, light, full }
+enum ForegroundReconcileMode {
+  skip,
+  light,
+  full,
+}

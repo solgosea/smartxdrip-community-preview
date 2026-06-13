@@ -51,7 +51,10 @@ void main() {
     addTearDown(manager.dispose);
     final runtime = _FakeRuntime();
 
-    manager.register(runtime, startPolicy: PluginRuntimeStartPolicy.appStart);
+    manager.register(
+      runtime,
+      startPolicy: PluginRuntimeStartPolicy.appStart,
+    );
     await manager.startAppRuntimes();
 
     expect(runtime.calls, ['start']);

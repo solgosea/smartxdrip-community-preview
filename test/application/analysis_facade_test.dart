@@ -95,19 +95,14 @@ void main() {
     expect(facade.latestReading?.value, 6.0);
     expect(facade.readingsForLastHours(4, now: now), hasLength(5));
     expect(facade.readingsForLastHours(4), hasLength(5));
-    expect(
-      facade.tirForReadings(facade.readingsForLastHours(4, now: now)),
-      isNotNull,
-    );
-    expect(
-      facade.hourlyTirForReadings(facade.readingsForLastHours(24)),
-      hasLength(24),
-    );
+    expect(facade.tirForReadings(facade.readingsForLastHours(4, now: now)),
+        isNotNull);
+    expect(facade.hourlyTirForReadings(facade.readingsForLastHours(24)),
+        hasLength(24));
     expect(facade.dailyTirMapForLastDays(7, now: now), hasLength(7));
     expect(facade.eventsForLastDays(1, now: now), hasLength(1));
-    expect(facade.insightBodiesFor(AnalysisModuleCode.insights), [
-      'Daily body',
-    ]);
+    expect(
+        facade.insightBodiesFor(AnalysisModuleCode.insights), ['Daily body']);
   });
 
   test('facade TIR uses target range from current settings', () {
@@ -124,13 +119,9 @@ void main() {
     final readings = [
       GlucoseReading(timestamp: now, value: 4.5),
       GlucoseReading(
-        timestamp: now.add(const Duration(minutes: 5)),
-        value: 6.0,
-      ),
+          timestamp: now.add(const Duration(minutes: 5)), value: 6.0),
       GlucoseReading(
-        timestamp: now.add(const Duration(minutes: 10)),
-        value: 8.5,
-      ),
+          timestamp: now.add(const Duration(minutes: 10)), value: 8.5),
     ];
 
     final result = facade.tirForReadings(readings);
@@ -161,9 +152,7 @@ void main() {
 
     final events = facade.detectEventsForReadings(readings);
 
-    expect(
-      events.any((event) => event.type == GlucoseEventType.highEpisode),
-      isTrue,
-    );
+    expect(events.any((event) => event.type == GlucoseEventType.highEpisode),
+        isTrue);
   });
 }

@@ -5,7 +5,10 @@ import '../models/statistics_view_model.dart';
 class StatisticsMetricCard extends StatelessWidget {
   final StatisticsMetricCardViewModel viewModel;
 
-  const StatisticsMetricCard({super.key, required this.viewModel});
+  const StatisticsMetricCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +89,8 @@ class StatisticsMetricCard extends StatelessWidget {
   Color _deltaBackground(StatisticsDeltaTone tone) {
     return switch (tone) {
       StatisticsDeltaTone.up ||
-      StatisticsDeltaTone.down => AppColors.green.withOpacity(0.10),
+      StatisticsDeltaTone.down =>
+        AppColors.green.withOpacity(0.10),
       StatisticsDeltaTone.flat => const Color(0x14C8D9CC),
     };
   }

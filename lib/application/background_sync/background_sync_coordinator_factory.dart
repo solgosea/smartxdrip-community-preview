@@ -68,11 +68,11 @@ class BackgroundSyncCoordinatorFactory {
   ) {
     return switch (kind) {
       DataSourceKind.xdripLocal => database.getSourceState(
-        DataSource.xdripHttp.name,
-      ),
+          DataSource.xdripHttp.name,
+        ),
       DataSourceKind.nightscout => database.getSourceState(
-        DataSource.nightscout.name,
-      ),
+          DataSource.nightscout.name,
+        ),
     };
   }
 }

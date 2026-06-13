@@ -1,19 +1,27 @@
 import '../../domain/entities/glucose_reading.dart';
 
 class DawnPhenomenonDetector {
-  /// Returns daily dawn rise values for readings spanning 04:00-07:00.
+  static const startHour = 4;
+  static const endHour = 7;
+  static const minimumReadingsPerWindow = 4;
+  static const significantRiseMmol = 1.2;
+
+  static String get windowLabel =>
+      '${startHour.toString().padLeft(2, '0')}:00-${endHour.toString().padLeft(2, '0')}:00';
+
   static List<double> detectDailyRises(List<GlucoseReading> readings) {
-    final Map<String, List<GlucoseReading>> byDay = {};
-    for (final r in readings) {
-      if (r.timestamp.hour >= 4 && r.timestamp.hour < 7) {
+    final byDay = <String, List<GlucoseReading>>{};
+    for (final reading in readings) {
+      if (reading.timestamp.hour >= startHour &&
+          reading.timestamp.hour < endHour) {
         final key =
-            '${r.timestamp.year}-${r.timestamp.month}-${r.timestamp.day}';
-        byDay.putIfAbsent(key, () => []).add(r);
+            '${reading.timestamp.year}-${reading.timestamp.month}-${reading.timestamp.day}';
+        byDay.putIfAbsent(key, () => []).add(reading);
       }
     }
 
     return byDay.values
-        .where((day) => day.length >= 4)
+        .where((day) => day.length >= minimumReadingsPerWindow)
         .map((day) {
           day.sort((a, b) => a.timestamp.compareTo(b.timestamp));
           return day.last.value - day.first.value;
@@ -22,10 +30,10 @@ class DawnPhenomenonDetector {
         .toList();
   }
 
-  /// Returns true if dawn phenomenon is consistent (>=10/14 days).
   static bool isConsistent(List<GlucoseReading> readings14d) {
     final rises = detectDailyRises(readings14d);
-    final significant = rises.where((r) => r >= 1.2).length;
+    final significant =
+        rises.where((rise) => rise >= significantRiseMmol).length;
     return significant >= 10;
   }
 

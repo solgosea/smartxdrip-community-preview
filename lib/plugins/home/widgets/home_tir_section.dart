@@ -7,7 +7,10 @@ import 'home_tir_row.dart';
 class HomeTirSection extends StatelessWidget {
   final HomeTirViewModel viewModel;
 
-  const HomeTirSection({super.key, required this.viewModel});
+  const HomeTirSection({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

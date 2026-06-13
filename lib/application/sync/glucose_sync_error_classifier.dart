@@ -34,10 +34,12 @@ class GlucoseSyncErrorClassifier {
       DioExceptionType.receiveTimeout ||
       DioExceptionType.sendTimeout ||
       DioExceptionType.connectionError ||
-      DioExceptionType.unknown => true,
+      DioExceptionType.unknown =>
+        true,
       DioExceptionType.badCertificate ||
       DioExceptionType.badResponse ||
-      DioExceptionType.cancel => false,
+      DioExceptionType.cancel =>
+        false,
     };
   }
 }

@@ -5,7 +5,9 @@ import '../glucose_sync_step.dart';
 class ResolveSyncPlanStep extends GlucoseSyncStep {
   final GlucoseSyncCursorResolver cursorResolver;
 
-  const ResolveSyncPlanStep({required this.cursorResolver});
+  const ResolveSyncPlanStep({
+    required this.cursorResolver,
+  });
 
   @override
   Future<void> execute(GlucoseSyncContext context) async {

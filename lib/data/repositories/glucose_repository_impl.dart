@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:smart_xdrip/application/sync/glucose_sync_coordinator.dart';
 import 'package:smart_xdrip/application/sync_orchestration/glucose_source_sync_result.dart';
 import 'package:smart_xdrip/application/sync_orchestration/glucose_source_sync_orchestrator.dart';
@@ -22,34 +23,22 @@ class GlucoseRepositoryImpl implements IGlucoseRepository {
   AppSettings _settings = const AppSettings();
 
   final _latestController = StreamController<GlucoseReading>.broadcast();
-  Timer? _pollTimer;
 
   GlucoseRepositoryImpl({
     required GlucoseDatabase db,
     GlucoseSyncCoordinator? syncCoordinator,
     GlucoseSyncTargetRegistry? syncTargetRegistry,
-  }) : _db = db,
-       _syncOrchestrator = GlucoseSourceSyncOrchestrator(
-         database: db,
-         syncCoordinator:
-             syncCoordinator ?? GlucoseSyncCoordinator(database: db),
-         targetRegistry: syncTargetRegistry,
-       );
+  })  : _db = db,
+        _syncOrchestrator = GlucoseSourceSyncOrchestrator(
+          database: db,
+          syncCoordinator:
+              syncCoordinator ?? GlucoseSyncCoordinator(database: db),
+          targetRegistry: syncTargetRegistry,
+        );
 
   /// Switch to the configured upstream source. Called when settings change.
   Future<void> applySettings(AppSettings settings) async {
     _settings = settings;
-  }
-
-  /// Start periodic polling from the active source. Safe to call multiple times.
-  void startPolling({Duration interval = const Duration(minutes: 5)}) {
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(interval, (_) => sync());
-  }
-
-  void stopPolling() {
-    _pollTimer?.cancel();
-    _pollTimer = null;
   }
 
   @override
@@ -79,11 +68,6 @@ class GlucoseRepositoryImpl implements IGlucoseRepository {
     return _db.range(start, end);
   }
 
-  @override
-  Future<void> sync() async {
-    await syncWithResult();
-  }
-
   Future<GlucoseSourceSyncResult> syncWithResult() async {
     final result = await _syncOrchestrator.syncConfiguredSources(
       settings: _settings,
@@ -91,11 +75,11 @@ class GlucoseRepositoryImpl implements IGlucoseRepository {
     final latest = result.sourceResults
         .expand((sourceResult) => sourceResult.readings)
         .fold<GlucoseReading?>(null, (current, reading) {
-          if (current == null || reading.timestamp.isAfter(current.timestamp)) {
-            return reading;
-          }
-          return current;
-        });
+      if (current == null || reading.timestamp.isAfter(current.timestamp)) {
+        return reading;
+      }
+      return current;
+    });
     if (latest != null) {
       _latestController.add(latest);
     }
@@ -108,7 +92,6 @@ class GlucoseRepositoryImpl implements IGlucoseRepository {
   }
 
   void dispose() {
-    _pollTimer?.cancel();
     _latestController.close();
   }
 }

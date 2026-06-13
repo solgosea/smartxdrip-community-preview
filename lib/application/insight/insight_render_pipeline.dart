@@ -25,8 +25,7 @@ class InsightRenderPipeline {
       final text = renderer.render(template, facts.facts);
       rendered.add(
         NarrativeInsight(
-          id:
-              '${template.code}_${generatedAt.millisecondsSinceEpoch}_${rendered.length}',
+          id: '${template.code}_${generatedAt.millisecondsSinceEpoch}_${rendered.length}',
           module: facts.module,
           slot: facts.slot,
           type: facts.type,

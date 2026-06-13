@@ -1,6 +1,7 @@
 package com.metaguru.smartxdrip
 
 import android.provider.Settings
+import com.metaguru.smartxdrip.glance.GlanceWidgetBridge
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -8,6 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        GlanceWidgetBridge.configure(flutterEngine, this)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "com.metaguru.smartxdrip/device_identity"

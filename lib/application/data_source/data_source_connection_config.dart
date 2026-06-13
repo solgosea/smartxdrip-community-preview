@@ -3,5 +3,9 @@ class DataSourceConnectionConfig {
   final String? token;
   final String? apiSecret;
 
-  const DataSourceConnectionConfig({this.baseUrl, this.token, this.apiSecret});
+  const DataSourceConnectionConfig({
+    this.baseUrl,
+    this.token,
+    this.apiSecret,
+  });
 }

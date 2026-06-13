@@ -1,1 +1,6 @@
-enum AlertSoundPlaybackStopReason { completed, replaced, stopped, disposed }
+enum AlertSoundPlaybackStopReason {
+  completed,
+  replaced,
+  stopped,
+  disposed,
+}

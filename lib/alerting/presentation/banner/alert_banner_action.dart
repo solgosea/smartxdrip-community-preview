@@ -1,4 +1,10 @@
-enum AlertBannerActionType { snooze, acknowledge, dismiss, stop, openDetail }
+enum AlertBannerActionType {
+  snooze,
+  acknowledge,
+  dismiss,
+  stop,
+  openDetail,
+}
 
 class AlertBannerAction {
   final AlertBannerActionType type;

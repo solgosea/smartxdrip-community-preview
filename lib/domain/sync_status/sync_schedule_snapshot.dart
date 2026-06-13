@@ -18,12 +18,12 @@ class SyncScheduleSnapshot {
   });
 
   const SyncScheduleSnapshot.unknown()
-    : reportedAt = null,
-      nextSyncAt = null,
-      nextInterval = null,
-      mode = SyncScheduleMode.unknown,
-      reason = null,
-      estimated = false;
+      : reportedAt = null,
+        nextSyncAt = null,
+        nextInterval = null,
+        mode = SyncScheduleMode.unknown,
+        reason = null,
+        estimated = false;
 
   bool get hasNextSync => nextSyncAt != null;
 

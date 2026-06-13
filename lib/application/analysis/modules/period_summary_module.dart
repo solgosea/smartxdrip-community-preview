@@ -72,7 +72,12 @@ class _PeriodDefinition {
   final int startHour;
   final int endHour;
 
-  const _PeriodDefinition(this.key, this.label, this.startHour, this.endHour);
+  const _PeriodDefinition(
+    this.key,
+    this.label,
+    this.startHour,
+    this.endHour,
+  );
 
   bool contains(int hour) => hour >= startHour && hour < endHour;
 }

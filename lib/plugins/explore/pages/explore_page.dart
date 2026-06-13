@@ -42,65 +42,64 @@ class _ExplorePageState extends State<ExplorePage> {
     final controller = _controller;
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body:
-          controller == null
-              ? const Center(
-                child: CircularProgressIndicator(color: AppColors.green),
-              )
-              : ListenableBuilder(
-                listenable: controller,
-                builder: (context, _) {
-                  return SafeArea(
-                    child: ListView(
-                      padding: const EdgeInsets.only(bottom: 32),
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(20, 20, 20, 4),
-                          child: Text(
-                            'Explore',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.text,
-                            ),
+      body: controller == null
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.green),
+            )
+          : ListenableBuilder(
+              listenable: controller,
+              builder: (context, _) {
+                return SafeArea(
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 32),
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(20, 20, 20, 4),
+                        child: Text(
+                          'Explore',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.text,
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-                          child: Text(
-                            'Deep analysis tools',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              color: AppColors.textSoft,
-                            ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+                        child: Text(
+                          'Deep analysis tools',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            color: AppColors.textSoft,
                           ),
                         ),
-                        if (controller.loading)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 120),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.green,
-                              ),
+                      ),
+                      if (controller.loading)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 120),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.green,
                             ),
-                          )
-                        else ...[
-                          for (final section in controller.sections) ...[
-                            SectionLabel(section.title),
-                            for (final resolved in section.resolvedEntries)
-                              PluginEntryCard(
-                                entry: resolved.entry,
-                                state: resolved.state,
-                              ),
-                          ],
+                          ),
+                        )
+                      else ...[
+                        for (final section in controller.sections) ...[
+                          SectionLabel(section.title),
+                          for (final resolved in section.resolvedEntries)
+                            PluginEntryCard(
+                              entry: resolved.entry,
+                              state: resolved.state,
+                            ),
                         ],
                       ],
-                    ),
-                  );
-                },
-              ),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 }

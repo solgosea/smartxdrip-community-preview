@@ -2,8 +2,9 @@ class SubjectDataSyncActions {
   final Future<void> Function({
     required String trigger,
     Map<String, Object?> payload,
-  })
-  syncAllTargets;
+  }) syncAllTargets;
 
-  const SubjectDataSyncActions({required this.syncAllTargets});
+  const SubjectDataSyncActions({
+    required this.syncAllTargets,
+  });
 }

@@ -7,15 +7,16 @@ class RecordSyncSuccessStep extends GlucoseSyncStep {
 
   @override
   Future<void> execute(GlucoseSyncContext context) async {
-    final cursor =
-        context.readings.isEmpty
-            ? context.plan?.previousCursor
-            : context.readings.last.timestamp;
+    final cursor = context.readings.isEmpty
+        ? context.plan?.previousCursor
+        : context.readings.last.timestamp;
 
     await context.database.recordSourceSuccess(
       context.sourceKey,
       cursor: cursor?.millisecondsSinceEpoch.toString(),
       subjectId: context.subjectId,
+      fetchedCount: context.readings.length,
+      storedCount: context.etlResult?.canonicalCount ?? 0,
     );
 
     context.stopWith(

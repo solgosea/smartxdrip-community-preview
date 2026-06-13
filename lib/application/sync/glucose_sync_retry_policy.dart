@@ -16,6 +16,9 @@ class GlucoseSyncRetryPolicy {
   });
 
   Future<T> run<T>(Future<T> Function() operation) {
-    return options.retry(operation, retryIf: classifier.isRetryable);
+    return options.retry(
+      operation,
+      retryIf: classifier.isRetryable,
+    );
   }
 }

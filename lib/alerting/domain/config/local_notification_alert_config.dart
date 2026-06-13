@@ -19,10 +19,10 @@ class LocalNotificationAlertConfig implements AlertStrategyConfig {
 
   @override
   Map<String, Object?> toJson() => {
-    'enabled': enabled,
-    'channel': channel.toJson(),
-    'showCriticalOnLockScreen': showCriticalOnLockScreen,
-  };
+        'enabled': enabled,
+        'channel': channel.toJson(),
+        'showCriticalOnLockScreen': showCriticalOnLockScreen,
+      };
 
   static LocalNotificationAlertConfig fromJson(Map<String, Object?> json) {
     return LocalNotificationAlertConfig(

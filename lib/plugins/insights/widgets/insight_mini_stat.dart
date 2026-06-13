@@ -5,7 +5,10 @@ import '../models/insights_view_model.dart';
 class InsightMiniStat extends StatelessWidget {
   final InsightMiniStatViewModel viewModel;
 
-  const InsightMiniStat({super.key, required this.viewModel});
+  const InsightMiniStat({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

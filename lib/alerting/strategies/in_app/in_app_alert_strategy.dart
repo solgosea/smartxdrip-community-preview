@@ -8,7 +8,9 @@ import '../alert_strategy.dart';
 class InAppAlertStrategy implements AlertStrategy<InAppAlertConfig> {
   final AlertOverlaySignalBus signalBus;
 
-  const InAppAlertStrategy({required this.signalBus});
+  const InAppAlertStrategy({
+    required this.signalBus,
+  });
 
   @override
   String get strategyKey => InAppAlertConfig.key;

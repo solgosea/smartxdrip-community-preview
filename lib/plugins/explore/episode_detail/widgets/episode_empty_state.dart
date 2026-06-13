@@ -8,7 +8,10 @@ import '../models/episode_detail_view_model.dart';
 class EpisodeEmptyState extends StatelessWidget {
   final EpisodeDetailViewModel viewModel;
 
-  const EpisodeEmptyState({super.key, required this.viewModel});
+  const EpisodeEmptyState({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -5,7 +5,10 @@ import 'history_stat_card.dart';
 class HistoryStatsGrid extends StatelessWidget {
   final List<HistoryStatCardViewModel> stats;
 
-  const HistoryStatsGrid({super.key, required this.stats});
+  const HistoryStatsGrid({
+    super.key,
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {

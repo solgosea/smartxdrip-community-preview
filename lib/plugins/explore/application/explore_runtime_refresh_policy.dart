@@ -10,9 +10,11 @@ class ExploreRuntimeRefreshPolicy {
       PluginRuntimeEventType.activeSubjectChanged ||
       PluginRuntimeEventType.subjectDataChanged ||
       PluginRuntimeEventType.settingsChanged ||
-      PluginRuntimeEventType.datasourceChanged => true,
+      PluginRuntimeEventType.datasourceChanged =>
+        true,
       PluginRuntimeEventType.appPaused ||
-      PluginRuntimeEventType.custom => false,
+      PluginRuntimeEventType.custom =>
+        false,
     };
   }
 }

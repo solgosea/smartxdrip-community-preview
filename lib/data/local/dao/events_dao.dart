@@ -18,20 +18,24 @@ class EventsDao {
     final now = DateTime.now().millisecondsSinceEpoch;
     final batch = database.batch();
     for (final e in events) {
-      batch.insert(GlucoseTables.events, {
-        'id': eventId(e),
-        'subject_id': subjectId,
-        'event_type': e.type.name,
-        'start_ts_ms': e.time.millisecondsSinceEpoch,
-        'end_ts_ms': e.endTime?.millisecondsSinceEpoch,
-        'value': e.value,
-        'peak_or_nadir': e.peakOrNadir,
-        'rate_per_min': e.ratePerMin,
-        'low_severity': e.lowSeverity?.name,
-        'is_nocturnal': e.isNocturnal ? 1 : 0,
-        'area_out_of_range': e.areaOutOfRange,
-        'created_at_ms': now,
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert(
+        GlucoseTables.events,
+        {
+          'id': eventId(e),
+          'subject_id': subjectId,
+          'event_type': e.type.name,
+          'start_ts_ms': e.time.millisecondsSinceEpoch,
+          'end_ts_ms': e.endTime?.millisecondsSinceEpoch,
+          'value': e.value,
+          'peak_or_nadir': e.peakOrNadir,
+          'rate_per_min': e.ratePerMin,
+          'low_severity': e.lowSeverity?.name,
+          'is_nocturnal': e.isNocturnal ? 1 : 0,
+          'area_out_of_range': e.areaOutOfRange,
+          'created_at_ms': now,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }
@@ -76,26 +80,24 @@ class EventsDao {
       '${event.type.name}_${event.time.millisecondsSinceEpoch}';
 
   GlucoseEvent _toEvent(Map<String, Object?> row) => GlucoseEvent(
-    type: GlucoseEventType.values.firstWhere(
-      (t) => t.name == row['event_type'],
-      orElse: () => GlucoseEventType.highEpisode,
-    ),
-    time: DateTime.fromMillisecondsSinceEpoch(row['start_ts_ms'] as int),
-    value: (row['value'] as num).toDouble(),
-    endTime:
-        row['end_ts_ms'] == null
+        type: GlucoseEventType.values.firstWhere(
+          (t) => t.name == row['event_type'],
+          orElse: () => GlucoseEventType.highEpisode,
+        ),
+        time: DateTime.fromMillisecondsSinceEpoch(row['start_ts_ms'] as int),
+        value: (row['value'] as num).toDouble(),
+        endTime: row['end_ts_ms'] == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(row['end_ts_ms'] as int),
-    peakOrNadir: (row['peak_or_nadir'] as num?)?.toDouble(),
-    ratePerMin: (row['rate_per_min'] as num?)?.toDouble(),
-    lowSeverity:
-        row['low_severity'] == null
+        peakOrNadir: (row['peak_or_nadir'] as num?)?.toDouble(),
+        ratePerMin: (row['rate_per_min'] as num?)?.toDouble(),
+        lowSeverity: row['low_severity'] == null
             ? null
             : LowSeverity.values.firstWhere(
-              (s) => s.name == row['low_severity'],
-              orElse: () => LowSeverity.mild,
-            ),
-    isNocturnal: row['is_nocturnal'] == 1,
-    areaOutOfRange: (row['area_out_of_range'] as num?)?.toDouble(),
-  );
+                (s) => s.name == row['low_severity'],
+                orElse: () => LowSeverity.mild,
+              ),
+        isNocturnal: row['is_nocturnal'] == 1,
+        areaOutOfRange: (row['area_out_of_range'] as num?)?.toDouble(),
+      );
 }

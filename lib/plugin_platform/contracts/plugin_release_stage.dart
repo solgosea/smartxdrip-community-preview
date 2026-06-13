@@ -1,4 +1,10 @@
-enum PluginReleaseStage { hidden, comingSoon, beta, stable, deprecated }
+enum PluginReleaseStage {
+  hidden,
+  comingSoon,
+  beta,
+  stable,
+  deprecated,
+}
 
 extension PluginReleaseStageX on PluginReleaseStage {
   bool get isVisible => this != PluginReleaseStage.hidden;

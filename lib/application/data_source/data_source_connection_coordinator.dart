@@ -10,8 +10,9 @@ import 'data_source_registry.dart';
 class DataSourceConnectionCoordinator {
   final DataSourceRegistry registry;
 
-  DataSourceConnectionCoordinator({DataSourceRegistry? registry})
-    : registry = registry ?? DataSourceRegistry();
+  DataSourceConnectionCoordinator({
+    DataSourceRegistry? registry,
+  }) : registry = registry ?? DataSourceRegistry();
 
   Future<List<DataSourceConnectionSnapshot>> snapshots({
     required AppSettings settings,
@@ -24,9 +25,7 @@ class DataSourceConnectionCoordinator {
     final snapshots = <DataSourceConnectionSnapshot>[];
     if (xdripSupported) {
       snapshots.add(
-        await registry
-            .handlerFor(DataSourceKind.xdripLocal)
-            .snapshot(
+        await registry.handlerFor(DataSourceKind.xdripLocal).snapshot(
               settings: settings,
               syncState: xdripState,
               supported: true,
@@ -35,9 +34,7 @@ class DataSourceConnectionCoordinator {
       );
     }
     snapshots.add(
-      await registry
-          .handlerFor(DataSourceKind.nightscout)
-          .snapshot(
+      await registry.handlerFor(DataSourceKind.nightscout).snapshot(
             settings: settings,
             syncState: nightscoutState,
             supported: true,
@@ -52,9 +49,10 @@ class DataSourceConnectionCoordinator {
     required AppSettings settings,
     DataSourceConnectionConfig config = const DataSourceConnectionConfig(),
   }) {
-    return registry
-        .handlerFor(kind)
-        .connect(settings: settings, config: config);
+    return registry.handlerFor(kind).connect(
+          settings: settings,
+          config: config,
+        );
   }
 
   Future<DataSourceConnectionResult> disconnect({

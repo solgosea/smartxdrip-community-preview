@@ -5,7 +5,9 @@ import 'foreground_reconcile_step_registry.dart';
 class ForegroundReconcilePipeline {
   final ForegroundReconcileStepRegistry registry;
 
-  const ForegroundReconcilePipeline({required this.registry});
+  const ForegroundReconcilePipeline({
+    required this.registry,
+  });
 
   Future<void> run({
     required ForegroundReconcileContext context,
@@ -17,8 +19,7 @@ class ForegroundReconcilePipeline {
       try {
         await step.run(context);
       } catch (_) {
-        // Foreground reconcile is a recovery pass; one plugin must not block
-        // the rest of the app from becoming fresh again.
+        // Reconcile steps are isolated from each other.
       }
     }
   }

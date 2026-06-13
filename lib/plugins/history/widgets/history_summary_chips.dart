@@ -5,7 +5,10 @@ import 'history_summary_chip.dart';
 class HistorySummaryChips extends StatelessWidget {
   final List<HistorySummaryChipViewModel> chips;
 
-  const HistorySummaryChips({super.key, required this.chips});
+  const HistorySummaryChips({
+    super.key,
+    required this.chips,
+  });
 
   @override
   Widget build(BuildContext context) {

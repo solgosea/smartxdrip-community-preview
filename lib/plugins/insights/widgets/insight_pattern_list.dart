@@ -6,7 +6,10 @@ import 'insight_pattern_card.dart';
 class InsightPatternList extends StatelessWidget {
   final List<InsightPatternViewModel> patterns;
 
-  const InsightPatternList({super.key, required this.patterns});
+  const InsightPatternList({
+    super.key,
+    required this.patterns,
+  });
 
   @override
   Widget build(BuildContext context) {

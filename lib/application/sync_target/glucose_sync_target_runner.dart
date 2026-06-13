@@ -6,7 +6,9 @@ import '../sync/glucose_sync_result.dart';
 class GlucoseSyncTargetRunner {
   final GlucoseSyncCoordinator syncCoordinator;
 
-  const GlucoseSyncTargetRunner({required this.syncCoordinator});
+  const GlucoseSyncTargetRunner({
+    required this.syncCoordinator,
+  });
 
   Future<GlucoseSyncResult> run({
     required GlucoseSyncTarget target,

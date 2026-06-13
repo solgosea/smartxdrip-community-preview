@@ -40,52 +40,54 @@ void main() {
     expect(cache.stale, isFalse);
     expect(cache.snapshots.single.query.subjectId, 'self');
     expect(cache.snapshots.single.viewModel.curve.readings, hasLength(24));
-    expect(cache.freshViewModel(subjectId: 'self', day: today), isNotNull);
+    expect(
+      cache.freshViewModel(subjectId: 'self', day: today),
+      isNotNull,
+    );
   });
 
   test(
-    'history runtime marks stale on datasource changes and refreshes on sync',
-    () async {
-      final today = DateTime(2026, 6, 6, 12);
-      _seedAnalysisStore(today);
-      final cache = HistoryRuntimeCache();
-      final manager = PluginRuntimeManager.create(now: () => today);
-      addTearDown(manager.dispose);
-      manager.register(
-        HistoryPluginRuntime(
-          cache: cache,
-          preheater: HistorySnapshotPreheater(
-            hostServices: _hostServices(today),
-            now: () => today,
-          ),
+      'history runtime marks stale on datasource changes and refreshes on sync',
+      () async {
+    final today = DateTime(2026, 6, 6, 12);
+    _seedAnalysisStore(today);
+    final cache = HistoryRuntimeCache();
+    final manager = PluginRuntimeManager.create(now: () => today);
+    addTearDown(manager.dispose);
+    manager.register(
+      HistoryPluginRuntime(
+        cache: cache,
+        preheater: HistorySnapshotPreheater(
+          hostServices: _hostServices(today),
+          now: () => today,
         ),
-      );
-      await manager.resume(HistoryPluginRuntime.id);
-      expect(cache.stale, isFalse);
+      ),
+    );
+    await manager.resume(HistoryPluginRuntime.id);
+    expect(cache.stale, isFalse);
 
-      manager.eventBus.publish(
-        PluginRuntimeEvent(
-          type: PluginRuntimeEventType.datasourceChanged,
-          occurredAt: today.add(const Duration(minutes: 1)),
-        ),
-      );
-      await pumpEventQueue();
+    manager.eventBus.publish(
+      PluginRuntimeEvent(
+        type: PluginRuntimeEventType.datasourceChanged,
+        occurredAt: today.add(const Duration(minutes: 1)),
+      ),
+    );
+    await pumpEventQueue();
 
-      expect(cache.stale, isTrue);
-      expect(cache.staleReason, PluginRuntimeEventType.datasourceChanged.name);
+    expect(cache.stale, isTrue);
+    expect(cache.staleReason, PluginRuntimeEventType.datasourceChanged.name);
 
-      manager.eventBus.publish(
-        PluginRuntimeEvent(
-          type: PluginRuntimeEventType.subjectDataChanged,
-          occurredAt: today.add(const Duration(minutes: 2)),
-        ),
-      );
-      await pumpEventQueue();
+    manager.eventBus.publish(
+      PluginRuntimeEvent(
+        type: PluginRuntimeEventType.subjectDataChanged,
+        occurredAt: today.add(const Duration(minutes: 2)),
+      ),
+    );
+    await pumpEventQueue();
 
-      expect(cache.stale, isFalse);
-      expect(cache.staleReason, isNull);
-    },
-  );
+    expect(cache.stale, isFalse);
+    expect(cache.staleReason, isNull);
+  });
 
   test('history runtime can preheat another day on demand', () async {
     final today = DateTime(2026, 6, 6, 12);
@@ -104,7 +106,10 @@ void main() {
 
     expect(snapshot?.query.normalizedDay, DateTime(2026, 6, 5));
     expect(snapshot?.viewModel.curve.readings, hasLength(12));
-    expect(cache.freshViewModel(subjectId: 'self', day: yesterday), isNotNull);
+    expect(
+      cache.freshViewModel(subjectId: 'self', day: yesterday),
+      isNotNull,
+    );
   });
 }
 

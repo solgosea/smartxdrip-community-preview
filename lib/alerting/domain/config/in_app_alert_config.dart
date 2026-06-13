@@ -18,10 +18,10 @@ class InAppAlertConfig implements AlertStrategyConfig {
 
   @override
   Map<String, Object?> toJson() => {
-    'enabled': enabled,
-    'fullScreenForCritical': fullScreenForCritical,
-    'warningAutoDismissSeconds': warningAutoDismissSeconds,
-  };
+        'enabled': enabled,
+        'fullScreenForCritical': fullScreenForCritical,
+        'warningAutoDismissSeconds': warningAutoDismissSeconds,
+      };
 
   static InAppAlertConfig fromJson(Map<String, Object?> json) {
     return InAppAlertConfig(

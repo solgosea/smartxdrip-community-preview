@@ -32,7 +32,10 @@ class AlertEvent {
     required this.updatedAt,
   });
 
-  AlertEvent copyWith({AlertEventState? state, DateTime? updatedAt}) {
+  AlertEvent copyWith({
+    AlertEventState? state,
+    DateTime? updatedAt,
+  }) {
     return AlertEvent(
       id: id,
       source: source,

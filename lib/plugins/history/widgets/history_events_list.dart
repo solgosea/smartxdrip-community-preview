@@ -6,7 +6,10 @@ import 'history_event_row.dart';
 class HistoryEventsList extends StatelessWidget {
   final List<HistoryEventRowViewModel> events;
 
-  const HistoryEventsList({super.key, required this.events});
+  const HistoryEventsList({
+    super.key,
+    required this.events,
+  });
 
   @override
   Widget build(BuildContext context) {

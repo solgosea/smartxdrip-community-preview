@@ -1,3 +1,5 @@
+import '../composition/explore_slots.dart';
+import '../../../plugin_platform/composition/plugin_placement_spec.dart';
 import 'package:flutter/material.dart';
 
 import '../../../foundation/theme/app_colors.dart';
@@ -32,29 +34,40 @@ class HighEpisodePlugin extends SmartFeaturePlugin {
 
   @override
   Set<PluginDataRequirement> get dataRequirements => const {
-    PluginDataRequirement.glucoseReadings,
-    PluginDataRequirement.glucoseEvents,
-    PluginDataRequirement.appSettings,
-  };
+        PluginDataRequirement.glucoseReadings,
+        PluginDataRequirement.glucoseEvents,
+        PluginDataRequirement.appSettings,
+      };
+  @override
+  List<PluginPlacementSpec> get placementSpecs => [
+        PluginPlacementSpec(
+          pluginId: id,
+          slot: ExploreSlots.card,
+          renderKey: '/explore/high-episode',
+          title: 'High Episode',
+          order: 300,
+          dataRequirements: dataRequirements,
+        ),
+      ];
 
   @override
   ExplorePluginEntry get exploreEntry => const ExplorePluginEntry(
-    section: 'EPISODES',
-    title: 'High Episode',
-    subtitle: 'Hyperglycemia analysis',
-    route: '/explore/high-episode',
-    icon: Icons.arrow_upward_rounded,
-    accentColor: AppColors.rose,
-    order: 300,
-  );
+        section: 'EPISODES',
+        title: 'High Episode',
+        subtitle: 'Hyperglycemia analysis',
+        route: '/explore/high-episode',
+        icon: Icons.arrow_upward_rounded,
+        accentColor: AppColors.rose,
+        order: 300,
+      );
 
   @override
   List<PluginRoute> get routes => [
-    PluginRoute(
-      path: '/explore/high-episode',
-      builder: (_) => const HighEpisodePage(),
-    ),
-  ];
+        PluginRoute(
+          path: '/explore/high-episode',
+          builder: (_) => const HighEpisodePage(),
+        ),
+      ];
 
   @override
   void install(PluginInstallContext context) {

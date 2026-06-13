@@ -35,10 +35,9 @@ class AlertActionService {
       actor: actor,
     );
     if (action == AlertAction.snooze) {
-      final target =
-          event == null
-              ? const AlertActuatorTarget()
-              : AlertActuatorTarget.fromEvent(event);
+      final target = event == null
+          ? const AlertActuatorTarget()
+          : AlertActuatorTarget.fromEvent(event);
       await actionRepository.insertSnooze(
         alertEventId: eventId,
         snoozedUntil: DateTime.now().add(snoozeDuration),

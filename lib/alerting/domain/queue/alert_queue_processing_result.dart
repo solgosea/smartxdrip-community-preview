@@ -10,18 +10,18 @@ class AlertQueueProcessingResult {
   });
 
   const AlertQueueProcessingResult.processed({this.message = 'Processed.'})
-    : processed = true,
-      retryable = false;
+      : processed = true,
+        retryable = false;
 
   const AlertQueueProcessingResult.ignored({this.message = 'Ignored.'})
-    : processed = true,
-      retryable = false;
+      : processed = true,
+        retryable = false;
 
   const AlertQueueProcessingResult.retry({required this.message})
-    : processed = false,
-      retryable = true;
+      : processed = false,
+        retryable = true;
 
   const AlertQueueProcessingResult.failed({required this.message})
-    : processed = false,
-      retryable = false;
+      : processed = false,
+        retryable = false;
 }

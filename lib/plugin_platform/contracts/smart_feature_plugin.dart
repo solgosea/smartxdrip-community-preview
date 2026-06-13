@@ -8,6 +8,10 @@ import 'plugin_release_stage.dart';
 import 'plugin_route.dart';
 import '../install/plugin_install_context.dart';
 import '../../application/background_capability/background_capability_contributor.dart';
+import '../composition/plugin_placement_spec.dart';
+import '../graph/plugin_node.dart';
+import '../graph/plugin_node_kind.dart';
+import '../graph/plugin_slot.dart';
 
 abstract class SmartFeaturePlugin {
   const SmartFeaturePlugin();
@@ -27,13 +31,25 @@ abstract class SmartFeaturePlugin {
   List<PluginRoute> get routes;
 
   PluginManifest get manifest => PluginManifest(
-    id: id,
-    title: title,
-    description: description,
-    releaseStage: releaseStage,
-    placements: placements,
-    dataRequirements: dataRequirements,
-  );
+        id: id,
+        title: title,
+        description: description,
+        releaseStage: releaseStage,
+        placements: placements,
+        dataRequirements: dataRequirements,
+      );
+
+  PluginNodeKind get nodeKind => PluginNodeKind.leaf;
+
+  List<PluginSlot> get slots => const [];
+
+  List<PluginPlacementSpec> get placementSpecs => const [];
+
+  PluginNode get node => PluginNode(
+        id: id,
+        kind: nodeKind,
+        slots: slots,
+      );
 
   MainTabPluginEntry? get mainTabEntry => null;
 

@@ -32,21 +32,22 @@ class GlucoseTrendEnrichmentService {
       }
 
       final previous = enriched.isEmpty ? null : enriched.last;
-      final calculated =
-          previous == null
-              ? null
-              : calculator.ratePerMin(previous: previous, current: reading);
-      final fallback =
-          calculated ?? directionMapper.fallbackRatePerMin(sample.direction);
+      final calculated = previous == null
+          ? null
+          : calculator.ratePerMin(previous: previous, current: reading);
+      final fallback = calculated ??
+          directionMapper.fallbackRatePerMin(
+            sample.direction,
+          );
 
       enriched.add(
         fallback == null
             ? reading
             : GlucoseReading(
-              timestamp: reading.timestamp,
-              value: reading.value,
-              ratePerMin: fallback,
-            ),
+                timestamp: reading.timestamp,
+                value: reading.value,
+                ratePerMin: fallback,
+              ),
       );
     }
     return enriched;

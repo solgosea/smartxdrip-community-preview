@@ -17,17 +17,19 @@ class GlucoseChartUnitAdapter {
     return converter.valueFromMmol(mmol, unit);
   }
 
-  List<GlucoseReading> readings(List<GlucoseReading> source, GlucoseUnit unit) {
+  List<GlucoseReading> readings(
+    List<GlucoseReading> source,
+    GlucoseUnit unit,
+  ) {
     if (unit == GlucoseUnit.mmolL) return source;
     return source
         .map(
           (reading) => GlucoseReading(
             timestamp: reading.timestamp,
             value: converter.valueFromMmol(reading.value, unit),
-            ratePerMin:
-                reading.ratePerMin == null
-                    ? null
-                    : converter.rateFromMmolPerMin(reading.ratePerMin!, unit),
+            ratePerMin: reading.ratePerMin == null
+                ? null
+                : converter.rateFromMmolPerMin(reading.ratePerMin!, unit),
           ),
         )
         .toList();

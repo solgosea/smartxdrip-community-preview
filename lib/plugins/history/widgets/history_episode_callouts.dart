@@ -15,15 +15,14 @@ class HistoryEpisodeCallouts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children:
-          callouts
-              .map(
-                (callout) => HistoryEpisodeCalloutCard(
-                  viewModel: callout,
-                  onTap: () => onRouteSelected(callout.route),
-                ),
-              )
-              .toList(),
+      children: callouts
+          .map(
+            (callout) => HistoryEpisodeCalloutCard(
+              viewModel: callout,
+              onTap: () => onRouteSelected(callout.route),
+            ),
+          )
+          .toList(),
     );
   }
 }

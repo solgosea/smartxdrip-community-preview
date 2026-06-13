@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
-import 'package:smart_xdrip/presentation/common/widgets/charts/glucose_line_chart.dart';
 import '../models/home_chart_range.dart';
 import '../models/home_view_model.dart';
 import 'home_range_selector.dart';
+import 'home_realtime_glucose_chart.dart';
 
 class HomeRangeChartCard extends StatelessWidget {
   final HomeViewModel viewModel;
   final ValueChanged<HomeChartRange> onRangeChanged;
+  final ValueChanged<bool> onInspectionChanged;
 
   const HomeRangeChartCard({
     super.key,
     required this.viewModel,
     required this.onRangeChanged,
+    required this.onInspectionChanged,
   });
 
   @override
@@ -47,17 +49,9 @@ class HomeRangeChartCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          GlucoseLineChart(
-            readings: viewModel.chartReadings,
-            unit: viewModel.unit,
-            low: viewModel.lowThreshold,
-            high: viewModel.highThreshold,
-            height: 160,
-            showCurrentDot: true,
-            coloringMode: ChartColoringMode.single,
-            thresholdLineMode: ThresholdLineMode.subtle,
-            xLabelMode: XLabelMode.hourMinute,
-            xLabelCount: 5,
+          HomeRealtimeGlucoseChart(
+            viewModel: viewModel,
+            onInspectionChanged: onInspectionChanged,
           ),
         ],
       ),

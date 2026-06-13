@@ -7,12 +7,14 @@ class StatisticsRuntimeRefreshPolicy {
     return switch (eventType) {
       PluginRuntimeEventType.subjectDataChanged ||
       PluginRuntimeEventType.activeSubjectChanged ||
-      PluginRuntimeEventType.settingsChanged => true,
+      PluginRuntimeEventType.settingsChanged =>
+        true,
       PluginRuntimeEventType.appStarted ||
       PluginRuntimeEventType.appResumed ||
       PluginRuntimeEventType.appPaused ||
       PluginRuntimeEventType.datasourceChanged ||
-      PluginRuntimeEventType.custom => false,
+      PluginRuntimeEventType.custom =>
+        false,
     };
   }
 

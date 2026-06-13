@@ -23,7 +23,12 @@ class AlertBuiltinSounds {
     displayName: 'Soft bell',
   );
 
-  static const all = [urgentPulse, steadyPing, gentleChime, softBell];
+  static const all = [
+    urgentPulse,
+    steadyPing,
+    gentleChime,
+    softBell,
+  ];
 
   const AlertBuiltinSounds._();
 }

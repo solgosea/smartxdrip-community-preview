@@ -5,7 +5,11 @@ class AlertActuatorTarget {
   final String? targetId;
   final String? type;
 
-  const AlertActuatorTarget({this.eventId, this.targetId, this.type});
+  const AlertActuatorTarget({
+    this.eventId,
+    this.targetId,
+    this.type,
+  });
 
   factory AlertActuatorTarget.fromEvent(AlertEvent event) {
     return AlertActuatorTarget(
@@ -37,10 +41,10 @@ class AlertActuatorTarget {
   }
 
   Map<String, Object?> toJson() => {
-    'eventId': eventId,
-    'targetId': targetId,
-    'type': type,
-  };
+        'eventId': eventId,
+        'targetId': targetId,
+        'type': type,
+      };
 
   static String? _stringValue(Object? raw) {
     final value = raw?.toString().trim();
@@ -51,12 +55,11 @@ class AlertActuatorTarget {
   static String? _normalizeType(Object? raw) {
     final value = raw?.toString().trim();
     if (value == null || value.isEmpty) return null;
-    final compact =
-        value
-            .replaceAll('-', '_')
-            .replaceAll(' ', '_')
-            .replaceAll('.', '_')
-            .toLowerCase();
+    final compact = value
+        .replaceAll('-', '_')
+        .replaceAll(' ', '_')
+        .replaceAll('.', '_')
+        .toLowerCase();
     return switch (compact) {
       'urgent_low' || 'urgentlow' || 'glucoseurgentlow' => 'urgentLow',
       'low' || 'glucoselow' => 'low',

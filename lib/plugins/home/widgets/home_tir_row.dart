@@ -5,7 +5,10 @@ import '../models/home_tir_view_model.dart';
 class HomeTirRow extends StatelessWidget {
   final HomeTirRowViewModel viewModel;
 
-  const HomeTirRow({super.key, required this.viewModel});
+  const HomeTirRow({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {

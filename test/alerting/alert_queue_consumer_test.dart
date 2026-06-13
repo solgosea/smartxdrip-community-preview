@@ -24,30 +24,26 @@ void main() {
     );
     final now = DateTime(2020, 1, 1);
 
-    await repository.enqueue(
-      AlertQueueMessage(
-        id: 'queue-1',
-        messageType: 'test.message',
-        dedupeKey: 'same-message',
-        source: 'test',
-        payload: const {'value': 1},
-        availableAt: now,
-        createdAt: now,
-        updatedAt: now,
-      ),
-    );
-    await repository.enqueue(
-      AlertQueueMessage(
-        id: 'queue-2',
-        messageType: 'test.message',
-        dedupeKey: 'same-message',
-        source: 'test',
-        payload: const {'value': 1},
-        availableAt: now,
-        createdAt: now,
-        updatedAt: now,
-      ),
-    );
+    await repository.enqueue(AlertQueueMessage(
+      id: 'queue-1',
+      messageType: 'test.message',
+      dedupeKey: 'same-message',
+      source: 'test',
+      payload: const {'value': 1},
+      availableAt: now,
+      createdAt: now,
+      updatedAt: now,
+    ));
+    await repository.enqueue(AlertQueueMessage(
+      id: 'queue-2',
+      messageType: 'test.message',
+      dedupeKey: 'same-message',
+      source: 'test',
+      payload: const {'value': 1},
+      availableAt: now,
+      createdAt: now,
+      updatedAt: now,
+    ));
     await consumer.drain();
 
     expect(handler.handled, hasLength(1));

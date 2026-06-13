@@ -8,11 +8,13 @@ class ProfileRuntimeRefreshPolicy {
       PluginRuntimeEventType.subjectDataChanged ||
       PluginRuntimeEventType.activeSubjectChanged ||
       PluginRuntimeEventType.settingsChanged ||
-      PluginRuntimeEventType.datasourceChanged => true,
+      PluginRuntimeEventType.datasourceChanged =>
+        true,
       PluginRuntimeEventType.appStarted ||
       PluginRuntimeEventType.appResumed ||
       PluginRuntimeEventType.appPaused ||
-      PluginRuntimeEventType.custom => false,
+      PluginRuntimeEventType.custom =>
+        false,
     };
   }
 }

@@ -1,1 +1,5 @@
-enum PluginRuntimeStartPolicy { appStart, onEnter, manual }
+enum PluginRuntimeStartPolicy {
+  appStart,
+  onEnter,
+  manual,
+}

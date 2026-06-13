@@ -9,37 +9,42 @@ import '../_support/test_database.dart';
 
 void main() {
   group('Mock Nightscout sync flow', () {
-    test(
-      'pulls readings from HTTP source and persists normalized glucose data',
-      () async {
-        final readings = CgmReadingsFixture.dayWithHighAndLow(
-          start: DateTime.now().subtract(const Duration(hours: 24)),
-        );
-        final server = MockCgmHttpServer(
-          entries: CgmReadingsFixture.nightscoutEntries(readings),
-        );
-        await server.start();
-        addTearDown(server.stop);
+    test('pulls readings from HTTP source and persists normalized glucose data',
+        () async {
+      final readings = CgmReadingsFixture.dayWithHighAndLow(
+        start: DateTime.now().subtract(const Duration(hours: 24)),
+      );
+      final server = MockCgmHttpServer(
+        entries: CgmReadingsFixture.nightscoutEntries(readings),
+      );
+      await server.start();
+      addTearDown(server.stop);
 
-        final database = TestDatabase.create();
-        addTearDown(database.close);
-        final source = NightscoutApiSource(baseUrl: server.baseUri.toString());
+      final database = TestDatabase.create();
+      addTearDown(database.close);
+      final source = NightscoutApiSource(baseUrl: server.baseUri.toString());
 
-        final result = await GlucoseSyncCoordinator(
-          database: database,
-        ).syncOnce(source: source, settings: AppSettingsFixture.nightscout);
+      final result = await GlucoseSyncCoordinator(database: database).syncOnce(
+        source: source,
+        settings: AppSettingsFixture.nightscout,
+      );
 
-        expect(result.success, isTrue);
-        expect(await database.count(), readings.length);
+      expect(result.success, isTrue);
+      expect(await database.count(), readings.length);
 
-        final persisted = await database.range(
-          readings.first.timestamp,
-          readings.last.timestamp.add(const Duration(milliseconds: 1)),
-        );
-        expect(persisted, hasLength(readings.length));
-        expect(persisted.any((reading) => reading.value >= 10.8), isTrue);
-        expect(persisted.any((reading) => reading.value <= 3.3), isTrue);
-      },
-    );
+      final persisted = await database.range(
+        readings.first.timestamp,
+        readings.last.timestamp.add(const Duration(milliseconds: 1)),
+      );
+      expect(persisted, hasLength(readings.length));
+      expect(
+        persisted.any((reading) => reading.value >= 10.8),
+        isTrue,
+      );
+      expect(
+        persisted.any((reading) => reading.value <= 3.3),
+        isTrue,
+      );
+    });
   });
 }

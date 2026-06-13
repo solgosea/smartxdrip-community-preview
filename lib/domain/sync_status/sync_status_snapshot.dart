@@ -7,6 +7,8 @@ class SyncStatusSnapshot {
   final DateTime? lastSuccessAt;
   final DateTime? lastAttemptAt;
   final String? lastError;
+  final int? lastFetchedCount;
+  final int? lastStoredCount;
   final SyncScheduleSnapshot? schedule;
   final bool active;
 
@@ -17,6 +19,8 @@ class SyncStatusSnapshot {
     this.lastSuccessAt,
     this.lastAttemptAt,
     this.lastError,
+    this.lastFetchedCount,
+    this.lastStoredCount,
     this.schedule,
   });
 }

@@ -3,8 +3,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/entities/app_settings.dart';
 
 /// Settings persistence:
-/// - Non-secret values (unit, thresholds, notification toggles) -> SharedPreferences
-/// - Secrets (xDrip API secret, Nightscout token) -> flutter_secure_storage
+/// - Non-secret values (unit, thresholds, notification toggles) → SharedPreferences
+/// - Secrets (xDrip API secret, Nightscout token) → flutter_secure_storage
 class SettingsStore {
   static const _kUnit = 'unit';
   static const _kLow = 'low_threshold';
@@ -66,10 +66,7 @@ class SettingsStore {
   }
 
   Future<void> _setOrRemoveString(
-    SharedPreferences sp,
-    String k,
-    String? v,
-  ) async {
+      SharedPreferences sp, String k, String? v) async {
     if (v == null || v.isEmpty) {
       await sp.remove(k);
     } else {

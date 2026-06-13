@@ -42,7 +42,9 @@ class RawReadingsDao {
     return rows.map(_fromRow).toList();
   }
 
-  Future<int> count({String subjectId = GlucoseSubject.selfId}) async {
+  Future<int> count({
+    String subjectId = GlucoseSubject.selfId,
+  }) async {
     final database = await _db();
     final rows = await database.rawQuery(
       'SELECT COUNT(*) AS c FROM ${GlucoseTables.rawReadings} WHERE subject_id = ?',
@@ -56,10 +58,9 @@ class RawReadingsDao {
     String subjectId = GlucoseSubject.selfId,
   }) async {
     final database = await _db();
-    final cutoff =
-        DateTime.now()
-            .subtract(Duration(days: retentionDays))
-            .millisecondsSinceEpoch;
+    final cutoff = DateTime.now()
+        .subtract(Duration(days: retentionDays))
+        .millisecondsSinceEpoch;
     await database.delete(
       GlucoseTables.rawReadings,
       where: 'subject_id = ? AND ts_ms < ?',
@@ -94,9 +95,8 @@ class RawReadingsDao {
       bucketMs: row['bucket_ms'] as int,
       value: (row['value'] as num).toDouble(),
       ratePerMin: (row['rate_per_min'] as num?)?.toDouble(),
-      receivedAt: DateTime.fromMillisecondsSinceEpoch(
-        row['received_at_ms'] as int,
-      ),
+      receivedAt:
+          DateTime.fromMillisecondsSinceEpoch(row['received_at_ms'] as int),
       payloadJson: row['payload_json'] as String?,
     );
   }

@@ -1,4 +1,4 @@
-import '../../../plugin_platform/placement/explore_plugin_resolver.dart';
+import '../models/explore_plugin_entry_models.dart';
 
 class ExploreRuntimeSnapshot {
   final List<ExplorePluginSection> sections;

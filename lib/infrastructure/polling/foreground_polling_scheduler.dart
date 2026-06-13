@@ -6,11 +6,8 @@ import '../../domain/entities/app_settings.dart';
 import '../../domain/polling/polling_mode.dart';
 import '../../domain/sync_status/sync_schedule_mode.dart';
 
-typedef ForegroundPollingAfterSync = Future<void> Function();
-
 class ForegroundPollingScheduler {
   final DataSourceRuntimePollingAdapter pollingAdapter;
-  final ForegroundPollingAfterSync? afterSync;
   final SyncScheduleReporter? scheduleReporter;
 
   Timer? _timer;
@@ -19,7 +16,6 @@ class ForegroundPollingScheduler {
 
   ForegroundPollingScheduler({
     required this.pollingAdapter,
-    this.afterSync,
     this.scheduleReporter,
   });
 
@@ -71,7 +67,6 @@ class ForegroundPollingScheduler {
     _running = true;
     try {
       await pollingAdapter.syncExecutor();
-      await afterSync?.call();
     } finally {
       _running = false;
       await _scheduleNext();

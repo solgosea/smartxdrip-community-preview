@@ -5,7 +5,9 @@ import 'alert_actuator.dart';
 class AlertActuatorDispatcher {
   final List<AlertActuator> actuators;
 
-  const AlertActuatorDispatcher({required this.actuators});
+  const AlertActuatorDispatcher({
+    required this.actuators,
+  });
 
   Future<List<AlertActuatorResult>> dispatch(
     AlertActuatorCommand command,

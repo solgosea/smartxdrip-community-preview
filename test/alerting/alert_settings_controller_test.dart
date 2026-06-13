@@ -61,7 +61,10 @@ AlertEvent _event() {
     state: AlertEventState.received,
     title: 'Urgent Low',
     body: 'Urgent low glucose',
-    payload: const {'personId': 'child-1', 'type': 'urgentLow'},
+    payload: const {
+      'personId': 'child-1',
+      'type': 'urgentLow',
+    },
     occurredAt: now,
     receivedAt: now,
     updatedAt: now,
@@ -93,11 +96,10 @@ class _MemoryAlertStrategyConfigRepository
       SoundAlertConfig.key => config.copyWith(sound: next as SoundAlertConfig),
       InAppAlertConfig.key => config.copyWith(inApp: next as InAppAlertConfig),
       LocalNotificationAlertConfig.key => config.copyWith(
-        localNotification: next as LocalNotificationAlertConfig,
-      ),
-      VibrationAlertConfig.key => config.copyWith(
-        vibration: next as VibrationAlertConfig,
-      ),
+          localNotification: next as LocalNotificationAlertConfig,
+        ),
+      VibrationAlertConfig.key =>
+        config.copyWith(vibration: next as VibrationAlertConfig),
       _ => config,
     };
   }

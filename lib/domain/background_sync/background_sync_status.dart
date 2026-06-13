@@ -1,1 +1,7 @@
-enum BackgroundSyncStatus { disabled, checking, syncing, synced, failed }
+enum BackgroundSyncStatus {
+  disabled,
+  checking,
+  syncing,
+  synced,
+  failed,
+}

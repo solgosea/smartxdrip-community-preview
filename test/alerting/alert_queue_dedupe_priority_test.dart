@@ -10,47 +10,40 @@ import 'package:smart_xdrip/alerting/domain/queue/alert_queue_priority.dart';
 import '../_support/test_database.dart';
 
 void main() {
-  test(
-    'same dedupe key keeps higher priority source over local datasource',
-    () async {
-      final database = await TestDatabase.createWithAlerting();
-      addTearDown(database.close);
-      final repository = SqliteAlertQueueRepository(
-        databaseProvider: () => database.db,
-      );
-      final consumer = AlertQueueConsumer(
-        repository: repository,
-        registry: AlertMessageHandlerRegistry(),
-      );
-      final service = AlertQueueEnqueueService(
-        repository: repository,
-        consumer: consumer,
-      );
-      final now = DateTime(2026, 6, 9, 8);
-      const dedupeKey = 'nightscout:https://demo.fly.dev:urgentLow:1';
+  test('same dedupe key keeps plugin message over Local datasource', () async {
+    final database = await TestDatabase.createWithAlerting();
+    addTearDown(database.close);
+    final repository = SqliteAlertQueueRepository(
+      databaseProvider: () => database.db,
+    );
+    final consumer = AlertQueueConsumer(
+      repository: repository,
+      registry: AlertMessageHandlerRegistry(),
+    );
+    final service = AlertQueueEnqueueService(
+      repository: repository,
+      consumer: consumer,
+    );
+    final now = DateTime(2026, 6, 9, 8);
+    const dedupeKey = 'nightscout:https://demo.fly.dev:urgentLow:1';
 
-      await service.enqueue(
-        _message(
-          id: 'local',
-          dedupeKey: dedupeKey,
-          sourcePriority: AlertSourcePriority.localDatasource,
-          now: now,
-        ),
-      );
-      await service.enqueue(
-        _message(
-          id: 'remote',
-          dedupeKey: dedupeKey,
-          sourcePriority: AlertSourcePriority.remoteSource,
-          now: now,
-        ),
-      );
+    await service.enqueue(_message(
+      id: 'local',
+      dedupeKey: dedupeKey,
+      sourcePriority: AlertSourcePriority.localDatasource,
+      now: now,
+    ));
+    await service.enqueue(_message(
+      id: 'plugin',
+      dedupeKey: dedupeKey,
+      sourcePriority: AlertSourcePriority.plugin,
+      now: now,
+    ));
 
-      final stored = await repository.findByDedupeKey(dedupeKey);
-      expect(stored?.id, 'remote');
-      expect(stored?.sourcePriority, AlertSourcePriority.remoteSource);
-    },
-  );
+    final stored = await repository.findByDedupeKey(dedupeKey);
+    expect(stored?.id, 'plugin');
+    expect(stored?.sourcePriority, AlertSourcePriority.plugin);
+  });
 }
 
 AlertQueueMessage _message({

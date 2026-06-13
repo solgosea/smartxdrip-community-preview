@@ -6,7 +6,10 @@ import '../models/episode_severity_view_model.dart';
 class EpisodeSeverityCard extends StatelessWidget {
   final EpisodeSeverityViewModel viewModel;
 
-  const EpisodeSeverityCard({super.key, required this.viewModel});
+  const EpisodeSeverityCard({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +60,10 @@ class _SeverityRow extends StatelessWidget {
   final EpisodeSeverityRowViewModel row;
   final bool isLast;
 
-  const _SeverityRow({required this.row, required this.isLast});
+  const _SeverityRow({
+    required this.row,
+    required this.isLast,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +71,9 @@ class _SeverityRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        border:
-            isLast
-                ? null
-                : const Border(bottom: BorderSide(color: AppColors.border)),
+        border: isLast
+            ? null
+            : const Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: IntrinsicHeight(
         child: Row(

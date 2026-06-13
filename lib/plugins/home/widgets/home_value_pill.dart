@@ -4,7 +4,10 @@ import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 class HomeValuePill extends StatelessWidget {
   final String text;
 
-  const HomeValuePill({super.key, required this.text});
+  const HomeValuePill({
+    super.key,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,0 +1,25 @@
+class GlanceIosWidgetPayloadKeys {
+  static const widgetId = 'widgetId';
+  static const template = 'template';
+  static const backgroundStyle = 'backgroundStyle';
+  static const fontSize = 'fontSize';
+  static const graphRange = 'graphRange';
+  static const valueLabel = 'valueLabel';
+  static const unitLabel = 'unitLabel';
+  static const alternateValueLabel = 'alternateValueLabel';
+  static const deltaLabel = 'deltaLabel';
+  static const trendArrow = 'trendArrow';
+  static const freshnessLabel = 'freshnessLabel';
+  static const latestReadingAtMs = 'latestReadingAtMs';
+  static const sourceLabel = 'sourceLabel';
+  static const rangeState = 'rangeState';
+  static const targetLowMmol = 'targetLowMmol';
+  static const targetHighMmol = 'targetHighMmol';
+  static const trendValues = 'trendValues';
+  static const showTrendArrow = 'showTrendArrow';
+  static const showDelta = 'showDelta';
+  static const showLastUpdated = 'showLastUpdated';
+  static const showMiniGraph = 'showMiniGraph';
+  static const showAlternateUnit = 'showAlternateUnit';
+  static const tapAction = 'tapAction';
+}

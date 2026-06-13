@@ -32,16 +32,14 @@ class SettingsExportService {
       GlucoseUnit.mmolL => 'mmol_per_l',
       GlucoseUnit.mgDl => 'mg_per_dl',
     };
-    final buffer =
-        StringBuffer()
-          ..writeln('timestamp_iso,$unitKey,trend_${unitKey}_per_min');
+    final buffer = StringBuffer()
+      ..writeln('timestamp_iso,$unitKey,trend_${unitKey}_per_min');
     for (final reading in readings) {
       final iso = reading.timestamp.toUtc().toIso8601String();
       final value = glucoseFormatter.value(reading.value, unit).valueLabel;
-      final trend =
-          reading.ratePerMin == null
-              ? ''
-              : glucoseFormatter.rate(reading.ratePerMin!, unit).valueLabel;
+      final trend = reading.ratePerMin == null
+          ? ''
+          : glucoseFormatter.rate(reading.ratePerMin!, unit).valueLabel;
       buffer.writeln('$iso,$value,$trend');
     }
     return buffer.toString();

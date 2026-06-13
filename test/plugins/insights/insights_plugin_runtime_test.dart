@@ -24,32 +24,30 @@ void main() {
     AnalysisSessionStore.instance.clear();
   });
 
-  test(
-    'insights runtime preheats current subject insight view model',
-    () async {
-      final now = DateTime(2026, 6, 6, 12);
-      _seedAnalysisStore(now, subjectId: 'self', dailyBody: 'Self daily brief');
-      final cache = InsightsRuntimeCache();
-      final manager = PluginRuntimeManager.create(now: () => now);
-      addTearDown(manager.dispose);
-      manager.register(
-        InsightsPluginRuntime(
-          cache: cache,
-          preheater: InsightsSnapshotPreheater(
-            hostServices: _hostServices(),
-            now: () => now,
-          ),
+  test('insights runtime preheats current subject insight view model',
+      () async {
+    final now = DateTime(2026, 6, 6, 12);
+    _seedAnalysisStore(now, subjectId: 'self', dailyBody: 'Self daily brief');
+    final cache = InsightsRuntimeCache();
+    final manager = PluginRuntimeManager.create(now: () => now);
+    addTearDown(manager.dispose);
+    manager.register(
+      InsightsPluginRuntime(
+        cache: cache,
+        preheater: InsightsSnapshotPreheater(
+          hostServices: _hostServices(),
+          now: () => now,
         ),
-      );
+      ),
+    );
 
-      await manager.resume(InsightsPluginRuntime.id);
+    await manager.resume(InsightsPluginRuntime.id);
 
-      expect(cache.stale, isFalse);
-      expect(cache.snapshots.single.subjectId, 'self');
-      expect(cache.snapshots.single.viewModel.dailyBrief, 'Self daily brief');
-      expect(cache.freshViewModel(subjectId: 'self'), isNotNull);
-    },
-  );
+    expect(cache.stale, isFalse);
+    expect(cache.snapshots.single.subjectId, 'self');
+    expect(cache.snapshots.single.viewModel.dailyBrief, 'Self daily brief');
+    expect(cache.freshViewModel(subjectId: 'self'), isNotNull);
+  });
 
   test('insights runtime caches by subject id', () async {
     final now = DateTime(2026, 6, 6, 12);
@@ -68,56 +66,53 @@ void main() {
     cache.markStale('subjectChanged');
     await runtime.preheat();
 
-    expect(
-      cache.freshViewModel(subjectId: 'child-1')?.dailyBrief,
-      'Child insight',
-    );
+    expect(cache.freshViewModel(subjectId: 'child-1')?.dailyBrief,
+        'Child insight');
     expect(cache.freshViewModel(subjectId: 'self')?.dailyBrief, 'Self insight');
   });
 
   test(
-    'insights runtime marks stale on datasource changes and refreshes on sync',
-    () async {
-      final now = DateTime(2026, 6, 6, 12);
-      _seedAnalysisStore(now, subjectId: 'self', dailyBody: 'Self daily brief');
-      final cache = InsightsRuntimeCache();
-      final manager = PluginRuntimeManager.create(now: () => now);
-      addTearDown(manager.dispose);
-      manager.register(
-        InsightsPluginRuntime(
-          cache: cache,
-          preheater: InsightsSnapshotPreheater(
-            hostServices: _hostServices(),
-            now: () => now,
-          ),
+      'insights runtime marks stale on datasource changes and refreshes on sync',
+      () async {
+    final now = DateTime(2026, 6, 6, 12);
+    _seedAnalysisStore(now, subjectId: 'self', dailyBody: 'Self daily brief');
+    final cache = InsightsRuntimeCache();
+    final manager = PluginRuntimeManager.create(now: () => now);
+    addTearDown(manager.dispose);
+    manager.register(
+      InsightsPluginRuntime(
+        cache: cache,
+        preheater: InsightsSnapshotPreheater(
+          hostServices: _hostServices(),
+          now: () => now,
         ),
-      );
-      await manager.resume(InsightsPluginRuntime.id);
-      expect(cache.stale, isFalse);
+      ),
+    );
+    await manager.resume(InsightsPluginRuntime.id);
+    expect(cache.stale, isFalse);
 
-      manager.eventBus.publish(
-        PluginRuntimeEvent(
-          type: PluginRuntimeEventType.datasourceChanged,
-          occurredAt: now.add(const Duration(minutes: 1)),
-        ),
-      );
-      await pumpEventQueue();
+    manager.eventBus.publish(
+      PluginRuntimeEvent(
+        type: PluginRuntimeEventType.datasourceChanged,
+        occurredAt: now.add(const Duration(minutes: 1)),
+      ),
+    );
+    await pumpEventQueue();
 
-      expect(cache.stale, isTrue);
-      expect(cache.staleReason, PluginRuntimeEventType.datasourceChanged.name);
+    expect(cache.stale, isTrue);
+    expect(cache.staleReason, PluginRuntimeEventType.datasourceChanged.name);
 
-      manager.eventBus.publish(
-        PluginRuntimeEvent(
-          type: PluginRuntimeEventType.subjectDataChanged,
-          occurredAt: now.add(const Duration(minutes: 2)),
-        ),
-      );
-      await pumpEventQueue();
+    manager.eventBus.publish(
+      PluginRuntimeEvent(
+        type: PluginRuntimeEventType.subjectDataChanged,
+        occurredAt: now.add(const Duration(minutes: 2)),
+      ),
+    );
+    await pumpEventQueue();
 
-      expect(cache.stale, isFalse);
-      expect(cache.staleReason, isNull);
-    },
-  );
+    expect(cache.stale, isFalse);
+    expect(cache.staleReason, isNull);
+  });
 }
 
 InsightsHostServices _hostServices() {
@@ -202,10 +197,9 @@ void _seedAnalysisStore(
       id: subjectId,
       displayName: subjectId,
       sourceLabel: 'Test source',
-      origin:
-          subjectId == 'self'
-              ? AnalysisSubjectOrigin.self
-              : const AnalysisSubjectOrigin('external'),
+      origin: subjectId == 'self'
+          ? AnalysisSubjectOrigin.self
+          : const AnalysisSubjectOrigin('remote'),
     ),
   );
 }

@@ -68,9 +68,8 @@ class AnalysisFacade {
     final current = now ?? latestReading?.timestamp ?? DateTime.now();
     final cutoff = current.subtract(Duration(hours: hours));
     return readings
-        .where(
-          (r) => !r.timestamp.isBefore(cutoff) && !r.timestamp.isAfter(current),
-        )
+        .where((r) =>
+            !r.timestamp.isBefore(cutoff) && !r.timestamp.isAfter(current))
         .toList();
   }
 
@@ -78,9 +77,8 @@ class AnalysisFacade {
     final current = now ?? latestReading?.timestamp ?? DateTime.now();
     final cutoff = current.subtract(Duration(days: days));
     return readings
-        .where(
-          (r) => !r.timestamp.isBefore(cutoff) && !r.timestamp.isAfter(current),
-        )
+        .where((r) =>
+            !r.timestamp.isBefore(cutoff) && !r.timestamp.isAfter(current))
         .toList();
   }
 
@@ -117,7 +115,11 @@ class AnalysisFacade {
   }) {
     if (rows.isEmpty) return const [];
     final context = thresholds ?? this.thresholds;
-    return EpisodeDetector.detect(rows, low: context.low, high: context.high);
+    return EpisodeDetector.detect(
+      rows,
+      low: context.low,
+      high: context.high,
+    );
   }
 
   List<double> hourlyTirForReadings(
@@ -149,8 +151,7 @@ class AnalysisFacade {
     }
     return {
       for (final entry in byWeekday.entries)
-        entry.key:
-            entry.value.where(context.isInRange).length /
+        entry.key: entry.value.where(context.isInRange).length /
             entry.value.length *
             100,
     };
@@ -171,13 +172,11 @@ class AnalysisFacade {
   double? averageMeanForLastDays(int days, {DateTime? now}) {
     final rows = _dailyForLastDays(days, now: now);
     if (rows.isEmpty) return null;
-    final totalReadings = rows
-        .map((d) => d.readingCount)
-        .fold<int>(0, (a, b) => a + b);
+    final totalReadings =
+        rows.map((d) => d.readingCount).fold<int>(0, (a, b) => a + b);
     if (totalReadings <= 0) return null;
-    final weighted = rows
-        .map((d) => d.mean * d.readingCount)
-        .reduce((a, b) => a + b);
+    final weighted =
+        rows.map((d) => d.mean * d.readingCount).reduce((a, b) => a + b);
     return weighted / totalReadings;
   }
 
@@ -240,4 +239,5 @@ class AnalysisFacade {
     final cutoff = anchor.subtract(Duration(days: days));
     return rows.where((d) => !d.day.isBefore(cutoff)).toList();
   }
+
 }

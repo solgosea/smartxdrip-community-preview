@@ -15,6 +15,10 @@ class EpisodeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PageHeader(title: title, subtitle: subtitle, onBack: onBack);
+    return PageHeader(
+      title: title,
+      subtitle: subtitle,
+      onBack: onBack,
+    );
   }
 }

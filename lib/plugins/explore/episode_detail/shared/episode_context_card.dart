@@ -2,17 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../../foundation/theme/app_colors.dart';
 
 /// One row of the CGM Context card.
-///
-/// HTML structure (from 12-event-deep-analysis.html):
-///   [icon]  [time-window mono] description text  [right-side context tag]
-///
-/// Each row is auto-derived from CGM data only (e.g. fasting baseline range,
-/// pre-onset slope, time-of-day variability). The icon is a single emoji
-/// glyph; the right-side context tag is a short mono dim label like
-/// "~1h before" / "onset lead-up" / "time context".
 class EpisodeContextRow {
   final String icon; // emoji
-  final String timeWindow; // e.g. "05:50-06:50"
+  final String timeWindow; // e.g. "05:50–06:50"
   final String description;
   final String contextTag; // e.g. "~1h before"
 
@@ -71,20 +63,17 @@ class _Row extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 7),
       decoration: BoxDecoration(
-        border:
-            isLast
-                ? null
-                : const Border(bottom: BorderSide(color: AppColors.border)),
+        border: isLast
+            ? null
+            : const Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 1, right: 10),
-            child: Text(
-              row.icon,
-              style: const TextStyle(fontSize: 15, height: 1),
-            ),
+            child:
+                Text(row.icon, style: const TextStyle(fontSize: 15, height: 1)),
           ),
           Expanded(
             child: RichText(

@@ -5,7 +5,7 @@ import '../../domain/entities/glucose_reading.dart';
 /// Deterministic CGM dataset for development and UI debugging.
 ///
 /// The generated readings intentionally cover the analysis surface:
-/// - 90 days of 5-minute CGM samples for Home, History, Stats, and Insights.
+/// - 90 days of 5-minute CGM samples for baseline/calendar/AGP views.
 /// - Sustained high and low windows for event pages.
 /// - Rapid-rise windows for transition detection.
 /// - Stable windows for normal-state cards.
@@ -44,12 +44,10 @@ class MockGlucoseGenerator {
 
   static List<GlucoseReading> forDay(List<GlucoseReading> all, DateTime day) {
     return all
-        .where(
-          (r) =>
-              r.timestamp.year == day.year &&
-              r.timestamp.month == day.month &&
-              r.timestamp.day == day.day,
-        )
+        .where((r) =>
+            r.timestamp.year == day.year &&
+            r.timestamp.month == day.month &&
+            r.timestamp.day == day.day)
         .toList();
   }
 
@@ -95,8 +93,7 @@ class MockGlucoseGenerator {
       value += _pulse(h, center: 11.75, width: 0.42, amplitude: 1.1);
     }
     if (_hasStableDay(dayOffset)) {
-      value =
-          6.25 +
+      value = 6.25 +
           _pulse(h, center: 6.0, width: 1.0, amplitude: 0.35) +
           _pulse(h, center: 20.0, width: 1.0, amplitude: 0.25) +
           _cycle(dayOffset * 101 + sample, amplitude: 0.08);

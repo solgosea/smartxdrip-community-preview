@@ -9,7 +9,9 @@ class GlucoseSyncPolicy {
     this.maxCatchUpWindow = const Duration(days: 3),
   });
 
-  factory GlucoseSyncPolicy.fromSettings({required int initialSyncDays}) {
+  factory GlucoseSyncPolicy.fromSettings({
+    required int initialSyncDays,
+  }) {
     return GlucoseSyncPolicy(initialSyncDays: initialSyncDays);
   }
 }

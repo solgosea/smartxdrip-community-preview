@@ -5,7 +5,7 @@ import 'foreground_reconcile_policy.dart';
 
 class ForegroundReconcileOrchestrator {
   final Future<ForegroundReconcileContext> Function(DateTime? lastCompletedAt)
-  loadContext;
+      loadContext;
   final ForegroundReconcilePolicy policy;
   final ForegroundReconcilePipeline pipeline;
 

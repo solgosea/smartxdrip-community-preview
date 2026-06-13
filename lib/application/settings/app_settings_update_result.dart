@@ -4,5 +4,8 @@ class AppSettingsUpdateResult {
   final AppSettingsChangeImpact impact;
   final bool applied;
 
-  const AppSettingsUpdateResult({required this.impact, required this.applied});
+  const AppSettingsUpdateResult({
+    required this.impact,
+    required this.applied,
+  });
 }

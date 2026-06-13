@@ -4,7 +4,10 @@ import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 class SettingsGroup extends StatelessWidget {
   final List<Widget> children;
 
-  const SettingsGroup({super.key, required this.children});
+  const SettingsGroup({
+    super.key,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +16,11 @@ class SettingsGroup extends StatelessWidget {
       rows.add(children[index]);
       if (index != children.length - 1) {
         rows.add(
-          const Divider(color: AppColors.border, height: 1, thickness: 1),
+          const Divider(
+            color: AppColors.border,
+            height: 1,
+            thickness: 1,
+          ),
         );
       }
     }

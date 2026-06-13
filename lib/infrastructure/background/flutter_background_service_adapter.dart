@@ -23,11 +23,11 @@ class FlutterBackgroundServiceAdapter {
     FlutterBackgroundService? service,
     BackgroundServiceNotificationBuilder? notificationBuilder,
     DataSourceSyncStrategyCoordinator? strategyCoordinator,
-  }) : _service = service ?? FlutterBackgroundService(),
-       _notificationBuilder =
-           notificationBuilder ?? const BackgroundServiceNotificationBuilder(),
-       _strategyCoordinator =
-           strategyCoordinator ?? const DataSourceSyncStrategyCoordinator();
+  })  : _service = service ?? FlutterBackgroundService(),
+        _notificationBuilder =
+            notificationBuilder ?? const BackgroundServiceNotificationBuilder(),
+        _strategyCoordinator =
+            strategyCoordinator ?? const DataSourceSyncStrategyCoordinator();
 
   Stream<Map<String, dynamic>?> get syncStatusEvents =>
       _service.on(BackgroundServiceCommands.syncStatus);

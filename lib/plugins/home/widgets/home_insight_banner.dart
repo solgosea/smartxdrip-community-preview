@@ -6,7 +6,11 @@ class HomeInsightBanner extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
 
-  const HomeInsightBanner({super.key, required this.text, required this.onTap});
+  const HomeInsightBanner({
+    super.key,
+    required this.text,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +37,10 @@ class HomeInsightBanner extends StatelessWidget {
                     children: [
                       const Row(
                         children: [
-                          Text('*', style: TextStyle(fontSize: 14, height: 1)),
+                          Text(
+                            '*',
+                            style: TextStyle(fontSize: 14, height: 1),
+                          ),
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(

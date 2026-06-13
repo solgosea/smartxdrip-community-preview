@@ -27,7 +27,7 @@ import 'glucose_tables.dart';
 
 class GlucoseDatabase {
   static const _dbName = 'smart_xdrip.db';
-  static const _dbVersion = 8;
+  static const _dbVersion = 9;
   final DatabaseFactory? databaseFactoryOverride;
   final String? databasePathOverride;
 
@@ -47,7 +47,10 @@ class GlucoseDatabase {
 
   Database? _db;
 
-  GlucoseDatabase({this.databaseFactoryOverride, this.databasePathOverride});
+  GlucoseDatabase({
+    this.databaseFactoryOverride,
+    this.databasePathOverride,
+  });
 
   late final RawReadingsDao rawReadings = RawReadingsDao(() => db);
   late final ReadingsDao readings = ReadingsDao(() => db);
@@ -72,6 +75,7 @@ class GlucoseDatabase {
         await _createV6(database);
         await _createV7(database);
         await _createV8(database);
+        await _createV9(database);
       },
       onUpgrade: (database, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -95,20 +99,19 @@ class GlucoseDatabase {
         if (oldVersion < 8) {
           await _createV8(database);
         }
+        if (oldVersion < 9) {
+          await _createV9(database);
+        }
       },
     );
-    _db =
-        databaseFactoryOverride == null
-            ? await openDatabase(
-              path,
-              version: _dbVersion,
-              onCreate: options.onCreate,
-              onUpgrade: options.onUpgrade,
-            )
-            : await databaseFactoryOverride!.openDatabase(
-              path,
-              options: options,
-            );
+    _db = databaseFactoryOverride == null
+        ? await openDatabase(
+            path,
+            version: _dbVersion,
+            onCreate: options.onCreate,
+            onUpgrade: options.onUpgrade,
+          )
+        : await databaseFactoryOverride!.openDatabase(path, options: options);
     return _db!;
   }
 
@@ -268,6 +271,8 @@ class GlucoseDatabase {
         last_attempt_at_ms INTEGER,
         last_cursor TEXT,
         last_error TEXT,
+        last_fetched_count INTEGER,
+        last_stored_count INTEGER,
         updated_at_ms INTEGER NOT NULL,
         PRIMARY KEY(subject_id, source_key)
       )
@@ -436,6 +441,21 @@ class GlucoseDatabase {
     // Reserved for historical core database versioning.
   }
 
+  Future<void> _createV9(Database database) async {
+    await _addColumnIfMissing(
+      database,
+      sourceStateTable,
+      'last_fetched_count',
+      'INTEGER',
+    );
+    await _addColumnIfMissing(
+      database,
+      sourceStateTable,
+      'last_stored_count',
+      'INTEGER',
+    );
+  }
+
   Future<void> _rebuildSubjectTables(Database database) async {
     await database.transaction((txn) async {
       await _dropSubjectIndexes(txn);
@@ -495,9 +515,8 @@ class GlucoseDatabase {
   }
 
   Future<void> _rebuildReadings(DatabaseExecutor db) async {
-    await db.execute(
-      'ALTER TABLE $readingsTable RENAME TO ${readingsTable}_v5',
-    );
+    await db
+        .execute('ALTER TABLE $readingsTable RENAME TO ${readingsTable}_v5');
     await db.execute('''
       CREATE TABLE $readingsTable (
         subject_id TEXT NOT NULL DEFAULT '${GlucoseSubject.selfId}',
@@ -523,8 +542,7 @@ class GlucoseDatabase {
 
   Future<void> _rebuildRawReadings(DatabaseExecutor db) async {
     await db.execute(
-      'ALTER TABLE $rawReadingsTable RENAME TO ${rawReadingsTable}_v5',
-    );
+        'ALTER TABLE $rawReadingsTable RENAME TO ${rawReadingsTable}_v5');
     await db.execute('''
       CREATE TABLE $rawReadingsTable (
         subject_id TEXT NOT NULL DEFAULT '${GlucoseSubject.selfId}',
@@ -662,14 +680,12 @@ class GlucoseDatabase {
         PRIMARY KEY(subject_id, snapshot_key)
       )
     ''');
-    final columns =
-        hasModuleCode
-            ? 'subject_id, snapshot_key, module_code, window_start_ms, window_end_ms, payload_json, updated_at_ms'
-            : 'subject_id, snapshot_key, window_start_ms, window_end_ms, payload_json, updated_at_ms';
-    final selectColumns =
-        hasModuleCode
-            ? "'${GlucoseSubject.selfId}', snapshot_key, module_code, window_start_ms, window_end_ms, payload_json, updated_at_ms"
-            : "'${GlucoseSubject.selfId}', snapshot_key, window_start_ms, window_end_ms, payload_json, updated_at_ms";
+    final columns = hasModuleCode
+        ? 'subject_id, snapshot_key, module_code, window_start_ms, window_end_ms, payload_json, updated_at_ms'
+        : 'subject_id, snapshot_key, window_start_ms, window_end_ms, payload_json, updated_at_ms';
+    final selectColumns = hasModuleCode
+        ? "'${GlucoseSubject.selfId}', snapshot_key, module_code, window_start_ms, window_end_ms, payload_json, updated_at_ms"
+        : "'${GlucoseSubject.selfId}', snapshot_key, window_start_ms, window_end_ms, payload_json, updated_at_ms";
     await db.execute('''
       INSERT OR REPLACE INTO $table ($columns)
       SELECT $selectColumns FROM ${table}_v5
@@ -722,15 +738,17 @@ class GlucoseDatabase {
         last_attempt_at_ms INTEGER,
         last_cursor TEXT,
         last_error TEXT,
+        last_fetched_count INTEGER,
+        last_stored_count INTEGER,
         updated_at_ms INTEGER NOT NULL,
         PRIMARY KEY(subject_id, source_key)
       )
     ''');
     await db.execute('''
       INSERT OR REPLACE INTO $sourceStateTable
-      (subject_id, source_key, last_success_at_ms, last_attempt_at_ms, last_cursor, last_error, updated_at_ms)
+      (subject_id, source_key, last_success_at_ms, last_attempt_at_ms, last_cursor, last_error, last_fetched_count, last_stored_count, updated_at_ms)
       SELECT '${GlucoseSubject.selfId}', source_key, last_success_at_ms, last_attempt_at_ms,
-             last_cursor, last_error, updated_at_ms
+             last_cursor, last_error, NULL, NULL, updated_at_ms
       FROM ${sourceStateTable}_v5
     ''');
     await db.execute('DROP TABLE ${sourceStateTable}_v5');
@@ -738,8 +756,7 @@ class GlucoseDatabase {
 
   Future<void> _rebuildGaps(DatabaseExecutor db) async {
     await db.execute(
-      'ALTER TABLE $glucoseGapsTable RENAME TO ${glucoseGapsTable}_v5',
-    );
+        'ALTER TABLE $glucoseGapsTable RENAME TO ${glucoseGapsTable}_v5');
     await db.execute('''
       CREATE TABLE $glucoseGapsTable (
         subject_id TEXT NOT NULL DEFAULT '${GlucoseSubject.selfId}',
@@ -770,9 +787,8 @@ class GlucoseDatabase {
     final rows = await database.rawQuery('PRAGMA table_info($table)');
     final exists = rows.any((row) => row['name'] == column);
     if (!exists) {
-      await database.execute(
-        'ALTER TABLE $table ADD COLUMN $column $definition',
-      );
+      await database
+          .execute('ALTER TABLE $table ADD COLUMN $column $definition');
     }
   }
 
@@ -789,44 +805,55 @@ class GlucoseDatabase {
     List<GlucoseReading> rows, {
     String source = 'unknown',
     String subjectId = GlucoseSubject.selfId,
-  }) => readings.upsertMany(rows, source: source, subjectId: subjectId);
+  }) =>
+      readings.upsertMany(rows, source: source, subjectId: subjectId);
 
   Future<void> upsertCanonicalReadings(
     List<CanonicalGlucoseCandidate> rows, {
     String subjectId = GlucoseSubject.selfId,
-  }) => readings.upsertCanonical(rows, subjectId: subjectId);
+  }) =>
+      readings.upsertCanonical(rows, subjectId: subjectId);
 
   Future<void> upsertRawReadings(
     List<RawGlucoseReading> rows, {
     String subjectId = GlucoseSubject.selfId,
-  }) => rawReadings.upsertMany(rows, subjectId: subjectId);
+  }) =>
+      rawReadings.upsertMany(rows, subjectId: subjectId);
 
   Future<List<RawGlucoseReading>> rawReadingsByBuckets(
     Set<int> bucketMs, {
     String subjectId = GlucoseSubject.selfId,
-  }) => rawReadings.byBuckets(bucketMs, subjectId: subjectId);
+  }) =>
+      rawReadings.byBuckets(bucketMs, subjectId: subjectId);
 
-  Future<GlucoseReading?> latest({String subjectId = GlucoseSubject.selfId}) =>
+  Future<GlucoseReading?> latest({
+    String subjectId = GlucoseSubject.selfId,
+  }) =>
       readings.latest(subjectId: subjectId);
 
   Future<List<GlucoseReading>> range(
     DateTime from,
     DateTime to, {
     String subjectId = GlucoseSubject.selfId,
-  }) => readings.range(from, to, subjectId: subjectId);
+  }) =>
+      readings.range(from, to, subjectId: subjectId);
 
-  Future<int> count({String subjectId = GlucoseSubject.selfId}) =>
+  Future<int> count({
+    String subjectId = GlucoseSubject.selfId,
+  }) =>
       readings.count(subjectId: subjectId);
 
   Future<void> trimOlderThan(
     int retentionDays, {
     String subjectId = GlucoseSubject.selfId,
-  }) => readings.trimOlderThan(retentionDays, subjectId: subjectId);
+  }) =>
+      readings.trimOlderThan(retentionDays, subjectId: subjectId);
 
   Future<void> trimRawOlderThan(
     int retentionDays, {
     String subjectId = GlucoseSubject.selfId,
-  }) => rawReadings.trimOlderThan(retentionDays, subjectId: subjectId);
+  }) =>
+      rawReadings.trimOlderThan(retentionDays, subjectId: subjectId);
 
   Future<void> clearAll() async {
     final database = await db;
@@ -846,43 +873,50 @@ class GlucoseDatabase {
   Future<void> upsertEvents(
     List<GlucoseEvent> rows, {
     String subjectId = GlucoseSubject.selfId,
-  }) => events.upsertEvents(rows, subjectId: subjectId);
+  }) =>
+      events.upsertEvents(rows, subjectId: subjectId);
 
   Future<List<GlucoseEvent>> eventsBetween(
     DateTime from,
     DateTime to, {
     String subjectId = GlucoseSubject.selfId,
-  }) => events.between(from, to, subjectId: subjectId);
+  }) =>
+      events.between(from, to, subjectId: subjectId);
 
   Future<List<GlucoseEvent>> latestEvents({
     int limit = 200,
     String subjectId = GlucoseSubject.selfId,
-  }) => events.latest(limit: limit, subjectId: subjectId);
+  }) =>
+      events.latest(limit: limit, subjectId: subjectId);
 
   Future<void> upsertDailyStats(
     List<DailyGlucoseSummary> summaries, {
     String subjectId = GlucoseSubject.selfId,
-  }) => stats.upsertDaily(summaries, subjectId: subjectId);
+  }) =>
+      stats.upsertDaily(summaries, subjectId: subjectId);
 
   Future<List<DailyGlucoseSummary>> latestDailyStats({
     int limit = 90,
     String subjectId = GlucoseSubject.selfId,
-  }) => stats.latestDaily(limit: limit, subjectId: subjectId);
+  }) =>
+      stats.latestDaily(limit: limit, subjectId: subjectId);
 
   Future<void> upsertPeriodStats(
     List<PeriodGlucoseSummary> summaries, {
     required String windowKey,
     String subjectId = GlucoseSubject.selfId,
-  }) => stats.upsertPeriods(
-    summaries,
-    windowKey: windowKey,
-    subjectId: subjectId,
-  );
+  }) =>
+      stats.upsertPeriods(
+        summaries,
+        windowKey: windowKey,
+        subjectId: subjectId,
+      );
 
   Future<List<PeriodGlucoseSummary>> periodStatsForWindow(
     String windowKey, {
     String subjectId = GlucoseSubject.selfId,
-  }) => stats.periodsForWindow(windowKey, subjectId: subjectId);
+  }) =>
+      stats.periodsForWindow(windowKey, subjectId: subjectId);
 
   Future<void> putJsonSnapshot({
     required String table,
@@ -892,71 +926,86 @@ class GlucoseDatabase {
     required Map<String, Object?> payload,
     String? moduleCode,
     String subjectId = GlucoseSubject.selfId,
-  }) => snapshots.putJsonSnapshot(
-    table: table,
-    key: key,
-    start: start,
-    end: end,
-    payload: payload,
-    moduleCode: moduleCode,
-    subjectId: subjectId,
-  );
+  }) =>
+      snapshots.putJsonSnapshot(
+        table: table,
+        key: key,
+        start: start,
+        end: end,
+        payload: payload,
+        moduleCode: moduleCode,
+        subjectId: subjectId,
+      );
 
   Future<JsonSnapshot?> latestJsonSnapshot(
     String table, {
     String? moduleCode,
     String subjectId = GlucoseSubject.selfId,
-  }) => snapshots.latest(table, moduleCode: moduleCode, subjectId: subjectId);
+  }) =>
+      snapshots.latest(table, moduleCode: moduleCode, subjectId: subjectId);
 
   Future<void> upsertInsightTemplates(List<InsightTemplate> templates) =>
       insights.upsertTemplates(templates);
 
-  Future<List<InsightTemplate>> templatesForModule(AnalysisModuleCode module) =>
+  Future<List<InsightTemplate>> templatesForModule(
+    AnalysisModuleCode module,
+  ) =>
       insights.templatesForModule(module);
 
   Future<void> upsertGeneratedInsights(
     List<NarrativeInsight> rows, {
     String subjectId = GlucoseSubject.selfId,
-  }) => insights.upsertGenerated(rows, subjectId: subjectId);
+  }) =>
+      insights.upsertGenerated(rows, subjectId: subjectId);
 
   Future<List<NarrativeInsight>> latestGeneratedInsights({
     AnalysisModuleCode? module,
     int limit = 20,
     String subjectId = GlucoseSubject.selfId,
-  }) => insights.latestGenerated(
-    module: module,
-    limit: limit,
-    subjectId: subjectId,
-  );
+  }) =>
+      insights.latestGenerated(
+        module: module,
+        limit: limit,
+        subjectId: subjectId,
+      );
 
   Future<void> upsertGaps(
     List<GlucoseGap> rows, {
     String subjectId = GlucoseSubject.selfId,
-  }) => gaps.upsertGaps(rows, subjectId: subjectId);
+  }) =>
+      gaps.upsertGaps(rows, subjectId: subjectId);
 
   Future<void> recordSourceAttempt(
     String sourceKey, {
     String subjectId = GlucoseSubject.selfId,
-  }) => sourceState.recordAttempt(sourceKey, subjectId: subjectId);
+  }) =>
+      sourceState.recordAttempt(sourceKey, subjectId: subjectId);
 
   Future<void> recordSourceSuccess(
     String sourceKey, {
     String? cursor,
     String subjectId = GlucoseSubject.selfId,
-  }) => sourceState.recordSuccess(
-    sourceKey,
-    cursor: cursor,
-    subjectId: subjectId,
-  );
+    int? fetchedCount,
+    int? storedCount,
+  }) =>
+      sourceState.recordSuccess(
+        sourceKey,
+        cursor: cursor,
+        subjectId: subjectId,
+        fetchedCount: fetchedCount,
+        storedCount: storedCount,
+      );
 
   Future<void> recordSourceError(
     String sourceKey,
     String error, {
     String subjectId = GlucoseSubject.selfId,
-  }) => sourceState.recordError(sourceKey, error, subjectId: subjectId);
+  }) =>
+      sourceState.recordError(sourceKey, error, subjectId: subjectId);
 
   Future<SourceSyncState?> getSourceState(
     String sourceKey, {
     String subjectId = GlucoseSubject.selfId,
-  }) => sourceState.get(sourceKey, subjectId: subjectId);
+  }) =>
+      sourceState.get(sourceKey, subjectId: subjectId);
 }
