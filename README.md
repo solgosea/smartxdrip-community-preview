@@ -60,6 +60,12 @@ https://www.youtube.com/watch?v=QZl0NSckXYI&list=PLKDhx_9jUu-74px9PGC62dwRQwsXWh
 
 More features will be added step by step based on community feedback.
 
+## Data Source Setup
+
+SmartXDrip can use xDrip+ Local or Nightscout as data sources.
+
+For xDrip+ Local setup, see the [xDrip+ Local Connection Guide](docs/xdrip-local-connection-guide.md).
+
 ## Architecture Direction
 
 SmartXDrip is being built as a plugin + host companion platform around xDrip+
