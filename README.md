@@ -60,6 +60,24 @@ https://www.youtube.com/watch?v=QZl0NSckXYI&list=PLKDhx_9jUu-74px9PGC62dwRQwsXWh
 
 More features will be added step by step based on community feedback.
 
+## Architecture Direction
+
+SmartXDrip is being built as a plugin + host companion platform around xDrip+
+and Nightscout data.
+
+The app separates the host shell, feature plugins, shared runtime services, and
+capability boundaries so the public preview can stay focused while the product
+continues to evolve based on community feedback.
+
+Current architecture areas include:
+
+- Feature plugins for Home, History, Stats, Insights, Data Source, Glance, and Alerts.
+- Shared runtime layers for sync, polling, foreground reconcile, and background work.
+- Capability boundaries for data sources, alerting, analysis sessions, and background sync.
+- Android-first Glance infrastructure for widgets and persistent notification previews.
+
+For more details, see [Architecture Notes](docs/architecture.md).
+
 ## Privacy
 
 - No account is required.
