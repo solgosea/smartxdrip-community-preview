@@ -61,7 +61,7 @@ class FloatingGlanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Allows SmartXDrip to show glucose above other apps. It stays silent and only mirrors Glance status.',
+            'Allows Solgo Insight to show glucose above other apps. It stays silent and only mirrors Glance status.',
             style: GlanceTheme.label.copyWith(
               color: GlanceTheme.soft,
               fontSize: 11.5,

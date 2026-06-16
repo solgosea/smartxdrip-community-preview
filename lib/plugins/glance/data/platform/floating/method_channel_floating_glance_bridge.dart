@@ -12,7 +12,7 @@ class MethodChannelFloatingGlanceBridge
 
   const MethodChannelFloatingGlanceBridge({
     this.channel =
-        const MethodChannel('com.metaguru.smartxdrip/floating_glance'),
+        const MethodChannel('com.metaguru.Solgo Insight/floating_glance'),
     this.platform,
   });
 
@@ -70,6 +70,10 @@ class MethodChannelFloatingGlanceBridge
       'trendArrow': snapshot.trendArrow,
       'deltaLabel': snapshot.deltaLabel,
       'freshnessLabel': snapshot.freshness.label,
+      'tir24hLabel': snapshot.tir24h.fullLabel,
+      'tir24hCompactLabel': snapshot.tir24h.compactLabel,
+      'tir24hPercent': snapshot.tir24h.tirPercent,
+      'tir24hReadingCount': snapshot.tir24h.readingCount,
       'rangeState': snapshot.rangeState.code,
       'hasReading': snapshot.hasReading,
       'sourceLabel': snapshot.sourceLabel,

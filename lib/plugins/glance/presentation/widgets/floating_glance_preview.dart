@@ -40,7 +40,7 @@ class FloatingGlancePreview extends StatelessWidget {
           const SizedBox(width: 6),
           if (collapsed)
             Text(
-              snapshot.trendArrow,
+              snapshot.valueLabel,
               style: GlanceTheme.mono.copyWith(
                 color: color,
                 fontWeight: FontWeight.w900,
@@ -57,7 +57,7 @@ class FloatingGlancePreview extends StatelessWidget {
             ),
             const SizedBox(width: 7),
             Text(
-              '${snapshot.trendArrow} ${snapshot.deltaLabel}',
+              snapshot.tir24h.compactLabel,
               style: GlanceTheme.mono.copyWith(
                 color: GlanceTheme.soft,
                 fontSize: 11,

@@ -15,33 +15,36 @@ manufacturer app, or medical advice.
 ## Download
 
 **Android APK:**  
-https://github.com/solgosea/solgo-glucose-insight/releases/download/v0.3.0-community-preview/solgo-insight-community-preview-v0.3.0-android.apk
+https://github.com/solgosea/solgo-glucose-insight/releases/download/v0.3.1-community-preview/solgo-insight-community-preview-v0.3.1-android.apk
 
-Latest preview: **v0.3.0 Community Preview**
+Latest preview: **v0.3.1 Community Preview**
 
-## What's New in v0.3.0
+## What's New in v0.3.1
 
-This release improves the quick-glance experience for daily CGM use.
+This release brings together the v0.3.0 Glance Layer work and the latest v0.3.1
+compact Glance improvements.
 
 - Added **Floating Glance** for checking glucose status over other apps.
 - Improved the Android **Glance Layer** for widgets and always-visible status.
-- Added a floating glucose preview for current glucose, trend, delta, and update time.
+- Added a floating glucose preview for current glucose, trend, delta, update time, and 24h TIR.
+- Improved compact widget and floating Glance rendering for denser daily status viewing.
 - Updated Home CV to focus on the recent **24-hour** window.
 - Improved Stats time windows, including short-range review such as **24h** and **3d**.
+- Improved lock-screen and AOD-friendly Glance notification text.
 - Continued refining the plugin + host architecture so Glance, Home, and Stats can evolve independently.
 
 Floating Glance requires Android overlay permission. On some devices, users may
 need to allow Solgo Insight to display over other apps.
 
-## v0.3.0 Preview
+## v0.3.1 Preview
 
-| Floating glance | Floating widget preview |
+| Floating glance with 24h TIR | Floating widget preview |
 | --- | --- |
-| <img src="docs/assets/release/v0.3.0/floating-glance.png" alt="Solgo Insight floating glance over other apps" width="360"> | <img src="docs/assets/release/v0.3.0/floating-widget-preview.png" alt="Solgo Insight floating widget preview" width="360"> |
+| <img src="docs/assets/release/v0.3.1/floating-glance-tir.png" alt="Solgo Insight floating glance with 24 hour TIR" width="360"> | <img src="docs/assets/release/v0.3.1/floating-widget-preview.png" alt="Solgo Insight floating widget preview" width="360"> |
 
 | Home 24h CV | Stats time windows |
 | --- | --- |
-| <img src="docs/assets/release/v0.3.0/home-24h-cv.png" alt="Solgo Insight Home 24 hour CV" width="360"> | <img src="docs/assets/release/v0.3.0/stats-time-windows.png" alt="Solgo Insight Stats time window selection" width="360"> |
+| <img src="docs/assets/release/v0.3.1/home-24h-cv.png" alt="Solgo Insight Home 24 hour CV" width="360"> | <img src="docs/assets/release/v0.3.1/stats-time-windows.png" alt="Solgo Insight Stats time window selection" width="360"> |
 
 ## What's New in v0.2.0
 

@@ -25,6 +25,7 @@ class FakeGlanceSnapshotFactory {
       settings: const AppSettings(),
       latest: readings.last,
       trendReadings: readings,
+      tirReadings24h: readings,
       now: currentNow,
       sourceLabel: 'xDrip+ Local',
     );

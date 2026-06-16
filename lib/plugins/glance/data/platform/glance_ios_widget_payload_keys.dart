@@ -10,6 +10,10 @@ class GlanceIosWidgetPayloadKeys {
   static const deltaLabel = 'deltaLabel';
   static const trendArrow = 'trendArrow';
   static const freshnessLabel = 'freshnessLabel';
+  static const tir24hLabel = 'tir24hLabel';
+  static const tir24hCompactLabel = 'tir24hCompactLabel';
+  static const tir24hPercent = 'tir24hPercent';
+  static const tir24hReadingCount = 'tir24hReadingCount';
   static const latestReadingAtMs = 'latestReadingAtMs';
   static const sourceLabel = 'sourceLabel';
   static const rangeState = 'rangeState';

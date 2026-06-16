@@ -16,6 +16,10 @@ class GlanceRenderPayload {
   final String deltaLabel;
   final String trendArrow;
   final String freshnessLabel;
+  final String tir24hLabel;
+  final String tir24hCompactLabel;
+  final double? tir24hPercent;
+  final int tir24hReadingCount;
   final int? latestReadingAtMs;
   final String sourceLabel;
   final String rangeStateCode;
@@ -39,6 +43,10 @@ class GlanceRenderPayload {
     required this.deltaLabel,
     required this.trendArrow,
     required this.freshnessLabel,
+    required this.tir24hLabel,
+    required this.tir24hCompactLabel,
+    required this.tir24hPercent,
+    required this.tir24hReadingCount,
     required this.latestReadingAtMs,
     required this.sourceLabel,
     required this.rangeStateCode,

@@ -2,6 +2,7 @@ import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/glucose_reading.dart';
 import 'glance_freshness.dart';
 import 'glance_range_state.dart';
+import 'glance_tir_summary.dart';
 
 class GlanceSnapshot {
   final DateTime generatedAt;
@@ -19,6 +20,7 @@ class GlanceSnapshot {
   final GlanceRangeState rangeState;
   final double targetLowMmol;
   final double targetHighMmol;
+  final GlanceTirSummary tir24h;
 
   const GlanceSnapshot({
     required this.generatedAt,
@@ -36,6 +38,7 @@ class GlanceSnapshot {
     required this.rangeState,
     required this.targetLowMmol,
     required this.targetHighMmol,
+    this.tir24h = const GlanceTirSummary.unavailable(),
   });
 
   bool get hasReading => latestReading != null;

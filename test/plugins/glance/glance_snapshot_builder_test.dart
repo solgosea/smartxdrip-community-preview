@@ -23,6 +23,13 @@ void main() {
       settings: const AppSettings(),
       latest: readings.last,
       trendReadings: readings,
+      tirReadings24h: [
+        ...readings,
+        GlucoseReading(
+          timestamp: now.subtract(const Duration(hours: 2)),
+          value: 11,
+        ),
+      ],
       now: now,
     );
 
@@ -31,6 +38,9 @@ void main() {
     expect(snapshot.deltaLabel, '+0.3');
     expect(snapshot.freshness.label, '2 min ago');
     expect(snapshot.rangeState, GlanceRangeState.inRange);
+    expect(snapshot.tir24h.percentLabel, '67%');
+    expect(snapshot.tir24h.compactLabel, 'TIR 67%');
+    expect(snapshot.tir24h.fullLabel, 'TIR 24H 67%');
   });
 
   test('marks stale values as stale instead of current status', () {

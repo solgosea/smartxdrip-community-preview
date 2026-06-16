@@ -37,7 +37,7 @@ class FloatingSurfaceViewFactory(private val context: Context) {
             gravity = Gravity.CENTER_VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                if (segment.kind == "glucose") 22.dp else 18.dp
+                if (segment.kind == "glucose") 22.dp else LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
         if (segment.kind == "glucose") {
@@ -60,25 +60,61 @@ class FloatingSurfaceViewFactory(private val context: Context) {
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 )
             } else {
-                val componentsRow = LinearLayout(context).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    gravity = Gravity.CENTER_VERTICAL
-                }
-                segment.components.forEachIndexed { index, component ->
-                    if (index > 0) addHorizontalGap(componentsRow, 10)
-                    componentsRow.addView(componentChip(component))
+                val componentsRow = if (segment.components.size > 3) {
+                    componentGrid(segment.components)
+                } else {
+                    componentRow(segment.components)
                 }
                 row.addView(
                     componentsRow,
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 )
             }
-            segment.metaText?.let {
-                addHorizontalGap(row, 8)
-                row.addView(label(it, Color.parseColor("#7E9088"), 10, false))
+            if (segment.components.size <= 3) {
+                segment.metaText?.let {
+                    addHorizontalGap(row, 8)
+                    row.addView(label(it, Color.parseColor("#7E9088"), 10, false))
+                }
             }
         }
         return row
+    }
+
+    private fun componentRow(components: List<FloatingSurfaceComponentSnapshot>): View {
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            components.forEachIndexed { index, component ->
+                if (index > 0) addHorizontalGap(this, 10)
+                addView(componentChip(component))
+            }
+        }
+    }
+
+    private fun componentGrid(components: List<FloatingSurfaceComponentSnapshot>): View {
+        val grid = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        var index = 0
+        while (index < components.size) {
+            if (index > 0) addVerticalGap(grid, 5)
+            val row = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+            }
+            val first = components[index]
+            row.addView(componentChip(first), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            if (index + 1 < components.size) {
+                addHorizontalGap(row, 8)
+                row.addView(componentChip(components[index + 1]), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            } else {
+                addHorizontalGap(row, 8)
+                row.addView(View(context), LinearLayout.LayoutParams(0, 1, 1f))
+            }
+            grid.addView(row, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            index += 2
+        }
+        return grid
     }
 
     private fun componentChip(component: FloatingSurfaceComponentSnapshot): View {
@@ -131,7 +167,12 @@ class FloatingSurfaceViewFactory(private val context: Context) {
 
     private fun surfaceWidth(snapshot: FloatingSurfaceSnapshot): Int {
         val screenWidth = context.resources.displayMetrics.widthPixels
-        val desired = if (snapshot.segments.size > 1) 286.dp else 232.dp
+        val hasDenseStatus = snapshot.segments.any { it.kind != "glucose" && it.components.size > 3 }
+        val desired = when {
+            hasDenseStatus -> 292.dp
+            snapshot.segments.size > 1 -> 286.dp
+            else -> 232.dp
+        }
         return desired.coerceAtMost(screenWidth - 32.dp)
     }
 

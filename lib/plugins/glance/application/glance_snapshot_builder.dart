@@ -1,9 +1,11 @@
 import '../../../application/glucose_unit/glucose_unit_format_service.dart';
 import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/glucose_reading.dart';
+import '../../../engine/statistics/tir_calculator.dart';
 import '../domain/glance_freshness.dart';
 import '../domain/glance_range_state.dart';
 import '../domain/glance_snapshot.dart';
+import '../domain/glance_tir_summary.dart';
 
 class GlanceSnapshotBuilder {
   final GlucoseUnitFormatService formatter;
@@ -17,6 +19,7 @@ class GlanceSnapshotBuilder {
     required AppSettings settings,
     required GlucoseReading? latest,
     required List<GlucoseReading> trendReadings,
+    List<GlucoseReading> tirReadings24h = const [],
     required DateTime now,
     String sourceLabel = 'Solgo Insight',
   }) {
@@ -48,6 +51,23 @@ class GlanceSnapshotBuilder {
       rangeState: _rangeState(latest, settings, freshness),
       targetLowMmol: settings.lowThreshold,
       targetHighMmol: settings.highThreshold,
+      tir24h: _tir24h(tirReadings24h, settings),
+    );
+  }
+
+  GlanceTirSummary _tir24h(
+    List<GlucoseReading> readings,
+    AppSettings settings,
+  ) {
+    if (readings.isEmpty) return const GlanceTirSummary.unavailable();
+    final tir = TirCalculator.calculate(
+      readings,
+      low: settings.lowThreshold,
+      high: settings.highThreshold,
+    );
+    return GlanceTirSummary(
+      tirPercent: tir.tir,
+      readingCount: tir.readingCount,
     );
   }
 

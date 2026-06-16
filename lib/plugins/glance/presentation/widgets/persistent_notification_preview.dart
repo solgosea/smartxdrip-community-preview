@@ -69,7 +69,7 @@ class PersistentNotificationPreview extends StatelessWidget {
             privateMode
                 ? 'Unlock to view current glucose'
                 : '${snapshot.valueLabel} ${snapshot.unitLabel}  '
-                    '${snapshot.trendArrow}  ${snapshot.deltaLabel}',
+                    '${snapshot.tir24h.compactLabel}',
             style: GlanceTheme.mono.copyWith(
               fontSize: privateMode ? 13 : 20,
               fontWeight: FontWeight.w900,
@@ -81,6 +81,8 @@ class PersistentNotificationPreview extends StatelessWidget {
             Row(
               children: [
                 _Kv(label: 'Trend', value: '${snapshot.trendArrow} Flat'),
+                const SizedBox(width: 12),
+                _Kv(label: 'TIR 24H', value: snapshot.tir24h.percentLabel),
                 const SizedBox(width: 12),
                 _Kv(label: 'Source', value: snapshot.sourceLabel),
               ],

@@ -22,6 +22,10 @@ class GlanceRenderPayloadBuilder {
       deltaLabel: snapshot.deltaLabel,
       trendArrow: _trendArrow(snapshot.latestReading?.ratePerMin),
       freshnessLabel: snapshot.freshness.label,
+      tir24hLabel: snapshot.tir24h.fullLabel,
+      tir24hCompactLabel: snapshot.tir24h.compactLabel,
+      tir24hPercent: snapshot.tir24h.tirPercent,
+      tir24hReadingCount: snapshot.tir24h.readingCount,
       latestReadingAtMs:
           snapshot.latestReading?.timestamp.millisecondsSinceEpoch,
       sourceLabel: snapshot.sourceLabel,

@@ -18,9 +18,7 @@ class GlanceFloatingSurfaceContributor {
             ? 'Glucose stale'
             : 'Glucose offline';
     final secondaryParts = <String>[
-      if (hasCurrentReading) snapshot.trendArrow,
-      if (hasCurrentReading && snapshot.deltaLabel.isNotEmpty)
-        snapshot.deltaLabel,
+      if (hasCurrentReading) snapshot.tir24h.compactLabel,
     ];
     return FloatingSurfaceSegment(
       id: segmentId,
@@ -36,6 +34,10 @@ class GlanceFloatingSurfaceContributor {
         'trendArrow': snapshot.trendArrow,
         'deltaLabel': snapshot.deltaLabel,
         'freshnessLabel': snapshot.freshness.label,
+        'tir24hLabel': snapshot.tir24h.fullLabel,
+        'tir24hCompactLabel': snapshot.tir24h.compactLabel,
+        'tir24hPercent': snapshot.tir24h.tirPercent,
+        'tir24hReadingCount': snapshot.tir24h.readingCount,
         'rangeState': snapshot.rangeState.code,
         'hasReading': snapshot.hasReading,
         'isStale': snapshot.freshness.isStale,

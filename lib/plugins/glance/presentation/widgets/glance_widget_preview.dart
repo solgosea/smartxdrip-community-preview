@@ -168,7 +168,7 @@ class _CompactWidgetBody extends StatelessWidget {
           SizedBox(height: compact ? 2 : 3),
           Row(
             children: [
-              _DeltaText(snapshot.deltaLabel, color: stateColor),
+              _DeltaText(snapshot.tir24h.compactLabel, color: stateColor),
               const SizedBox(width: 8),
               _FreshnessText(
                 snapshot.freshness.label,
@@ -228,10 +228,10 @@ class _TrendWidgetBody extends StatelessWidget {
                 SizedBox(height: compact ? 2 : 4),
                 Row(
                   children: [
-                    _TrendGlyph(snapshot.trendArrow,
-                        color: stateColor, size: compact ? 16 : 20),
-                    SizedBox(width: compact ? 5 : 7),
-                    _DeltaText(snapshot.deltaLabel, color: stateColor),
+                    _DeltaText(
+                      snapshot.tir24h.compactLabel,
+                      color: stateColor,
+                    ),
                   ],
                 ),
                 if (!compact) ...[
@@ -334,7 +334,7 @@ class _DashboardWidgetBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TIR Today',
+                      'TIR 24H',
                       style: GlanceTheme.mono.copyWith(
                         color: palette.dim,
                         fontSize: 9,
@@ -344,7 +344,7 @@ class _DashboardWidgetBody extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '78%',
+                      snapshot.tir24h.percentLabel,
                       style: GlanceTheme.mono.copyWith(
                         color: stateColor,
                         fontSize: 15,
@@ -455,7 +455,7 @@ class _DualUnitWidgetBody extends StatelessWidget {
               SizedBox(width: compact ? 5 : 7),
               Flexible(
                 child: _DeltaText(
-                  snapshot.deltaLabel,
+                  snapshot.tir24h.compactLabel,
                   color: stateColor,
                   size: compact ? 10 : 12,
                 ),

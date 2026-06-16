@@ -53,18 +53,18 @@ class GlanceNotificationContentBuilder {
     }
     if (!snapshot.hasReading) return 'No recent glucose data';
     if (snapshot.freshness.isStale) {
-      return 'Glucose stale · ${snapshot.freshness.label}';
+      return 'Glucose stale - ${snapshot.freshness.label}';
     }
     if (mode == GlanceDisplayMode.rangeOnly) {
-      return '${_rangeLabel(snapshot)} · ${snapshot.freshness.label}';
-    }
-    if (mode == GlanceDisplayMode.minimal) {
-      return '${snapshot.valueLabel} ${snapshot.trendArrow} · '
+      return '${_rangeLabel(snapshot)} - ${snapshot.tir24h.compactLabel} - '
           '${snapshot.freshness.label}';
     }
-    return '${snapshot.valueLabel} ${snapshot.unitLabel} '
-        '${snapshot.trendArrow} ${snapshot.deltaLabel} · '
-        '${snapshot.freshness.label}';
+    if (mode == GlanceDisplayMode.minimal) {
+      return '${snapshot.valueLabel} - ${snapshot.tir24h.compactLabel} - '
+          '${snapshot.freshness.label}';
+    }
+    return '${snapshot.valueLabel} ${snapshot.unitLabel} - '
+        '${snapshot.tir24h.compactLabel} - ${snapshot.freshness.label}';
   }
 
   String _rangeLabel(GlanceSnapshot snapshot) {

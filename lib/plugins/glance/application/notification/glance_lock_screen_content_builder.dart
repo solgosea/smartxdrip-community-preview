@@ -53,14 +53,14 @@ class GlanceLockScreenContentBuilder {
       return 'No recent glucose data';
     }
     if (snapshot.freshness.isStale) {
-      return 'Glucose stale · ${snapshot.freshness.label}';
+      return 'Glucose stale - ${snapshot.freshness.label}';
     }
     if (mode == GlanceLockScreenMode.rangeOnly) {
-      return '${_rangeLabel(snapshot)} · ${snapshot.freshness.label}';
+      return '${_rangeLabel(snapshot)} - ${snapshot.tir24h.compactLabel} - '
+          '${snapshot.freshness.label}';
     }
-    return '${snapshot.valueLabel} ${snapshot.unitLabel} '
-        '${snapshot.trendArrow} ${snapshot.deltaLabel} · '
-        '${snapshot.freshness.label}';
+    return '${snapshot.valueLabel} ${snapshot.unitLabel} - '
+        '${snapshot.tir24h.compactLabel} - ${snapshot.freshness.label}';
   }
 
   String _rangeLabel(GlanceSnapshot snapshot) {

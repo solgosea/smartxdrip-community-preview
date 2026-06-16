@@ -64,10 +64,12 @@ class GlanceTemplatePreviewCard extends StatelessWidget {
 
   String _meta(GlanceWidgetTemplate template) {
     return switch (template) {
-      GlanceWidgetTemplate.compact => '${template.sizeLabel} - value + trend',
-      GlanceWidgetTemplate.trend => '${template.sizeLabel} - mini graph',
-      GlanceWidgetTemplate.dashboard => '${template.sizeLabel} - TIR + source',
-      GlanceWidgetTemplate.dualUnit => '${template.sizeLabel} - both units',
+      GlanceWidgetTemplate.compact => '${template.sizeLabel} - value + TIR 24H',
+      GlanceWidgetTemplate.trend => '${template.sizeLabel} - graph + TIR 24H',
+      GlanceWidgetTemplate.dashboard =>
+        '${template.sizeLabel} - TIR 24H + source',
+      GlanceWidgetTemplate.dualUnit =>
+        '${template.sizeLabel} - units + TIR 24H',
     };
   }
 }
