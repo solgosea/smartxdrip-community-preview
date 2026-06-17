@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_xdrip/application/analysis/analysis_facade.dart';
 import 'package:smart_xdrip/application/analysis/analysis_refresh_result.dart';
@@ -5,6 +6,8 @@ import 'package:smart_xdrip/application/analysis/analysis_session_store.dart';
 import 'package:smart_xdrip/domain/analysis/analysis_snapshot.dart';
 import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
+import 'package:smart_xdrip/plugins/statistics/application/statistics_host_services.dart';
+import 'package:smart_xdrip/plugins/statistics/application/statistics_service.dart';
 import 'package:smart_xdrip/plugins/statistics/domain/statistics_analysis_window_id.dart';
 import 'package:smart_xdrip/plugins/statistics/mappers/statistics_view_model_mapper.dart';
 
@@ -32,10 +35,10 @@ void main() {
       settings: const AppSettings(),
     );
 
-    final viewModel = const StatisticsViewModelMapper().map(
-      facade: AnalysisFacade.current(),
-      selectedWindowId: StatisticsAnalysisWindowId.last14Days,
+    final output = StatisticsService(hostServices: _hostServices()).load(
+      windowId: StatisticsAnalysisWindowId.last14Days,
     );
+    final viewModel = const StatisticsViewModelMapper().map(output);
 
     expect(viewModel.agp.note, contains('04:00-07:00'));
     expect(viewModel.agp.note, contains('14 of 14 observed days'));
@@ -43,6 +46,22 @@ void main() {
     expect(viewModel.agp.note, contains('around 13:00'));
     expect(viewModel.agp.note, isNot(contains('1.8 mmol/L')));
   });
+}
+
+StatisticsHostServices _hostServices() {
+  return StatisticsHostServices(
+    changeSignal: _NoopListenable(),
+    facadeProvider: AnalysisFacade.current,
+    settingsProvider: () => AnalysisSessionStore.instance.settings,
+  );
+}
+
+class _NoopListenable extends Listenable {
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
 }
 
 List<GlucoseReading> _readings(DateTime now) {

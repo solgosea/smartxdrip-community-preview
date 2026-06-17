@@ -16,6 +16,7 @@ class AlertActuatorTarget {
       eventId: event.id,
       targetId: _stringValue(
         event.payload['personId'] ??
+            event.payload['followPersonId'] ??
             event.payload['subjectId'] ??
             event.payload['targetId'],
       ),

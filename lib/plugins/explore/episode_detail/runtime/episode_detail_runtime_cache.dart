@@ -1,4 +1,5 @@
 import '../models/episode_kind.dart';
+import '../domain/episode_detail_focus.dart';
 import 'episode_detail_runtime_snapshot.dart';
 
 class EpisodeDetailRuntimeCache {
@@ -14,7 +15,8 @@ class EpisodeDetailRuntimeCache {
       List.unmodifiable(_snapshots.values);
 
   void put(EpisodeDetailRuntimeSnapshot snapshot) {
-    _snapshots[_key(snapshot.subjectId, snapshot.kind)] = snapshot;
+    _snapshots[_key(snapshot.subjectId, snapshot.kind, snapshot.focus)] =
+        snapshot;
     _stale = false;
     _staleReason = null;
   }
@@ -27,11 +29,20 @@ class EpisodeDetailRuntimeCache {
   EpisodeDetailRuntimeSnapshot? freshSnapshot({
     required String subjectId,
     required EpisodeKind kind,
+    EpisodeDetailFocus? focus,
   }) {
     if (_stale) return null;
-    return _snapshots[_key(subjectId, kind)];
+    return _snapshots[_key(subjectId, kind, focus)];
   }
 
-  static String _key(String subjectId, EpisodeKind kind) =>
-      '$subjectId::${kind.name}';
+  static String _key(
+    String subjectId,
+    EpisodeKind kind,
+    EpisodeDetailFocus? focus,
+  ) {
+    final suffix = focus == null
+        ? 'latest'
+        : 'focused::${focus.eventTime.toIso8601String()}';
+    return '$subjectId::${kind.name}::$suffix';
+  }
 }

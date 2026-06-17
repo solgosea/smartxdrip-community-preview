@@ -9,6 +9,7 @@ import 'package:smart_xdrip/presentation/common/widgets/section_label.dart';
 import '../controllers/explore_controller.dart';
 import '../runtime/explore_entry_state_store.dart';
 import '../runtime/explore_plugin_runtime.dart';
+import '../widgets/explore_featured_section.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -86,6 +87,10 @@ class _ExplorePageState extends State<ExplorePage> {
                           ),
                         )
                       else ...[
+                        ExploreFeaturedSection(
+                          reportEntry: controller.reportFeatured?.entry,
+                          reportState: controller.reportFeatured?.state,
+                        ),
                         for (final section in controller.sections) ...[
                           SectionLabel(section.title),
                           for (final resolved in section.resolvedEntries)

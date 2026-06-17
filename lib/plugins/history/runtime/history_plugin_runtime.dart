@@ -8,6 +8,7 @@ import '../../../plugin_platform/runtime/events/plugin_runtime_event.dart';
 import '../../../plugin_platform/runtime/events/plugin_runtime_event_type.dart';
 import '../application/history_runtime_refresh_policy.dart';
 import '../application/history_snapshot_preheater.dart';
+import '../application/text/history_text_template_installer.dart';
 import 'history_runtime_cache.dart';
 
 class HistoryPluginRuntime implements PluginRuntime {
@@ -16,6 +17,7 @@ class HistoryPluginRuntime implements PluginRuntime {
   final HistoryRuntimeCache cache;
   final HistorySnapshotPreheater preheater;
   final HistoryRuntimeRefreshPolicy refreshPolicy;
+  final HistoryTextTemplateInstaller? textTemplateInstaller;
 
   StreamSubscription<PluginRuntimeEvent>? _subscription;
   bool _preheating = false;
@@ -24,6 +26,7 @@ class HistoryPluginRuntime implements PluginRuntime {
   HistoryPluginRuntime({
     required this.cache,
     required this.preheater,
+    this.textTemplateInstaller,
     this.refreshPolicy = const HistoryRuntimeRefreshPolicy(),
   });
 
@@ -35,6 +38,7 @@ class HistoryPluginRuntime implements PluginRuntime {
 
   @override
   Future<void> start(PluginRuntimeContext context) async {
+    await textTemplateInstaller?.ensureInstalled();
     _subscription ??= context.eventBus.events.listen((event) {
       if (refreshPolicy.shouldRefresh(event.type)) {
         cache.markStale(event.type.name);

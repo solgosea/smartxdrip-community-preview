@@ -30,6 +30,12 @@ class ExploreController extends ChangeNotifier {
           .where((section) => section.resolvedEntries.isNotEmpty)
           .toList(growable: false);
 
+  ResolvedExplorePluginEntry? get followFeatured =>
+      null;
+
+  ResolvedExplorePluginEntry? get reportFeatured =>
+      _featuredByRoute('/explore/report');
+
   bool get loading => _snapshot == null;
 
   DateTime? get refreshedAt => _snapshot?.refreshedAt;
@@ -37,7 +43,18 @@ class ExploreController extends ChangeNotifier {
   String? get refreshReason => _snapshot?.reason;
 
   bool _isFeatured(ResolvedExplorePluginEntry resolved) {
-    return false;
+    return resolved.entry.route == '/explore/report';
+  }
+
+  ResolvedExplorePluginEntry? _featuredByRoute(String route) {
+    final sections = _snapshot?.sections;
+    if (sections == null) return null;
+    for (final section in sections) {
+      for (final resolved in section.resolvedEntries) {
+        if (resolved.entry.route == route) return resolved;
+      }
+    }
+    return null;
   }
 
   void _handleStoreChanged() {

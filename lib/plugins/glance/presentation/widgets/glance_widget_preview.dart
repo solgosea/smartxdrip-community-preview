@@ -168,13 +168,24 @@ class _CompactWidgetBody extends StatelessWidget {
           SizedBox(height: compact ? 2 : 3),
           Row(
             children: [
-              _DeltaText(snapshot.tir24h.compactLabel, color: stateColor),
-              const SizedBox(width: 8),
-              _FreshnessText(
-                snapshot.freshness.label,
-                color: palette.dim,
-                withLinkGlyph: true,
-                glyphColor: stateColor,
+              Flexible(
+                flex: 5,
+                child: _DeltaText(
+                  snapshot.tir24h.compactLabel,
+                  color: stateColor,
+                  size: compact ? 10 : 12,
+                ),
+              ),
+              SizedBox(width: compact ? 5 : 8),
+              Flexible(
+                flex: 4,
+                child: _FreshnessText(
+                  snapshot.freshness.label,
+                  color: palette.dim,
+                  withLinkGlyph: true,
+                  glyphColor: stateColor,
+                  size: compact ? 9 : 10,
+                ),
               ),
             ],
           ),
@@ -535,6 +546,8 @@ class _DeltaText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       value,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: GlanceTheme.mono.copyWith(
         color: color,
         fontSize: size,
@@ -549,19 +562,21 @@ class _FreshnessText extends StatelessWidget {
   final Color color;
   final bool withLinkGlyph;
   final Color glyphColor;
+  final double size;
 
   const _FreshnessText(
     this.value, {
     required this.color,
     this.withLinkGlyph = false,
     this.glyphColor = GlanceTheme.green,
+    this.size = 10,
   });
 
   @override
   Widget build(BuildContext context) {
     final style = GlanceTheme.mono.copyWith(
       color: color,
-      fontSize: 10,
+      fontSize: size,
       fontWeight: FontWeight.w600,
     );
     if (!withLinkGlyph) {

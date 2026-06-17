@@ -67,6 +67,7 @@ const settingsBasicsBundle = PluginBundle(
 const analysisBasicBundle = PluginBundle(
   key: 'analysis_basic',
   pluginIds: {
+    'explore.report',
     'explore.high_episode',
     'explore.low_episode',
   },
@@ -82,6 +83,11 @@ const connectedCareBundle = PluginBundle(
   pluginIds: {
     'core.alerting',
   },
+);
+
+const wellnessBundle = PluginBundle(
+  key: 'wellness',
+  pluginIds: {},
 );
 
 const backgroundSyncBundle = PluginBundle(
@@ -101,6 +107,7 @@ const defaultPluginBundleCatalog = PluginBundleCatalog(
     analysisBasicBundle,
     analysisAdvancedBundle,
     connectedCareBundle,
+    wellnessBundle,
     backgroundSyncBundle,
   ],
 );

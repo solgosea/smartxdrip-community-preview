@@ -43,11 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+*.apk
+*.aab
 
 # Signing / secrets — never commit
 *.keystore
 *.jks
 key.properties
+/android/key.properties
 google-services.json
 GoogleService-Info.plist
 .env
@@ -56,3 +59,6 @@ GoogleService-Info.plist
 # Local SQLite data
 *.db
 *.sqlite
+
+# Local integration scripts / machine-specific paths
+scripts/integration/

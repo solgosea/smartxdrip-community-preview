@@ -11,7 +11,8 @@ data class FloatingSurfaceSegmentSnapshot(
     val secondaryText: String?,
     val metaText: String?,
     val level: String,
-    val components: List<FloatingSurfaceComponentSnapshot> = emptyList()
+    val components: List<FloatingSurfaceComponentSnapshot> = emptyList(),
+    val data: JSONObject = JSONObject()
 )
 
 data class FloatingSurfaceComponentSnapshot(
@@ -25,6 +26,7 @@ data class FloatingSurfaceSnapshot(
     val layout: String,
     val x: Int,
     val y: Int,
+    val overlayState: String,
     val segments: List<FloatingSurfaceSegmentSnapshot>
 )
 
@@ -44,6 +46,7 @@ class FloatingSurfaceSnapshotStore(private val context: Context) {
                     .put("secondaryText", segment["secondaryText"] as? String)
                     .put("metaText", segment["metaText"] as? String)
                     .put("level", segment["level"] as? String ?: "unknown")
+                    .put("data", jsonObject(segment["data"] as? Map<*, *>))
                     .put("components", componentsJson(segment["data"] as? Map<*, *>))
             )
         }
@@ -58,6 +61,10 @@ class FloatingSurfaceSnapshotStore(private val context: Context) {
         prefs.edit().putInt("x", x).putInt("y", y).apply()
     }
 
+    fun saveOverlayState(state: String) {
+        prefs.edit().putString("overlayState", state).apply()
+    }
+
     fun load(): FloatingSurfaceSnapshot {
         val schemaVersion = prefs.getInt("schemaVersion", 1)
         if (schemaVersion < 2) {
@@ -65,6 +72,7 @@ class FloatingSurfaceSnapshotStore(private val context: Context) {
                 layout = "stacked",
                 x = prefs.getInt("x", 24),
                 y = prefs.getInt("y", 120),
+                overlayState = "compact",
                 segments = emptyList()
             )
         }
@@ -83,7 +91,8 @@ class FloatingSurfaceSnapshotStore(private val context: Context) {
                     secondaryText = item.optNullableString("secondaryText"),
                     metaText = item.optNullableString("metaText"),
                     level = item.optString("level", "unknown"),
-                    components = item.optComponents()
+                    components = item.optComponents(),
+                    data = item.optJSONObject("data") ?: JSONObject()
                 )
             )
         }
@@ -91,6 +100,7 @@ class FloatingSurfaceSnapshotStore(private val context: Context) {
             layout = prefs.getString("layout", "stacked") ?: "stacked",
             x = prefs.getInt("x", 24),
             y = prefs.getInt("y", 120),
+            overlayState = prefs.getString("overlayState", "compact") ?: "compact",
             segments = segments
         )
     }
@@ -114,6 +124,28 @@ class FloatingSurfaceSnapshotStore(private val context: Context) {
             )
         }
         return target
+    }
+
+    private fun jsonObject(data: Map<*, *>?): JSONObject {
+        val target = JSONObject()
+        if (data == null) return target
+        for ((key, value) in data) {
+            if (key !is String) continue
+            target.put(key, jsonValue(value))
+        }
+        return target
+    }
+
+    private fun jsonValue(value: Any?): Any? {
+        return when (value) {
+            null -> JSONObject.NULL
+            is Map<*, *> -> jsonObject(value)
+            is List<*> -> JSONArray().also { array ->
+                value.forEach { array.put(jsonValue(it)) }
+            }
+            is String, is Number, is Boolean -> value
+            else -> value.toString()
+        }
     }
 
     private fun JSONObject.optComponents(): List<FloatingSurfaceComponentSnapshot> {

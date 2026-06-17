@@ -48,7 +48,6 @@ class FlutterBackgroundServiceAdapter {
         foregroundServiceNotificationId: 17580,
         foregroundServiceTypes: const [
           AndroidForegroundType.dataSync,
-          AndroidForegroundType.mediaPlayback,
         ],
       ),
       iosConfiguration: IosConfiguration(
@@ -89,6 +88,13 @@ class FlutterBackgroundServiceAdapter {
     if (!Platform.isAndroid) return;
     if (!await _service.isRunning()) return;
     _service.invoke(BackgroundServiceCommands.runOnce);
+  }
+
+  Future<void> stopFollowAlertSound({
+    required String personId,
+    required String type,
+  }) async {
+    await stopAlertTarget(targetId: personId, type: type);
   }
 
   Future<void> dispatchAlertActuatorCommand(

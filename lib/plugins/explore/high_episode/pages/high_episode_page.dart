@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 import 'package:smart_xdrip/plugin_platform/runtime/manager/plugin_runtime_manager.dart';
 import 'package:smart_xdrip/plugin_platform/services/plugin_service_registry.dart';
 
 import '../../episode_detail/controllers/episode_detail_controller.dart';
+import '../../episode_detail/application/episode_detail_route_codec.dart';
+import '../../episode_detail/domain/episode_detail_entry_intent.dart';
 import '../../episode_detail/models/episode_kind.dart';
 import '../../episode_detail/runtime/episode_detail_plugin_runtime.dart';
 import '../../episode_detail/runtime/episode_detail_runtime_cache.dart';
@@ -19,21 +22,42 @@ class HighEpisodePage extends StatefulWidget {
 
 class _HighEpisodePageState extends State<HighEpisodePage> {
   EpisodeDetailController? _controller;
+  final EpisodeDetailRouteCodec _routeCodec = const EpisodeDetailRouteCodec();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_controller != null) return;
+    final intent = _routeCodec.decode(
+      GoRouterState.of(context).uri,
+      kind: EpisodeKind.high,
+    );
+    _controller = _createController(intent);
+    _controller!.load();
+  }
+
+  EpisodeDetailController _createController(EpisodeDetailEntryIntent intent) {
     final runtimeManager = context.read<PluginRuntimeManager>();
     final services = context.read<PluginServiceRegistry>();
     runtimeManager.resume(EpisodeDetailPluginRuntime.id);
-    _controller = EpisodeDetailController(
-      kind: EpisodeKind.high,
+    return EpisodeDetailController(
+      intent: intent,
       runtimeCache: services.get<EpisodeDetailRuntimeCache>(),
       runtime: services.get<EpisodeDetailPluginRuntime>(),
       runtimeContext: runtimeManager.context,
     );
-    _controller!.load();
+  }
+
+  void _resetToLatest() {
+    final latest = const EpisodeDetailEntryIntent.latest(
+      kind: EpisodeKind.high,
+    );
+    final next = _createController(latest);
+    final previous = _controller;
+    setState(() => _controller = next);
+    previous?.dispose();
+    context.go(_routeCodec.encode(latest));
+    next.load();
   }
 
   @override
@@ -65,7 +89,11 @@ class _HighEpisodePageState extends State<HighEpisodePage> {
             ),
           );
         }
-        return EpisodeDetailBody(viewModel: viewModel);
+        return EpisodeDetailBody(
+          viewModel: viewModel,
+          showResetToLatest: controller.intent.isFocused,
+          onResetToLatest: _resetToLatest,
+        );
       },
     );
   }

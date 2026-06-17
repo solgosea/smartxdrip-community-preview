@@ -5,12 +5,14 @@ class EpisodeHeader extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onBack;
+  final Widget? trailing;
 
   const EpisodeHeader({
     super.key,
     required this.title,
     required this.subtitle,
     required this.onBack,
+    this.trailing,
   });
 
   @override
@@ -19,6 +21,7 @@ class EpisodeHeader extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       onBack: onBack,
+      trailing: trailing,
     );
   }
 }

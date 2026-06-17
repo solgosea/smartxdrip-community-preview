@@ -11,7 +11,7 @@ void main() {
     final database = TestDatabase.create();
     addTearDown(database.close);
     final now = DateTime(2026, 6, 6, 12);
-    const childSubject = 'remote_child_1';
+    const childSubject = 'follow_child_1';
 
     await database.upsertMany([
       for (var i = 0; i < 36; i++)

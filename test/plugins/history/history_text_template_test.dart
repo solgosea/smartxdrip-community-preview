@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smart_xdrip/plugins/history/analyzers/history_template_text_renderer.dart';
+import 'package:smart_xdrip/plugins/history/application/text/history_text_renderer.dart';
 
 void main() {
   test('history text renderer renders episode callout from structured facts',
       () {
-    const renderer = HistoryTemplateTextRenderer();
+    const renderer = HistoryTextRenderer();
 
     final text = renderer.render(HistoryTextTemplate.episodeCallout, {
       'time': '03:20',
@@ -20,7 +20,7 @@ void main() {
   });
 
   test('history text renderer renders high event detail variants', () {
-    const renderer = HistoryTemplateTextRenderer();
+    const renderer = HistoryTextRenderer();
 
     final text = renderer.render(HistoryTextTemplate.highEventDetail, {
       'rate': '+0.10 mmol/L/min',

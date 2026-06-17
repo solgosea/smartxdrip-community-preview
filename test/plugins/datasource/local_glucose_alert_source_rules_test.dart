@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_xdrip/alerting/application/rule/alert_rule_provider.dart';
+import 'package:smart_xdrip/alerting/application/event/alert_event_payload_codec.dart';
 import 'package:smart_xdrip/alerting/data/sqlite/sqlite_alert_rule_repository.dart';
 import 'package:smart_xdrip/alerting/domain/event/alert_category.dart';
 import 'package:smart_xdrip/alerting/domain/rule/alert_rule.dart';
@@ -40,7 +41,7 @@ void main() {
     expect(sink.inputs, isEmpty);
   });
 
-  test('local datasource alerts use Alerting Core rules', () async {
+  test('local datasource alerts follow Alerting Core rules', () async {
     final database = await TestDatabase.createWithAlerting();
     addTearDown(database.close);
     final repository = SqliteAlertRuleRepository(
@@ -80,6 +81,44 @@ void main() {
     await source.evaluateCurrentSubject();
 
     expect(sink.inputs, isEmpty);
+  });
+
+  test('local datasource alert body respects selected mg/dL unit', () async {
+    final database = await TestDatabase.createWithAlerting();
+    addTearDown(database.close);
+    final repository = SqliteAlertRuleRepository(
+      databaseProvider: () => database.db,
+    );
+    final provider = AlertRuleProvider(
+      repository: repository,
+      clock: () => DateTime(2026, 6, 9, 8),
+    );
+    await provider.selfDefaultRules(GlucoseSubject.selfId);
+    final now = DateTime(2026, 6, 9, 8, 0);
+    await database.upsertMany([
+      GlucoseReading(timestamp: now, value: 10.8),
+    ]);
+    final sink = _CollectingSink();
+    final source = LocalGlucoseAlertSource(
+      database: database,
+      settingsProvider: () => const AppSettings(
+        unit: GlucoseUnit.mgDl,
+        nightscoutBaseUrl: 'https://demo.fly.dev',
+        nightscoutSyncEnabled: true,
+      ),
+      subjectIdProvider: () => GlucoseSubject.selfId,
+      ruleProvider: provider,
+      clock: () => now.add(const Duration(minutes: 1)),
+    );
+
+    await source.start(sink);
+    await source.evaluateCurrentSubject();
+
+    expect(sink.inputs, hasLength(1));
+    final event = const AlertEventPayloadCodec().decode(
+      sink.inputs.single.payload,
+    );
+    expect(event.body, 'Glucose is 194 mg/dL.');
   });
 }
 

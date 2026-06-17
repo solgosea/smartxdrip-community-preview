@@ -23,6 +23,7 @@ import '../widgets/glance_aod_mode_selector.dart';
 import '../widgets/glance_external_surface_preview.dart';
 import '../widgets/glance_lock_screen_mode_selector.dart';
 import '../widgets/glance_template_preview_card.dart';
+import '../widgets/persistent_notification_preview.dart';
 
 class GlanceHubPage extends StatefulWidget {
   const GlanceHubPage({super.key});
@@ -31,12 +32,17 @@ class GlanceHubPage extends StatefulWidget {
   State<GlanceHubPage> createState() => _GlanceHubPageState();
 }
 
-class _GlanceHubPageState extends State<GlanceHubPage> {
+enum _GlanceHubTab { widgets, notifications }
+
+class _GlanceHubPageState extends State<GlanceHubPage>
+    with WidgetsBindingObserver {
   late final GlanceHubController controller;
+  _GlanceHubTab _selectedTab = _GlanceHubTab.widgets;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final services = context.read<PluginServiceRegistry>();
     controller = GlanceHubController(
       snapshotService: services.get<GlanceSnapshotService>(),
@@ -51,8 +57,16 @@ class _GlanceHubPageState extends State<GlanceHubPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(controller.refreshFloatingPermission());
+    }
   }
 
   @override
@@ -68,200 +82,241 @@ class _GlanceHubPageState extends State<GlanceHubPage> {
               child: CircularProgressIndicator(color: GlanceTheme.green),
             );
           }
-          final settings = controller.settings;
           final isIos = defaultTargetPlatform == TargetPlatform.iOS;
           return SafeArea(
             child: ListView(
               padding: const EdgeInsets.only(bottom: 36),
               children: [
                 _HubAppBar(onBack: () => context.safePopOrHome()),
-                const _SectionLabel('Widget templates'),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: _TemplateGrid(
+                _HubTabBar(
+                  value: _selectedTab,
+                  onChanged: (tab) => setState(() => _selectedTab = tab),
+                ),
+                if (_selectedTab == _GlanceHubTab.widgets)
+                  ..._buildWidgetsTab(
+                    context: context,
                     snapshot: snapshot,
-                    onTemplateTap: () => context.push('/glance/widgets/config'),
-                  ),
-                ),
-                const _SectionLabel('Add to home screen'),
-                _GuideCard(isIos: isIos),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
-                  child: Text(
-                    isIos
-                        ? 'Add Solgo Insight Glance from the iOS widget picker. Home and Lock Screen widgets update from the last shared Glance snapshot.'
-                        : 'Android does not let apps place widgets for you. This is a system action, and steps may vary slightly by phone brand.',
-                    style: GlanceTheme.label.copyWith(
-                      color: GlanceTheme.dim,
-                      fontSize: 10.5,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-                _SectionLabel(
-                  isIos
-                      ? 'Home & lock screen widgets'
-                      : 'Persistent notification',
-                ),
-                if (isIos)
-                  _OptionCard(
-                    children: [
-                      _OptionRow(
-                        icon: Icons.widgets_outlined,
-                        title: 'Home Screen Widget',
-                        subtitle:
-                            'Small and medium widgets use the latest Glance snapshot',
-                        trailing: const Icon(
-                          Icons.ios_share_rounded,
-                          color: GlanceTheme.dim,
-                          size: 18,
-                        ),
-                      ),
-                      _OptionRow(
-                        icon: Icons.lock_outline,
-                        title: 'Lock Screen Glance',
-                        subtitle:
-                            'Accessory widget on iOS 16+. AOD follows iOS behavior.',
-                        trailing: const Icon(
-                          Icons.chevron_right_rounded,
-                          color: GlanceTheme.dim,
-                          size: 18,
-                        ),
-                        onTap: () => context.push('/glance/notification'),
-                      ),
-                    ],
+                    isIos: isIos,
                   )
                 else
-                  _OptionCard(
-                    children: [
-                      _OptionRow(
-                        icon: Icons.notifications_none,
-                        title: 'Show in notification bar',
-                        subtitle:
-                            'Always-on glucose status, silent and low-priority',
-                        trailing: _HubToggle(
-                          value: settings.enabled,
-                          onChanged: controller.setNotificationEnabled,
-                        ),
-                      ),
-                      _OptionRow(
-                        icon: Icons.lock_outline,
-                        title: 'Notification display',
-                        subtitle: 'Silent status only. Alerts remain separate.',
-                        trailing: const Icon(
-                          Icons.chevron_right_rounded,
-                          color: GlanceTheme.dim,
-                          size: 18,
-                        ),
-                        onTap: () => context.push('/glance/notification'),
-                      ),
-                      const _OptionRow(
-                        title: 'Graph in expanded view',
-                        trailing: _HubToggle(value: true),
-                      ),
-                      _OptionRow(
-                        title: 'Quick actions',
-                        subtitle: 'Open - Data source - Settings',
-                        trailing: _HubToggle(
-                          value: settings.quickActionsEnabled,
-                          onChanged: controller.setQuickActionsEnabled,
-                        ),
-                        onTap: () => context.push('/glance/notification'),
-                      ),
-                      _OptionRow(
-                        title: 'Low-battery friendly mode',
-                        subtitle: 'Reduces refresh frequency to save power',
-                        trailing: _HubToggle(
-                          value: settings.lowBatteryMode,
-                          onChanged: controller.setLowBatteryMode,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (controller.notificationPermissionDenied) ...[
-                  const SizedBox(height: 10),
-                  const _PermissionNotice(),
-                ],
-                const _SectionLabel('Lock screen glance'),
-                _ModeCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GlanceLockScreenModeSelector(
-                        value: settings.lockScreenMode,
-                        onChanged: controller.setLockScreenMode,
-                      ),
-                      const SizedBox(height: 12),
-                      GlanceExternalSurfacePreview(
-                        snapshot: snapshot,
-                        mode: settings.notificationDisplayMode,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Full value is visible before unlocking. Change this to Private on shared devices.',
-                        style: GlanceTheme.label.copyWith(
-                          color: GlanceTheme.amber,
-                          fontSize: 10.5,
-                          height: 1.45,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const _SectionLabel('AOD-friendly'),
-                _ModeCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GlanceAodModeSelector(
-                        enabled: settings.aodFriendlyEnabled,
-                        onChanged: controller.setAodFriendlyEnabled,
-                      ),
-                      const SizedBox(height: 10),
-                      GlanceExternalSurfacePreview(
-                        snapshot: snapshot,
-                        mode: settings.notificationDisplayMode,
-                        aodFriendly: true,
-                      ),
-                    ],
-                  ),
-                ),
-                if (isIos) ...[
-                  const _SectionLabel('Floating glance'),
-                  const _IosFloatingUnavailableCard(),
-                ] else ...[
-                  const _SectionLabel('Floating glance'),
-                  FloatingGlanceCard(
-                    enabled: controller.floatingSettings.enabled,
-                    permissionGranted: controller.floatingPermissionGranted,
+                  ..._buildNotificationsTab(
+                    context: context,
                     snapshot: snapshot,
-                    onEnabledChanged: controller.setFloatingEnabled,
-                    onRequestPermission: controller.requestFloatingPermission,
+                    isIos: isIos,
                   ),
-                ],
-                const _SectionLabel('Privacy'),
-                _OptionCard(
-                  children: const [
-                    _OptionRow(
-                      title: 'Private mode text',
-                      subtitle: 'Glucose data available - Unlock to view',
-                      trailing: Icon(
-                        Icons.lock_outline,
-                        color: GlanceTheme.dim,
-                        size: 18,
-                      ),
-                    ),
-                  ],
-                ),
-                const _PrivacyNotice(),
-                const _BoundaryNote(),
               ],
             ),
           );
         },
       ),
     );
+  }
+
+  List<Widget> _buildWidgetsTab({
+    required BuildContext context,
+    required GlanceSnapshot snapshot,
+    required bool isIos,
+  }) {
+    return [
+      if (isIos) ...[
+        const _SectionLabel('Floating glance'),
+        const _IosFloatingUnavailableCard(),
+      ] else ...[
+        const _SectionLabel('Floating glance'),
+        FloatingGlanceCard(
+          enabled: controller.floatingSettings.enabled,
+          permissionGranted: controller.floatingPermissionGranted,
+          setupState: controller.floatingSetupState,
+          snapshot: snapshot,
+          onShow: controller.showFloatingGlance,
+          onHide: controller.hideFloatingGlance,
+          onRequestPermission: controller.requestFloatingPermission,
+        ),
+      ],
+      const _SectionLabel('Widget templates'),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        child: _TemplateGrid(
+          snapshot: snapshot,
+          onTemplateTap: () => context.push('/glance/widgets/config'),
+        ),
+      ),
+      const _SectionLabel('Add to home screen'),
+      _GuideCard(isIos: isIos),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
+        child: Text(
+          isIos
+              ? 'Add Solgo Insight Glance from the iOS widget picker. Home and Lock Screen widgets update from the last shared Glance snapshot.'
+              : 'Android does not let apps place widgets for you. This is a system action, and steps may vary slightly by phone brand.',
+          style: GlanceTheme.label.copyWith(
+            color: GlanceTheme.dim,
+            fontSize: 10.5,
+            height: 1.5,
+          ),
+        ),
+      ),
+      const _SectionLabel('Privacy'),
+      const _PrivacyNotice(),
+      const _BoundaryNote(surfaceLabel: 'Widgets and Floating Glance'),
+    ];
+  }
+
+  List<Widget> _buildNotificationsTab({
+    required BuildContext context,
+    required GlanceSnapshot snapshot,
+    required bool isIos,
+  }) {
+    final settings = controller.settings;
+    return [
+      _SectionLabel(
+        isIos ? 'Home & lock screen widgets' : 'Persistent notification',
+      ),
+      if (isIos)
+        _OptionCard(
+          children: [
+            _OptionRow(
+              icon: Icons.widgets_outlined,
+              title: 'Home Screen Widget',
+              subtitle: 'Small and medium widgets use the latest Glance snapshot',
+              trailing: const Icon(
+                Icons.ios_share_rounded,
+                color: GlanceTheme.dim,
+                size: 18,
+              ),
+            ),
+            _OptionRow(
+              icon: Icons.lock_outline,
+              title: 'Lock Screen Glance',
+              subtitle: 'Accessory widget on iOS 16+. AOD follows iOS behavior.',
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: GlanceTheme.dim,
+                size: 18,
+              ),
+              onTap: () => context.push('/glance/notification'),
+            ),
+          ],
+        )
+      else
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: PersistentNotificationPreview(snapshot: snapshot),
+        ),
+      const _SectionLabel('Notification settings'),
+      if (!isIos)
+        _OptionCard(
+          children: [
+            _OptionRow(
+              icon: Icons.notifications_none,
+              title: 'Show in notification bar',
+              subtitle: 'Always-on glucose status, silent and low-priority',
+              trailing: _HubToggle(
+                value: settings.enabled,
+                onChanged: controller.setNotificationEnabled,
+              ),
+            ),
+            _OptionRow(
+              icon: Icons.lock_outline,
+              title: 'Lock screen glance',
+              subtitle: 'Choose full value, range-only, or private mode',
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: GlanceTheme.dim,
+                size: 18,
+              ),
+              onTap: () => context.push('/glance/notification'),
+            ),
+            const _OptionRow(
+              title: 'Graph in expanded view',
+              subtitle: 'Show a small trend graph inside expanded notification',
+              trailing: _HubToggle(value: true),
+            ),
+            _OptionRow(
+              title: 'Quick actions',
+              subtitle: 'Open app, data source, and settings',
+              trailing: _HubToggle(
+                value: settings.quickActionsEnabled,
+                onChanged: controller.setQuickActionsEnabled,
+              ),
+              onTap: () => context.push('/glance/notification'),
+            ),
+            _OptionRow(
+              title: 'Low-battery friendly mode',
+              subtitle: 'Reduces refresh frequency to save power',
+              trailing: _HubToggle(
+                value: settings.lowBatteryMode,
+                onChanged: controller.setLowBatteryMode,
+              ),
+            ),
+          ],
+        ),
+      if (controller.notificationPermissionDenied) ...[
+        const SizedBox(height: 10),
+        const _PermissionNotice(),
+      ],
+      const _SectionLabel('Lock screen & AOD'),
+      _ModeCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GlanceLockScreenModeSelector(
+              value: settings.lockScreenMode,
+              onChanged: controller.setLockScreenMode,
+            ),
+            const SizedBox(height: 12),
+            GlanceExternalSurfacePreview(
+              snapshot: snapshot,
+              mode: settings.notificationDisplayMode,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Full value is visible before unlocking. Change this to Private on shared devices.',
+              style: GlanceTheme.label.copyWith(
+                color: GlanceTheme.amber,
+                fontSize: 10.5,
+                height: 1.45,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+      const _SectionLabel('AOD-friendly'),
+      _ModeCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GlanceAodModeSelector(
+              enabled: settings.aodFriendlyEnabled,
+              onChanged: controller.setAodFriendlyEnabled,
+            ),
+            const SizedBox(height: 10),
+            GlanceExternalSurfacePreview(
+              snapshot: snapshot,
+              mode: settings.notificationDisplayMode,
+              aodFriendly: true,
+            ),
+          ],
+        ),
+      ),
+      const _SectionLabel('Notification privacy'),
+      _OptionCard(
+        children: const [
+          _OptionRow(
+            title: 'Private mode text',
+            subtitle: 'Glucose data available - Unlock to view',
+            trailing: Icon(
+              Icons.lock_outline,
+              color: GlanceTheme.dim,
+              size: 18,
+            ),
+          ),
+        ],
+      ),
+      const _PrivacyNotice(),
+      const _BoundaryNote(surfaceLabel: 'Notifications'),
+    ];
   }
 }
 
@@ -307,7 +362,7 @@ class _HubAppBar extends StatelessWidget {
           const SizedBox(width: 2),
           Expanded(
             child: Text(
-              'Widgets & Notification',
+              'Widgets & Notifications',
               style: GlanceTheme.label.copyWith(
                 fontSize: 19,
                 fontWeight: FontWeight.w900,
@@ -315,6 +370,102 @@ class _HubAppBar extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HubTabBar extends StatelessWidget {
+  final _GlanceHubTab value;
+  final ValueChanged<_GlanceHubTab> onChanged;
+
+  const _HubTabBar({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(18, 10, 18, 4),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: GlanceTheme.bg.withOpacity(.96),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: GlanceTheme.border),
+      ),
+      child: Row(
+        children: [
+          _HubTabButton(
+            selected: value == _GlanceHubTab.widgets,
+            icon: Icons.widgets_outlined,
+            label: 'Widgets',
+            onTap: () => onChanged(_GlanceHubTab.widgets),
+          ),
+          const SizedBox(width: 4),
+          _HubTabButton(
+            selected: value == _GlanceHubTab.notifications,
+            icon: Icons.notifications_none_rounded,
+            label: 'Notifications',
+            onTap: () => onChanged(_GlanceHubTab.notifications),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HubTabButton extends StatelessWidget {
+  final bool selected;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _HubTabButton({
+    required this.selected,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          height: 38,
+          decoration: BoxDecoration(
+            color:
+                selected ? GlanceTheme.green.withOpacity(.16) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: selected
+                ? Border.all(color: GlanceTheme.green.withOpacity(.22))
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 14,
+                color: selected ? GlanceTheme.green : GlanceTheme.soft,
+              ),
+              const SizedBox(width: 7),
+              Text(
+                label.toUpperCase(),
+                style: GlanceTheme.mono.copyWith(
+                  color: selected ? GlanceTheme.green : GlanceTheme.soft,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -780,7 +931,9 @@ class _PermissionNotice extends StatelessWidget {
 }
 
 class _BoundaryNote extends StatelessWidget {
-  const _BoundaryNote();
+  final String surfaceLabel;
+
+  const _BoundaryNote({required this.surfaceLabel});
 
   @override
   Widget build(BuildContext context) {
@@ -790,7 +943,17 @@ class _BoundaryNote extends StatelessWidget {
         TextSpan(
           children: [
             const TextSpan(
-              text: 'Widgets and the persistent notification are for ',
+              text: '',
+            ),
+            TextSpan(
+              text: surfaceLabel,
+              style: GlanceTheme.label.copyWith(
+                color: GlanceTheme.soft,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const TextSpan(
+              text: ' are for ',
             ),
             TextSpan(
               text: 'viewing',

@@ -702,6 +702,9 @@ class AppContainer extends ChangeNotifier {
     pluginServices.register<BackgroundRuntimeStrategyRegistry>(
       backgroundRuntimeStrategyRegistry,
     );
+    pluginServices.register<BackgroundRuntimeOrchestrator>(
+      backgroundRuntimeOrchestrator,
+    );
     pluginServices.register<BackgroundSyncPostTaskRegistry>(
       backgroundSyncPostTaskRegistry,
     );

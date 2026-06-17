@@ -73,6 +73,7 @@ class DatasourcePlugin extends SmartFeaturePlugin {
       subjectIdProvider: () =>
           context.services.get<ActiveSubjectService>().current.id,
       ruleProvider: alertingRuntimeFactory.ruleProvider(),
+      eventFactory: alertingRuntimeFactory.eventFactory(),
     );
     alertingRuntimeFactory.sourceRegistry().register(source);
     context.services.register<LocalGlucoseAlertSource>(source);

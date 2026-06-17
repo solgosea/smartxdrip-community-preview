@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smart_xdrip/plugins/statistics/analysis/statistics_agp_text_renderer.dart';
+import 'package:smart_xdrip/plugins/statistics/application/text/statistics_agp_text_builder.dart';
 
 void main() {
-  const renderer = StatisticsAgpTextRenderer();
+  const renderer = StatisticsAgpTextBuilder();
 
   test('renders AGP empty state from the template catalog', () {
     expect(

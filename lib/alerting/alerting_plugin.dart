@@ -30,7 +30,7 @@ class AlertingPlugin extends SmartFeaturePlugin {
   String get title => 'Alerting';
 
   @override
-  String get description => 'Local glucose alert delivery strategies.';
+  String get description => 'Configurable alert delivery strategies.';
 
   @override
   PluginReleaseStage get releaseStage => PluginReleaseStage.stable;
@@ -61,7 +61,7 @@ class AlertingPlugin extends SmartFeaturePlugin {
   SectionPluginEntry get settingsEntry => const SectionPluginEntry(
         section: 'Alerts',
         title: 'Alert Settings',
-        subtitle: 'Local glucose sound, vibration, and notification settings',
+        subtitle: 'Sound, vibration, notification strategies',
         order: 25,
       );
 
@@ -77,6 +77,11 @@ class AlertingPlugin extends SmartFeaturePlugin {
   void install(PluginInstallContext context) {
     context.registerSchema(const AlertingSchemaContributor());
     final runtimeFactory = context.services.get<AlertingRuntimeFactory>();
+    context.services.register(
+      runtimeFactory.textRendererRegistry(),
+      replace: true,
+    );
+    context.services.register(runtimeFactory.eventFactory(), replace: true);
     final runtimeCoordinator = AlertRuntimeCoordinator(
       platformCapabilities:
           context.services.get<PlatformRuntimeCapabilitySnapshot>(),

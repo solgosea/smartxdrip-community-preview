@@ -62,6 +62,8 @@ class _HistoryPageState extends State<HistoryPage> {
             viewModel: viewModel,
             onPreviousDay: _controller.prevDay,
             onNextDay: _controller.nextDay,
+            onTimeSelected: _controller.selectTimeFilter,
+            onClearTimeFilter: _controller.clearTimeFilter,
             onRouteSelected: context.push,
           );
         },

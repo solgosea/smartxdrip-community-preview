@@ -91,10 +91,10 @@ void main() {
     await manager.resume(EpisodeDetailPluginRuntime.id);
 
     const child = AnalysisSubject(
-      id: 'remote:child-episode',
+      id: 'follow:child-episode',
       displayName: 'Child Episode',
-      sourceLabel: 'Remote Nightscout',
-      origin: AnalysisSubjectOrigin('remote'),
+      sourceLabel: 'Follow Nightscout',
+      origin: AnalysisSubjectOrigin('follow'),
     );
     _seedStore(now.add(const Duration(minutes: 5)), subject: child);
     manager.eventBus.publish(

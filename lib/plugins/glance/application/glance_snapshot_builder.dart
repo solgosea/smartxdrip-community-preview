@@ -2,6 +2,7 @@ import '../../../application/glucose_unit/glucose_unit_format_service.dart';
 import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/glucose_reading.dart';
 import '../../../engine/statistics/tir_calculator.dart';
+import '../domain/floating/floating_glance_sparkline_point.dart';
 import '../domain/glance_freshness.dart';
 import '../domain/glance_range_state.dart';
 import '../domain/glance_snapshot.dart';
@@ -52,7 +53,24 @@ class GlanceSnapshotBuilder {
       targetLowMmol: settings.lowThreshold,
       targetHighMmol: settings.highThreshold,
       tir24h: _tir24h(tirReadings24h, settings),
+      sparklinePoints: _sparklinePoints(trendReadings, now),
     );
+  }
+
+  List<FloatingGlanceSparklinePoint> _sparklinePoints(
+    List<GlucoseReading> readings,
+    DateTime now,
+  ) {
+    if (readings.length < 2) return const [];
+    return readings
+        .where((reading) => !reading.timestamp.isAfter(now))
+        .map(
+          (reading) => FloatingGlanceSparklinePoint(
+            valueMmol: reading.value,
+            minutesAgo: now.difference(reading.timestamp).inMinutes,
+          ),
+        )
+        .toList(growable: false);
   }
 
   GlanceTirSummary _tir24h(

@@ -29,8 +29,10 @@ class GlucoseHighRuleEvaluator extends AlertRuleEvaluator {
       level: rule.level,
       type: 'high',
       title: 'High glucose',
-      body: 'Glucose is ${latest.value.toStringAsFixed(1)} mmol/L.',
+      body: '',
       value: latest.value,
+      valueMmol: latest.value,
+      thresholdMmol: threshold,
       occurredAt: latest.timestamp,
     );
   }

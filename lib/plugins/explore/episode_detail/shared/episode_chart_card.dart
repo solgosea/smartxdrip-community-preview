@@ -3,6 +3,7 @@ import '../../../../../foundation/theme/app_colors.dart';
 import '../../../../../domain/entities/app_settings.dart';
 import '../../../../../domain/entities/glucose_reading.dart';
 import '../../../../presentation/common/widgets/charts/glucose_line_chart.dart';
+import '../widgets/low_shared/low_episode_style.dart';
 
 /// Card wrapping the GlucoseLineChart for an episode page.
 class EpisodeChartCard extends StatefulWidget {
@@ -42,6 +43,8 @@ class _EpisodeChartCardState extends State<EpisodeChartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final lowTheme = widget.themeColor == AppColors.blue ||
+        widget.themeColor == LowEpisodeStyle.blue;
     final markers = <ChartEventMarker>[
       ChartEventMarker(time: widget.onsetTime, color: AppColors.amber),
       ChartEventMarker(time: widget.peakOrNadirTime, color: widget.themeColor),
@@ -50,12 +53,16 @@ class _EpisodeChartCardState extends State<EpisodeChartCard> {
     ];
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      margin:
+          EdgeInsets.fromLTRB(lowTheme ? 12 : 20, 0, lowTheme ? 12 : 20, 12),
+      padding: EdgeInsets.fromLTRB(lowTheme ? 8 : 16, lowTheme ? 10 : 14,
+          lowTheme ? 8 : 16, lowTheme ? 8 : 16),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        color: lowTheme ? LowEpisodeStyle.panel : AppColors.bgCard,
+        borderRadius: BorderRadius.circular(lowTheme ? 8 : 14),
+        border: Border.all(
+          color: lowTheme ? LowEpisodeStyle.line : AppColors.border,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,13 +70,13 @@ class _EpisodeChartCardState extends State<EpisodeChartCard> {
           AnimatedOpacity(
             opacity: _inspecting ? 0.48 : 1,
             duration: const Duration(milliseconds: 140),
-            child: const Text(
+            child: Text(
               'EPISODE TIMELINE',
               style: TextStyle(
                 fontFamily: 'JetBrainsMono',
                 fontSize: 9,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textDim,
+                color: lowTheme ? LowEpisodeStyle.muted : AppColors.textDim,
                 letterSpacing: 1.4,
               ),
             ),

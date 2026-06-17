@@ -1,12 +1,15 @@
 import 'package:smart_xdrip/alerting/application/dedupe/alert_source_priority.dart';
+import 'package:smart_xdrip/alerting/application/event/alert_event_factory.dart';
 import 'package:smart_xdrip/alerting/application/event/alert_event_payload_codec.dart';
 import 'package:smart_xdrip/alerting/application/event/alert_event_queue_message_types.dart';
 import 'package:smart_xdrip/alerting/application/nightscout/nightscout_alert_dedupe_key_builder.dart';
 import 'package:smart_xdrip/alerting/application/rule/alert_rule_engine.dart';
 import 'package:smart_xdrip/alerting/application/rule/alert_rule_provider.dart';
+import 'package:smart_xdrip/alerting/application/text/alert_text_render_context.dart';
+import 'package:smart_xdrip/alerting/application/text/alert_text_renderer_registry.dart';
+import 'package:smart_xdrip/alerting/application/text/core_alert_text_renderer_registrar.dart';
 import 'package:smart_xdrip/alerting/domain/event/alert_event.dart';
 import 'package:smart_xdrip/alerting/domain/event/alert_event_source.dart';
-import 'package:smart_xdrip/alerting/domain/event/alert_event_state.dart';
 import 'package:smart_xdrip/alerting/domain/event/alert_level.dart';
 import 'package:smart_xdrip/alerting/domain/queue/alert_queue_priority.dart';
 import 'package:smart_xdrip/alerting/domain/rule/alert_rule.dart';
@@ -16,7 +19,6 @@ import 'package:smart_xdrip/alerting/domain/source/alert_input_origin.dart';
 import 'package:smart_xdrip/alerting/domain/source/alert_source.dart';
 import 'package:smart_xdrip/alerting/domain/source/alert_source_id.dart';
 import 'package:smart_xdrip/alerting/domain/source/alert_source_sink.dart';
-import 'package:smart_xdrip/alerting/shared/alert_id_generator.dart';
 import 'package:smart_xdrip/data/local/glucose_database.dart';
 import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
@@ -31,10 +33,10 @@ class LocalGlucoseAlertSource implements AlertSource {
   final AppSettings Function() settingsProvider;
   final String Function() subjectIdProvider;
   final AlertRuleProvider ruleProvider;
+  final AlertEventFactory eventFactory;
   final AlertRuleEngine ruleEngine;
   final NightscoutAlertDedupeKeyBuilder nightscoutDedupeKeyBuilder;
   final AlertEventPayloadCodec codec;
-  final AlertIdGenerator idGenerator;
   final LocalAlertSourceEligibilityPolicy eligibilityPolicy;
   final DateTime Function() clock;
 
@@ -45,13 +47,14 @@ class LocalGlucoseAlertSource implements AlertSource {
     required this.settingsProvider,
     required this.subjectIdProvider,
     required this.ruleProvider,
+    AlertEventFactory? eventFactory,
     this.ruleEngine = const AlertRuleEngine(),
     this.nightscoutDedupeKeyBuilder = const NightscoutAlertDedupeKeyBuilder(),
     this.codec = const AlertEventPayloadCodec(),
-    this.idGenerator = const AlertIdGenerator(),
     this.eligibilityPolicy = const LocalAlertSourceEligibilityPolicy(),
     DateTime Function()? clock,
-  }) : clock = clock ?? DateTime.now;
+  })  : eventFactory = eventFactory ?? _defaultEventFactory(),
+        clock = clock ?? DateTime.now;
 
   @override
   AlertSourceId get sourceId => id;
@@ -93,6 +96,7 @@ class LocalGlucoseAlertSource implements AlertSource {
           : AlertEventSource.nightscout,
       trigger: trigger,
       now: now,
+      settings: settings,
     );
     if (event == null) return;
     await sink.ingest(_inputFor(event, settings));
@@ -105,6 +109,7 @@ class LocalGlucoseAlertSource implements AlertSource {
     required AlertEventSource source,
     required String trigger,
     required DateTime now,
+    required AppSettings settings,
   }) {
     final results = ruleEngine.evaluate(
       readings: readings,
@@ -118,6 +123,7 @@ class LocalGlucoseAlertSource implements AlertSource {
       source: source,
       trigger: trigger,
       now: now,
+      settings: settings,
     );
   }
 
@@ -127,31 +133,18 @@ class LocalGlucoseAlertSource implements AlertSource {
     required AlertEventSource source,
     required String trigger,
     required DateTime now,
+    required AppSettings settings,
   }) {
-    final sourceEventId =
-        '$subjectId:${result.type}:${result.occurredAt.millisecondsSinceEpoch}';
-    return AlertEvent(
-      id: idGenerator.stableId('local_alert', sourceEventId),
+    return eventFactory.createFromRuleResult(
+      subjectId: subjectId,
+      result: result,
       source: source,
-      sourceEventId: sourceEventId,
-      category: result.category,
-      level: result.level,
-      state: AlertEventState.received,
-      title: result.title,
-      body: result.body,
-      payload: {
-        'subjectId': subjectId,
-        'type': result.type,
-        'value': result.value,
-        'trigger': trigger,
-        'requestedChannels':
-            result.rule.channels.map((channel) => channel.code).toList(),
-        if (result.rule.soundPolicy != null)
-          'soundPolicy': result.rule.soundPolicy!.toJson(),
-      },
-      occurredAt: result.occurredAt,
+      trigger: trigger,
       receivedAt: now,
-      updatedAt: now,
+      textContext: AlertTextRenderContext(
+        unit: settings.unit,
+        source: source,
+      ),
     );
   }
 
@@ -181,5 +174,11 @@ class LocalGlucoseAlertSource implements AlertSource {
       dedupeScope: canonicalSourceKey == null ? 'local' : 'nightscout',
       sourcePriority: AlertSourcePriority.localDatasource,
     );
+  }
+
+  static AlertEventFactory _defaultEventFactory() {
+    final registry = AlertTextRendererRegistry();
+    const CoreAlertTextRendererRegistrar().register(registry);
+    return AlertEventFactory(textRegistry: registry);
   }
 }

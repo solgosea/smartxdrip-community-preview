@@ -10,6 +10,10 @@ class AlertRuleEvaluationResult {
   final String title;
   final String body;
   final double? value;
+  final double? valueMmol;
+  final double? thresholdMmol;
+  final double? rateMmolPerMin;
+  final double? thresholdRateMmolPerMin;
   final DateTime occurredAt;
 
   const AlertRuleEvaluationResult({
@@ -20,6 +24,10 @@ class AlertRuleEvaluationResult {
     required this.title,
     required this.body,
     required this.value,
+    this.valueMmol,
+    this.thresholdMmol,
+    this.rateMmolPerMin,
+    this.thresholdRateMmolPerMin,
     required this.occurredAt,
   });
 }

@@ -1,5 +1,6 @@
 import '../entities/glucose_reading.dart';
 import '../entities/glucose_event.dart';
+import '../entities/analysis_results.dart';
 
 /// Top-level glucose data access for analysis-ready reading windows.
 abstract class IGlucoseRepository {
@@ -20,4 +21,10 @@ abstract class IGlucoseRepository {
 
   /// Auto-detected glucose events for a window.
   Future<List<GlucoseEvent>> eventsFor(List<GlucoseReading> readings);
+
+  /// Personal baseline (rolling 60-day percentile ranges).
+  Future<PersonalBaseline> baseline();
+
+  /// Glucotype classification (Hall et al. 2018 categories).
+  Future<GlucotypeResult> glucotype();
 }

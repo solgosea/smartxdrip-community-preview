@@ -11,6 +11,7 @@ import '../../domain/glance_snapshot.dart';
 import '../../domain/notification_privacy_mode.dart';
 import '../../domain/floating/floating_glance_mode.dart';
 import '../../domain/floating/floating_glance_settings.dart';
+import '../../domain/floating/floating_glance_setup_state.dart';
 
 class GlanceHubController extends ChangeNotifier {
   final GlanceSnapshotService snapshotService;
@@ -34,6 +35,22 @@ class GlanceHubController extends ChangeNotifier {
     this.floatingService,
   });
 
+  FloatingGlanceSetupState get floatingSetupState {
+    if (floatingService == null || floatingSettingsRepository == null) {
+      return FloatingGlanceSetupState.unavailable;
+    }
+    if (!floatingPermissionGranted) {
+      return FloatingGlanceSetupState.permissionNeeded;
+    }
+    if (floatingSettings.enabled) {
+      return FloatingGlanceSetupState.visible;
+    }
+    if (floatingSettings.dismissedForSession) {
+      return FloatingGlanceSetupState.hidden;
+    }
+    return FloatingGlanceSetupState.permissionGranted;
+  }
+
   Future<void> load() async {
     loading = true;
     notifyListeners();
@@ -42,7 +59,8 @@ class GlanceHubController extends ChangeNotifier {
     try {
       floatingSettings = await floatingSettingsRepository?.get() ??
           const FloatingGlanceSettings();
-      floatingPermissionGranted = await floatingService?.hasPermission() ?? false;
+      floatingPermissionGranted =
+          await floatingService?.hasPermission() ?? false;
     } catch (_) {
       floatingSettings = const FloatingGlanceSettings();
       floatingPermissionGranted = false;
@@ -178,29 +196,70 @@ class GlanceHubController extends ChangeNotifier {
   }
 
   Future<void> setFloatingEnabled(bool enabled) async {
+    if (enabled) {
+      await showFloatingGlance();
+    } else {
+      await hideFloatingGlance();
+    }
+  }
+
+  Future<void> refreshFloatingPermission() async {
+    final service = floatingService;
+    if (service == null) return;
+    floatingPermissionGranted = await service.hasPermission();
+    if (floatingPermissionGranted && floatingSettings.enabled) {
+      final current = snapshot ?? await snapshotService.current();
+      snapshot = current;
+      await service.show(current);
+    }
+    notifyListeners();
+  }
+
+  Future<void> showFloatingGlance() async {
     final repository = floatingSettingsRepository;
     if (repository == null) return;
+    final service = floatingService;
+    floatingPermissionGranted = await service?.hasPermission() ?? false;
+    if (!floatingPermissionGranted) {
+      await requestFloatingPermission();
+      return;
+    }
     floatingSettings = floatingSettings.copyWith(
-      mode: enabled ? FloatingGlanceMode.enabled : FloatingGlanceMode.disabled,
+      mode: FloatingGlanceMode.enabled,
       dismissedForSession: false,
     );
     await repository.save(floatingSettings);
-    final service = floatingService;
     if (service != null) {
-      floatingPermissionGranted = await service.hasPermission();
       final current = snapshot ?? await snapshotService.current();
-      if (enabled && floatingPermissionGranted) {
-        await service.update(current);
-      } else {
-        await service.stop();
-      }
+      snapshot = current;
+      await service.show(current);
     }
+    notifyListeners();
+  }
+
+  Future<void> hideFloatingGlance() async {
+    final repository = floatingSettingsRepository;
+    if (repository == null) return;
+    floatingSettings = floatingSettings.copyWith(
+      mode: FloatingGlanceMode.disabled,
+      dismissedForSession: true,
+    );
+    await repository.save(floatingSettings);
+    await floatingService?.hide();
     notifyListeners();
   }
 
   Future<void> requestFloatingPermission() async {
     final service = floatingService;
     if (service == null) return;
+    if (floatingSettings.enabled) {
+      floatingSettings = floatingSettings.copyWith(
+        mode: FloatingGlanceMode.disabled,
+        dismissedForSession: false,
+      );
+      await floatingSettingsRepository?.save(floatingSettings);
+      await service.hide();
+    }
     await service.requestPermission();
     floatingPermissionGranted = await service.hasPermission();
     notifyListeners();

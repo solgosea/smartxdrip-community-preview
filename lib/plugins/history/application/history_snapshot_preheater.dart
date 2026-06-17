@@ -1,16 +1,16 @@
-import '../mappers/history_view_model_mapper.dart';
+import 'history_service.dart';
 import '../runtime/history_runtime_cache.dart';
 import 'history_day_query.dart';
 import 'history_host_services.dart';
 
 class HistorySnapshotPreheater {
   final HistoryHostServices hostServices;
-  final HistoryViewModelMapper mapper;
+  final HistoryService service;
   final DateTime Function() now;
 
   const HistorySnapshotPreheater({
     required this.hostServices,
-    this.mapper = const HistoryViewModelMapper(),
+    this.service = const HistoryService(),
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
 
@@ -32,7 +32,7 @@ class HistorySnapshotPreheater {
 
     return HistoryRuntimeSnapshot(
       query: query,
-      viewModel: mapper.map(
+      viewModel: service.buildViewModel(
         selectedDay: selectedDay,
         readings: readings,
         events: events,

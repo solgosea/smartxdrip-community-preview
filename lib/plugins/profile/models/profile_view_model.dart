@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class ProfileViewModel {
   final ProfileHeaderViewModel header;
   final List<ProfileStatViewModel> stats;
+  final ProfileBaselineCardViewModel baseline;
   final String appSettingsSummary;
 
   const ProfileViewModel({
     required this.header,
     required this.stats,
+    required this.baseline,
     required this.appSettingsSummary,
   });
 }
@@ -15,10 +17,12 @@ class ProfileViewModel {
 class ProfileHeaderViewModel {
   final String title;
   final String primaryBadge;
+  final String glucotypeBadge;
 
   const ProfileHeaderViewModel({
     required this.title,
     required this.primaryBadge,
+    required this.glucotypeBadge,
   });
 }
 

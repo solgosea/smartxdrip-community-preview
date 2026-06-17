@@ -2,25 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:smart_xdrip/foundation/theme/app_colors.dart';
 import 'package:smart_xdrip/presentation/common/navigation/safe_navigation.dart';
 import '../shared/episode_chart_card.dart';
-import '../shared/episode_context_card.dart';
 import '../shared/episode_disclaimer.dart';
 import '../shared/episode_header.dart';
-import '../shared/episode_hero_card.dart';
-import '../shared/episode_pattern_card.dart';
-import '../shared/episode_similar_card.dart';
 
+import 'high_burden/high_episode_burden_card.dart';
+import 'high_context/high_episode_context_card.dart';
+import 'high_driver/high_episode_driver_card.dart';
+import 'high_lifecycle/high_episode_lifecycle_card.dart';
+import 'high_reliability/high_episode_reliability_card.dart';
+import 'high_repeat/high_episode_repeat_card.dart';
+import 'high_summary/high_episode_summary_card.dart';
+import 'low_burden/low_episode_burden_card.dart';
+import 'low_context/low_episode_context_card.dart';
+import 'low_driver/low_episode_driver_card.dart';
+import 'low_lifecycle/low_episode_lifecycle_card.dart';
+import 'low_recovery/low_episode_recovery_card.dart';
+import 'low_reliability/low_episode_reliability_card.dart';
+import 'low_repeat/low_episode_repeat_card.dart';
+import 'low_summary/low_episode_summary_card.dart';
+import 'low_shared/low_episode_style.dart';
+import 'similar/episode_similar_chart_section.dart';
 import '../models/episode_detail_view_model.dart';
 import '../models/episode_kind.dart';
 import 'episode_empty_state.dart';
-import 'episode_nocturnal_badge.dart';
-import 'episode_severity_card.dart';
+import 'shared/episode_section_label.dart';
 
 class EpisodeDetailBody extends StatelessWidget {
   final EpisodeDetailViewModel viewModel;
+  final bool showResetToLatest;
+  final VoidCallback? onResetToLatest;
 
   const EpisodeDetailBody({
     super.key,
     required this.viewModel,
+    this.showResetToLatest = false,
+    this.onResetToLatest,
   });
 
   @override
@@ -29,12 +45,46 @@ class EpisodeDetailBody extends StatelessWidget {
       return EpisodeEmptyState(viewModel: viewModel);
     }
 
-    final hero = viewModel.hero!;
     final chart = viewModel.chart!;
-    final pattern = viewModel.pattern!;
     final themeColor =
         viewModel.kind == EpisodeKind.high ? AppColors.rose : AppColors.blue;
 
+    if (viewModel.kind == EpisodeKind.high) {
+      return _HighEpisodeDetailScaffold(
+        viewModel: viewModel,
+        chart: chart,
+        themeColor: themeColor,
+        showResetToLatest: showResetToLatest,
+        onResetToLatest: onResetToLatest,
+      );
+    }
+
+    return _LowEpisodeDetailScaffold(
+      viewModel: viewModel,
+      chart: chart,
+      showResetToLatest: showResetToLatest,
+      onResetToLatest: onResetToLatest,
+    );
+  }
+}
+
+class _HighEpisodeDetailScaffold extends StatelessWidget {
+  final EpisodeDetailViewModel viewModel;
+  final EpisodeChartViewModel chart;
+  final Color themeColor;
+  final bool showResetToLatest;
+  final VoidCallback? onResetToLatest;
+
+  const _HighEpisodeDetailScaffold({
+    required this.viewModel,
+    required this.chart,
+    required this.themeColor,
+    required this.showResetToLatest,
+    required this.onResetToLatest,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: SafeArea(
@@ -47,26 +97,107 @@ class EpisodeDetailBody extends StatelessWidget {
                 title: viewModel.title,
                 subtitle: viewModel.subtitle,
                 onBack: () => context.safePopOrHome(),
-              ),
-              EpisodeHeroCard(
-                valueLabel: hero.valueLabel,
-                valueText: hero.valueText,
-                valueUnit: hero.valueUnit,
-                valueColor: hero.valueColor,
-                durationText: hero.durationText,
-                durationRange: hero.durationRange,
-                onsetRateLabel: hero.onsetRateLabel,
-                onsetRateText: hero.onsetRateText,
-                onsetRateColor: hero.onsetRateColor,
-                recoveryRateText: hero.recoveryRateText,
-                areaLabel: hero.areaLabel,
-                areaText: hero.areaText,
-                areaColor: hero.areaColor,
-                heroBg: hero.heroBg,
-                heroBorder: hero.heroBorder,
-                trailingBadge: hero.showNocturnalBadge
-                    ? const EpisodeNocturnalBadge()
+                trailing: showResetToLatest
+                    ? _ResetToLatestButton(
+                        color: AppColors.rose,
+                        onTap: onResetToLatest,
+                      )
                     : null,
+              ),
+              if (viewModel.highSummary != null)
+                HighEpisodeSummaryCard(viewModel: viewModel.highSummary!),
+              if (viewModel.highBurden != null)
+                HighEpisodeBurdenCard(viewModel: viewModel.highBurden!),
+              if (viewModel.highLifecycle != null)
+                HighEpisodeLifecycleCard(viewModel: viewModel.highLifecycle!),
+              const EpisodeSectionLabel(index: '04', title: 'Episode chart'),
+              EpisodeChartCard(
+                readings: chart.readings,
+                unit: chart.unit,
+                lowThreshold: chart.lowThreshold,
+                highThreshold: chart.highThreshold,
+                onsetTime: chart.onsetTime,
+                peakOrNadirTime: chart.peakOrNadirTime,
+                recoveryTime: chart.recoveryTime,
+                timeRangeStart: chart.timeRangeStart,
+                timeRangeEnd: chart.timeRangeEnd,
+                themeColor: chart.themeColor,
+                episode: chart.episode,
+              ),
+              if (viewModel.highDriver != null)
+                HighEpisodeDriverCard(viewModel: viewModel.highDriver!),
+              if (viewModel.highContext != null)
+                HighEpisodeContextCard(viewModel: viewModel.highContext!),
+              if (viewModel.highRepeat != null)
+                HighEpisodeRepeatCard(viewModel: viewModel.highRepeat!),
+              if (viewModel.similarChart != null)
+                EpisodeSimilarChartSection(
+                  viewModel: viewModel.similarChart!,
+                  high: true,
+                ),
+              if (viewModel.highReliability != null)
+                HighEpisodeReliabilityCard(
+                  viewModel: viewModel.highReliability!,
+                ),
+              EpisodeDisclaimer(text: viewModel.disclaimer),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LowEpisodeDetailScaffold extends StatelessWidget {
+  final EpisodeDetailViewModel viewModel;
+  final EpisodeChartViewModel chart;
+  final bool showResetToLatest;
+  final VoidCallback? onResetToLatest;
+
+  const _LowEpisodeDetailScaffold({
+    required this.viewModel,
+    required this.chart,
+    required this.showResetToLatest,
+    required this.onResetToLatest,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: LowEpisodeStyle.bg,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              EpisodeHeader(
+                title: viewModel.title,
+                subtitle: viewModel.subtitle,
+                onBack: () => context.safePopOrHome(),
+                trailing: showResetToLatest
+                    ? _ResetToLatestButton(
+                        color: LowEpisodeStyle.blue,
+                        onTap: onResetToLatest,
+                      )
+                    : null,
+              ),
+              EpisodeSectionLabel(
+                index: '01',
+                title: 'Episode summary',
+                trailing: viewModel.statusTime,
+                accent: LowEpisodeStyle.blue,
+              ),
+              if (viewModel.lowSummary != null)
+                LowEpisodeSummaryCard(viewModel: viewModel.lowSummary!),
+              if (viewModel.lowBurden != null)
+                LowEpisodeBurdenCard(viewModel: viewModel.lowBurden!),
+              if (viewModel.lowLifecycle != null)
+                LowEpisodeLifecycleCard(viewModel: viewModel.lowLifecycle!),
+              const EpisodeSectionLabel(
+                index: '04',
+                title: 'Episode chart',
+                accent: LowEpisodeStyle.blue,
               ),
               EpisodeChartCard(
                 readings: chart.readings,
@@ -81,29 +212,30 @@ class EpisodeDetailBody extends StatelessWidget {
                 themeColor: chart.themeColor,
                 episode: chart.episode,
               ),
-              EpisodeContextCard(rows: viewModel.contextRows),
-              EpisodePatternCard(
-                bigStat: pattern.bigStat,
-                description: pattern.description,
-                statColor: pattern.statColor,
-                indicators: pattern.indicators,
-                activeDotColor: pattern.activeDotColor,
-                patternText: pattern.patternText,
-                caveat: pattern.caveat,
-                extraNote: pattern.extraNote,
+              if (viewModel.lowDriver != null)
+                LowEpisodeDriverCard(viewModel: viewModel.lowDriver!),
+              if (viewModel.lowRecovery != null)
+                LowEpisodeRecoveryCard(viewModel: viewModel.lowRecovery!),
+              if (viewModel.lowContext != null)
+                LowEpisodeContextCard(viewModel: viewModel.lowContext!),
+              if (viewModel.lowRepeat != null)
+                LowEpisodeRepeatCard(viewModel: viewModel.lowRepeat!),
+              if (viewModel.similarChart != null)
+                EpisodeSimilarChartSection(
+                  viewModel: viewModel.similarChart!,
+                  high: false,
+                ),
+              if (viewModel.lowReliability != null)
+                LowEpisodeReliabilityCard(
+                  viewModel: viewModel.lowReliability!,
+                ),
+              EpisodeDisclaimer(
+                text: viewModel.disclaimer,
+                card: true,
+                color: LowEpisodeStyle.muted,
+                backgroundColor: LowEpisodeStyle.blue.withOpacity(0.065),
+                borderColor: LowEpisodeStyle.lineStrong,
               ),
-              if (viewModel.severity != null)
-                EpisodeSeverityCard(viewModel: viewModel.severity!),
-              EpisodeSimilarSectionHeader(text: viewModel.similarHeader),
-              if (viewModel.similarCards.isEmpty)
-                const _NoSimilarEpisodes()
-              else
-                for (final card in viewModel.similarCards)
-                  EpisodeSimilarCard(
-                    themeColor: themeColor,
-                    data: card,
-                  ),
-              EpisodeDisclaimer(text: viewModel.disclaimer),
             ],
           ),
         ),
@@ -112,26 +244,36 @@ class EpisodeDetailBody extends StatelessWidget {
   }
 }
 
-class _NoSimilarEpisodes extends StatelessWidget {
-  const _NoSimilarEpisodes();
+class _ResetToLatestButton extends StatelessWidget {
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _ResetToLatestButton({
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: const Text(
-        'No similar episodes were found in the current analysis window.',
-        style: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 12,
-          color: AppColors.textDim,
-          height: 1.4,
+    return Tooltip(
+      message: 'Back to latest episode',
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: color.withOpacity(0.34)),
+          ),
+          child: Icon(
+            Icons.refresh_rounded,
+            size: 18,
+            color: color,
+          ),
         ),
       ),
     );

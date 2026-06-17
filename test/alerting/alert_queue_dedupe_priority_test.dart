@@ -10,7 +10,7 @@ import 'package:smart_xdrip/alerting/domain/queue/alert_queue_priority.dart';
 import '../_support/test_database.dart';
 
 void main() {
-  test('same dedupe key keeps plugin message over Local datasource', () async {
+  test('same dedupe key keeps Follow message over Local datasource', () async {
     final database = await TestDatabase.createWithAlerting();
     addTearDown(database.close);
     final repository = SqliteAlertQueueRepository(
@@ -34,15 +34,15 @@ void main() {
       now: now,
     ));
     await service.enqueue(_message(
-      id: 'plugin',
+      id: 'follow',
       dedupeKey: dedupeKey,
-      sourcePriority: AlertSourcePriority.plugin,
+      sourcePriority: AlertSourcePriority.follow,
       now: now,
     ));
 
     final stored = await repository.findByDedupeKey(dedupeKey);
-    expect(stored?.id, 'plugin');
-    expect(stored?.sourcePriority, AlertSourcePriority.plugin);
+    expect(stored?.id, 'follow');
+    expect(stored?.sourcePriority, AlertSourcePriority.follow);
   });
 }
 

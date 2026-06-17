@@ -87,12 +87,12 @@ class PluginRegistryValidator {
         );
       }
       if (plugin.placements.contains(PluginPlacement.exploreCard) &&
-          !_hasPlacementSpec(plugin, const PluginSlotKey('explore.card'))) {
+          !_hasExplorePlacementSpec(plugin)) {
         issues.add(
           PluginRegistryValidationIssue(
             code: 'missing_explore_entry',
             message:
-                'Explore plugin ${plugin.id.value} has no explore.card placement.',
+                'Explore plugin ${plugin.id.value} has no explore.* placement.',
           ),
         );
       }
@@ -177,5 +177,11 @@ class PluginRegistryValidator {
 
   bool _hasPlacementSpec(SmartFeaturePlugin plugin, PluginSlotKey slot) {
     return plugin.placementSpecs.any((spec) => spec.slot == slot);
+  }
+
+  bool _hasExplorePlacementSpec(SmartFeaturePlugin plugin) {
+    return plugin.placementSpecs.any(
+      (spec) => spec.slot.value.startsWith('explore.'),
+    );
   }
 }

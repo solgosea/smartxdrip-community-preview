@@ -68,20 +68,20 @@ void main() {
 
     final result = await runtime.runTarget(
       target: const GlucoseSyncTarget(
-        targetId: 'target.remote.1',
-        subjectId: 'remote-1',
-        label: 'Remote Target 1',
-        kind: GlucoseSyncTargetKind('remote'),
+        targetId: 'target.follow.1',
+        subjectId: 'follow-1',
+        label: 'Follow 1',
+        kind: GlucoseSyncTargetKind('follow'),
         source: _FakeGlucoseSource(),
       ),
       settings: const AppSettings(),
-      trigger: 'targetFullAnalysis',
+      trigger: 'followFullAnalysis',
     );
 
     expect(result, isNotNull);
     expect(result!.storedCount, 2);
-    expect(result.updatedSubjectIds, {'remote-1'});
-    expect(completions.single.trigger, 'targetFullAnalysis');
+    expect(result.updatedSubjectIds, {'follow-1'});
+    expect(completions.single.trigger, 'followFullAnalysis');
   });
 }
 

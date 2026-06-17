@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../application/analysis/analysis_facade.dart';
+import '../application/history_service.dart';
 import '../application/history_host_services.dart';
+import '../domain/history_time_filter.dart';
 import '../models/history_view_model.dart';
 import '../runtime/history_plugin_runtime.dart';
 import '../runtime/history_runtime_cache.dart';
@@ -9,30 +12,47 @@ class HistoryController extends ChangeNotifier {
   final HistoryHostServices hostServices;
   final HistoryRuntimeCache runtimeCache;
   final HistoryPluginRuntime runtime;
+  final HistoryService service;
 
   DateTime _selectedDay = DateTime.now();
+  HistoryTimeFilter? _timeFilter;
   HistoryViewModel? viewModel;
 
   HistoryController({
     required this.hostServices,
     required this.runtimeCache,
     required this.runtime,
+    this.service = const HistoryService(),
   }) {
     hostServices.changeSignal.addListener(_handleHostChanged);
   }
 
   DateTime get selectedDay => _selectedDay;
+  HistoryTimeFilter? get timeFilter => _timeFilter;
 
   Future<void> init() => _load();
 
   void prevDay() {
     _selectedDay = _selectedDay.subtract(const Duration(days: 1));
+    _timeFilter = null;
     _load();
   }
 
   void nextDay() {
     if (isToday) return;
     _selectedDay = _selectedDay.add(const Duration(days: 1));
+    _timeFilter = null;
+    _load();
+  }
+
+  void selectTimeFilter(DateTime time) {
+    _timeFilter = HistoryTimeFilter(time: time);
+    _load();
+  }
+
+  void clearTimeFilter() {
+    if (_timeFilter == null) return;
+    _timeFilter = null;
     _load();
   }
 
@@ -50,15 +70,45 @@ class HistoryController extends ChangeNotifier {
       day: _selectedDay,
     );
     if (cached != null) {
-      viewModel = cached;
+      viewModel = _timeFilter == null
+          ? cached
+          : _deriveFocusedViewModel(facade, _timeFilter!);
       notifyListeners();
       return;
     }
 
     final snapshot = await runtime.preheatDay(day: _selectedDay);
     if (snapshot == null) return;
-    viewModel = snapshot.viewModel;
+    viewModel = _timeFilter == null
+        ? snapshot.viewModel
+        : _deriveFocusedViewModel(facade, _timeFilter!);
     notifyListeners();
+  }
+
+  HistoryViewModel _deriveFocusedViewModel(
+    AnalysisFacade facade,
+    HistoryTimeFilter filter,
+  ) {
+    final selectedDay = DateTime(
+      _selectedDay.year,
+      _selectedDay.month,
+      _selectedDay.day,
+    );
+    final readings = facade.readingsForDay(selectedDay);
+    final tir = readings.isNotEmpty ? facade.tirForReadings(readings) : null;
+    final facadeEvents = facade.eventsForDay(selectedDay);
+    final events = facadeEvents.isNotEmpty
+        ? facadeEvents
+        : facade.detectEventsForReadings(readings);
+    return service.buildViewModel(
+      selectedDay: selectedDay,
+      readings: readings,
+      events: events,
+      tir: tir,
+      isToday: isToday,
+      settings: hostServices.settingsProvider(),
+      timeFilter: filter,
+    );
   }
 
   void _handleHostChanged() {

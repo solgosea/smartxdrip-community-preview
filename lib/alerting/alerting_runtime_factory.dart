@@ -13,6 +13,7 @@ import 'application/center/alert_message_handler_registry.dart';
 import 'application/delivery/alert_delivery_pipeline.dart';
 import 'application/delivery/alert_delivery_gate.dart';
 import 'application/delivery/alert_strategy_registry.dart';
+import 'application/event/alert_event_factory.dart';
 import 'application/event/alert_event_queue_message_handler.dart';
 import 'application/ingress/alert_ingress.dart';
 import 'application/ingress/alerting_center.dart';
@@ -23,6 +24,8 @@ import 'application/queue/alert_queue_enqueue_service.dart';
 import 'application/rule/alert_rule_provider.dart';
 import 'application/source/alert_ingress_source_sink.dart';
 import 'application/source/alert_source_registry.dart';
+import 'application/text/alert_text_renderer_registry.dart';
+import 'application/text/core_alert_text_renderer_registrar.dart';
 import 'data/sqlite/sqlite_alert_delivery_log_repository.dart';
 import 'data/sqlite/sqlite_alert_event_repository.dart';
 import 'data/sqlite/sqlite_alert_queue_repository.dart';
@@ -56,12 +59,15 @@ class AlertingRuntimeFactory {
   AlertRuleProvider? _alertRuleProvider;
   AlertSourceRegistry? _sourceRegistry;
   AlertIngressSourceSink? _sourceSink;
+  AlertTextRendererRegistry? _textRendererRegistry;
+  AlertEventFactory? _eventFactory;
   FlutterLocalNotificationGateway? _notificationGateway;
   AlertNotificationActionBridge? _notificationActionBridge;
   AlertNotificationActionDispatcher? _notificationActionDispatcher;
   AlertNotificationActionRouter? _notificationActionRouter;
   AlertActuatorBackgroundServiceForwarder? _backgroundServiceForwarder;
   bool _directEventHandlerRegistered = false;
+  bool _coreTextRenderersRegistered = false;
 
   AlertingRuntimeFactory({
     required this.database,
@@ -107,6 +113,21 @@ class AlertingRuntimeFactory {
   AlertRuleProvider ruleProvider() {
     return _alertRuleProvider ??= AlertRuleProvider(
       repository: ruleRepository(),
+    );
+  }
+
+  AlertTextRendererRegistry textRendererRegistry() {
+    final registry = _textRendererRegistry ??= AlertTextRendererRegistry();
+    if (!_coreTextRenderersRegistered) {
+      const CoreAlertTextRendererRegistrar().register(registry);
+      _coreTextRenderersRegistered = true;
+    }
+    return registry;
+  }
+
+  AlertEventFactory eventFactory() {
+    return _eventFactory ??= AlertEventFactory(
+      textRegistry: textRendererRegistry(),
     );
   }
 

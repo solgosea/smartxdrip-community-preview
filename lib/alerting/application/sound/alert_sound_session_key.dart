@@ -5,6 +5,7 @@ class AlertSoundSessionKey {
 
   String fromEvent(AlertEvent event) {
     final personId = event.payload['personId'] ??
+        event.payload['followPersonId'] ??
         event.payload['subjectId'] ??
         event.payload['targetId'];
     final type = _normalizedType(

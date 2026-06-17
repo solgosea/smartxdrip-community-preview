@@ -3,6 +3,7 @@ import 'package:smart_xdrip/plugin_platform/composition/plugin_placement_spec.da
 import 'package:flutter/material.dart';
 
 import 'package:smart_xdrip/application/plugin_host/app_host_services.dart';
+import 'package:smart_xdrip/data/local/glucose_database.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_data_requirement.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_entry.dart';
 import 'package:smart_xdrip/plugin_platform/contracts/plugin_id.dart';
@@ -14,6 +15,10 @@ import 'package:smart_xdrip/plugin_platform/install/plugin_install_context.dart'
 import 'package:smart_xdrip/plugin_platform/runtime/manager/plugin_runtime_start_policy.dart';
 import 'application/history_host_services.dart';
 import 'application/history_snapshot_preheater.dart';
+import 'application/text/history_text_template_installer.dart';
+import 'data/schema/history_template_schema_contributor.dart';
+import 'data/sqlite/history_template_repository.dart';
+import 'data/sqlite/sqlite_history_template_repository.dart';
 import 'pages/history_page.dart';
 import 'runtime/history_plugin_runtime.dart';
 import 'runtime/history_runtime_cache.dart';
@@ -70,6 +75,14 @@ class HistoryPlugin extends SmartFeaturePlugin {
 
   @override
   void install(PluginInstallContext context) {
+    context.registerSchema(const HistoryTemplateSchemaContributor());
+    final database = context.services.get<GlucoseDatabase>();
+    final templateRepository = SqliteHistoryTemplateRepository(
+      databaseProvider: () => database.db,
+    );
+    final textTemplateInstaller = HistoryTextTemplateInstaller(
+      repository: templateRepository,
+    );
     final cache = HistoryRuntimeCache();
     final host = context.services.get<AppHostServices>();
     final hostServices = HistoryHostServices(
@@ -80,7 +93,11 @@ class HistoryPlugin extends SmartFeaturePlugin {
     final runtime = HistoryPluginRuntime(
       cache: cache,
       preheater: HistorySnapshotPreheater(hostServices: hostServices),
+      textTemplateInstaller: textTemplateInstaller,
     );
+    context.services.register<HistoryTemplateRepository>(templateRepository);
+    context.services
+        .register<HistoryTextTemplateInstaller>(textTemplateInstaller);
     context.services.register<HistoryRuntimeCache>(cache);
     context.services.register<HistoryHostServices>(hostServices);
     context.services.register<HistoryPluginRuntime>(runtime);

@@ -1,24 +1,28 @@
+import 'insights_service.dart';
 import '../mappers/insights_view_model_mapper.dart';
 import '../runtime/insights_runtime_cache.dart';
 import 'insights_host_services.dart';
 
 class InsightsSnapshotPreheater {
   final InsightsHostServices hostServices;
+  final InsightsService? service;
   final InsightsViewModelMapper mapper;
   final DateTime Function() now;
 
   InsightsSnapshotPreheater({
     required this.hostServices,
+    this.service,
     InsightsViewModelMapper? mapper,
     DateTime Function()? now,
   })  : mapper = mapper ?? InsightsViewModelMapper(),
         now = now ?? DateTime.now;
 
   Future<InsightsRuntimeSnapshot> preheat() async {
-    final facade = hostServices.facadeProvider();
+    final output =
+        (service ?? InsightsService(hostServices: hostServices)).load();
     return InsightsRuntimeSnapshot(
-      subjectId: facade.activeSubject.id,
-      viewModel: mapper.map(facade: facade),
+      subjectId: output.query.subjectId,
+      viewModel: mapper.map(output),
       updatedAt: now(),
     );
   }

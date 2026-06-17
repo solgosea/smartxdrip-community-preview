@@ -27,7 +27,7 @@ class GlanceWidgetRenderer {
         views.setTextViewText(R.id.glance_freshness, freshness)
         views.setTextViewText(R.id.glance_source, snapshot.sourceLabel)
         views.setTextViewText(R.id.glance_alt_value, snapshot.alternateValueLabel)
-        views.setTextViewText(R.id.glance_tir, "78%")
+        views.setTextViewText(R.id.glance_tir, tirLabel(layoutId, snapshot))
         views.setTextColor(R.id.glance_value, textColor)
         views.setTextColor(R.id.glance_trend, stateColor)
         views.setTextColor(R.id.glance_delta, stateColor)
@@ -66,7 +66,10 @@ class GlanceWidgetRenderer {
         }
         views.setTextViewTextSize(R.id.glance_value, TypedValue.COMPLEX_UNIT_SP, valueSize)
         views.setViewVisibility(R.id.glance_trend, if (config.showTrendArrow) View.VISIBLE else View.GONE)
-        views.setViewVisibility(R.id.glance_delta, if (config.showDelta) View.VISIBLE else View.GONE)
+        views.setViewVisibility(
+            R.id.glance_delta,
+            if (layoutId == R.layout.widget_glance_dashboard && config.showDelta) View.VISIBLE else View.GONE
+        )
         val timeVisibility = if (config.showLastUpdated) View.VISIBLE else View.GONE
         views.setViewVisibility(R.id.glance_freshness, timeVisibility)
         views.setViewVisibility(R.id.glance_link_glyph, timeVisibility)
@@ -109,6 +112,12 @@ class GlanceWidgetRenderer {
             "12h", "twelve_hours" -> "24h"
             else -> "4h"
         }
+    }
+
+    private fun tirLabel(layoutId: Int, snapshot: GlanceWidgetSnapshot): String {
+        val value = snapshot.tir24hPercent ?: return "--"
+        val percent = "${value.toInt()}%"
+        return if (layoutId == R.layout.widget_glance_dashboard) percent else "TIR $percent"
     }
 
     private fun stateColor(state: String): Int {

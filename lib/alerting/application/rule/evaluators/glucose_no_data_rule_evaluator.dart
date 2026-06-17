@@ -29,7 +29,7 @@ class GlucoseNoDataRuleEvaluator extends AlertRuleEvaluator {
       level: rule.level,
       type: 'noData',
       title: 'No recent glucose data',
-      body: 'No fresh glucose data has been received recently.',
+      body: '',
       value: null,
       occurredAt: latest?.timestamp ?? context.now,
     );

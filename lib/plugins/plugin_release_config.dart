@@ -4,7 +4,7 @@ import 'release/plugin_release_matrix.dart';
 import 'release/plugin_release_matrix_resolver.dart';
 import 'release/plugin_release_profile.dart';
 
-const currentPluginReleaseProfile = PluginReleaseProfile.ossPreview;
+const currentPluginReleaseProfile = PluginReleaseProfile.fullInternal;
 
 const ossPreviewPluginReleaseMatrix = PluginReleaseMatrix(
   profile: PluginReleaseProfile.ossPreview,
@@ -14,8 +14,6 @@ const ossPreviewPluginReleaseMatrix = PluginReleaseMatrix(
     'profile_basics',
     'settings_basics',
     'analysis_basic',
-    'connected_care',
-    'background_sync',
   },
   pluginOverrides: {},
 );
@@ -30,6 +28,7 @@ const publicBetaPluginReleaseMatrix = PluginReleaseMatrix(
     'analysis_basic',
     'analysis_advanced',
     'connected_care',
+    'wellness',
     'background_sync',
   },
   pluginOverrides: {},
@@ -45,6 +44,7 @@ const fullInternalPluginReleaseMatrix = PluginReleaseMatrix(
     'analysis_basic',
     'analysis_advanced',
     'connected_care',
+    'wellness',
     'background_sync',
   },
   pluginOverrides: {},
@@ -60,6 +60,7 @@ const hackathonPluginReleaseMatrix = PluginReleaseMatrix(
     'analysis_basic',
     'analysis_advanced',
     'connected_care',
+    'wellness',
     'background_sync',
   },
   pluginOverrides: {},

@@ -1,5 +1,8 @@
 import '../../../plugin_platform/composition/plugin_composer.dart';
 import '../../../plugin_platform/composition/plugin_composition_registry.dart';
+import '../../../plugin_platform/composition/plugin_placement_spec.dart';
+import '../../../plugin_platform/contracts/plugin_capability.dart';
+import '../../../plugin_platform/graph/plugin_slot_key.dart';
 import '../../../plugin_platform/registry/plugin_catalog_composer.dart';
 import '../../../plugin_platform/registry/plugin_registry.dart';
 import '../../../plugin_platform/runtime/plugin_runtime_state_resolver.dart';
@@ -31,15 +34,9 @@ class ExploreEntryStateRefreshService {
       registry: registry,
       compositionRegistry: compositionRegistry,
     );
-    final composedPlacements = composer
-        .composePlacementSlot(ExploreSlots.card, context: context)
-        .placements;
-    final placements = composedPlacements.isNotEmpty
-        ? composedPlacements
-        : catalogComposer
-            .placementsFor(registry.all)
-            .where((placement) => placement.slot == ExploreSlots.card)
-            .toList(growable: false);
+    final placements = [
+      ..._placementsForSlot(composer, ExploreSlots.card, context),
+    ];
     final pluginById = {
       for (final plugin in registry.all) plugin.id: plugin,
     };
@@ -62,6 +59,20 @@ class ExploreEntryStateRefreshService {
       refreshedAt: now(),
       reason: reason,
     );
+  }
+
+  List<PluginPlacementSpec> _placementsForSlot(
+    PluginComposer composer,
+    PluginSlotKey slot,
+    PluginCapabilityContext context,
+  ) {
+    final composed =
+        composer.composePlacementSlot(slot, context: context).placements;
+    if (composed.isNotEmpty) return composed;
+    return catalogComposer
+        .placementsFor(registry.all)
+        .where((placement) => placement.slot == slot)
+        .toList(growable: false);
   }
 
   List<ExplorePluginSection> _sectionsFor(

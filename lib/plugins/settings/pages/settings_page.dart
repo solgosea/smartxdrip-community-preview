@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../application/settings_actions.dart';
 import '../application/settings_export_actions.dart';
 import '../application/settings_host_services.dart';
+import '../application/settings_sync_window_options.dart';
 import '../application/settings_storage_actions.dart';
 import '../controllers/settings_controller.dart';
 import '../runtime/settings_plugin_runtime.dart';
@@ -164,7 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              for (final option in const [7, 14, 30])
+              for (final option in SettingsSyncWindowOptions.values)
                 ListTile(
                   onTap: () => Navigator.pop(ctx, option),
                   title: Text(
@@ -175,7 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: AppColors.text,
                     ),
                   ),
-                  subtitle: option == 14
+                  subtitle: option == SettingsSyncWindowOptions.recommended
                       ? const Text(
                           'Recommended balance',
                           style: TextStyle(

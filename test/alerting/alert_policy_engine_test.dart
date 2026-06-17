@@ -12,7 +12,7 @@ import 'package:smart_xdrip/alerting/domain/repository/alert_strategy_config_rep
 
 void main() {
   group('AlertPolicyEngine', () {
-    test('default strategy config keeps alerts disabled', () {
+    test('default alert settings keep all delivery channels disabled', () {
       final event = _event(AlertLevel.critical);
 
       final channels = const AlertPolicyEngine().resolveChannels(
@@ -28,7 +28,9 @@ void main() {
 
       final channels = const AlertPolicyEngine().resolveChannels(
         event,
-        _enabledConfig,
+        const AlertStrategyConfigSet(
+          global: AlertingGlobalConfig(enabled: true),
+        ),
       );
 
       expect(
@@ -48,7 +50,9 @@ void main() {
 
       final channels = const AlertPolicyEngine().resolveChannels(
         event,
-        _enabledConfig,
+        const AlertStrategyConfigSet(
+          global: AlertingGlobalConfig(enabled: true),
+        ),
       );
 
       expect(
@@ -72,7 +76,9 @@ void main() {
 
       final channels = const AlertPolicyEngine().resolveChannels(
         event,
-        _enabledConfig,
+        const AlertStrategyConfigSet(
+          global: AlertingGlobalConfig(enabled: true),
+        ),
       );
 
       expect(channels, [AlertChannel.inApp, AlertChannel.sound]);
@@ -101,10 +107,6 @@ void main() {
   });
 }
 
-const _enabledConfig = AlertStrategyConfigSet(
-  global: AlertingGlobalConfig(enabled: true),
-);
-
 AlertEvent _event(
   AlertLevel level, {
   List<String> requestedChannels = const [],
@@ -112,7 +114,7 @@ AlertEvent _event(
   final now = DateTime(2026, 6, 5, 9);
   return AlertEvent(
     id: 'event-1',
-    source: const AlertEventSource('test.source'),
+    source: const AlertEventSource('follow.im'),
     sourceEventId: 'remote-1',
     category: AlertCategory.glucoseUrgentLow,
     level: level,

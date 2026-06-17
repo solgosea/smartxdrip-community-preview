@@ -29,8 +29,10 @@ class GlucoseLowRuleEvaluator extends AlertRuleEvaluator {
       level: rule.level,
       type: 'low',
       title: 'Low glucose',
-      body: 'Glucose is ${latest.value.toStringAsFixed(1)} mmol/L.',
+      body: '',
       value: latest.value,
+      valueMmol: latest.value,
+      thresholdMmol: threshold,
       occurredAt: latest.timestamp,
     );
   }

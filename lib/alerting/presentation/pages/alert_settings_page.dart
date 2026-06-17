@@ -73,7 +73,8 @@ class _AlertSettingsPageState extends State<AlertSettingsPage> {
                   AlertSettingsCard(
                     icon: Icons.power_settings_new_rounded,
                     title: 'Enable alerts',
-                    subtitle: 'Master switch for local glucose alerts.',
+                    subtitle:
+                        'Master switch for glucose safety alerts and future alert sources.',
                     enabled: snapshot.globalEnabled,
                     onChanged: _controller.toggleGlobal,
                     details: [

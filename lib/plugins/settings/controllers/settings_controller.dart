@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:smart_xdrip/core/app_metadata.dart';
 import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import '../application/settings_actions.dart';
 import '../application/settings_export_actions.dart';
 import '../application/settings_host_services.dart';
+import '../application/settings_sync_window_options.dart';
 import '../application/settings_storage_actions.dart';
 import '../mappers/settings_view_model_mapper.dart';
 import '../models/settings_analysis_result.dart';
@@ -32,6 +34,7 @@ class SettingsController extends ChangeNotifier {
 
   AppSettings _settings;
   SettingsAnalysisResult? _analysis;
+  AppMetadata _appMetadata = AppMetadata.fallback;
   SettingsViewModel? _viewModel;
   bool _saving = false;
 
@@ -48,9 +51,9 @@ class SettingsController extends ChangeNotifier {
 
   Future<void> load() async {
     _settings = settingsActions.settingsProvider();
+    _appMetadata = await AppMetadata.fromPlatform();
     final snapshot = runtimeCache.snapshot ?? await runtime.preheat();
     _analysis = snapshot.analysis;
-    _viewModel = snapshot.viewModel;
     _refreshViewModel();
   }
 
@@ -62,10 +65,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<void> setInitialSyncDays(int days) async {
-    final normalized = switch (days) {
-      7 || 14 || 30 => days,
-      _ => 14,
-    };
+    final normalized = SettingsSyncWindowOptions.normalize(days);
     await _save(_settings.copyWith(initialSyncDays: normalized));
   }
 
@@ -126,6 +126,7 @@ class SettingsController extends ChangeNotifier {
     _viewModel = mapper.map(
       analysis: analysis,
       saving: _saving,
+      appMetadata: _appMetadata,
     );
     notifyListeners();
   }

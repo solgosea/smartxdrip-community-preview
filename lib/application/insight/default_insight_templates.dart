@@ -767,6 +767,90 @@ class DefaultInsightTemplates {
       priority: 10,
     ),
     InsightTemplate(
+      code: 'glucotype_hero_low_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeHero,
+      type: InsightTypeCode.glucotypeLow,
+      bodyTemplate:
+          'Daily peaks stay subdued and recovery is quick. Your CV averages {cv}%, within the stable range. Sustaining this rhythm tends to keep variability low.',
+      requiredFacts: ['cv'],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'glucotype_hero_moderate_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeHero,
+      type: InsightTypeCode.glucotypeModerate,
+      bodyTemplate:
+          'Daytime peaks are clearly visible but recovery is consistent. Your CV averages {cv}%, within the active-management band. With sustained patterns, transition toward Low type is achievable.',
+      requiredFacts: ['cv'],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'glucotype_hero_severe_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeHero,
+      type: InsightTypeCode.glucotypeSevere,
+      bodyTemplate:
+          'Peaks are frequent and recovery between elevations is slow. Your CV averages {cv}%, above the high-variability threshold. Stretches with steadier rhythm move you closer to the Moderate band.',
+      requiredFacts: ['cv'],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'glucotype_trend_stable_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeTrend,
+      type: InsightTypeCode.glucotypeTrendStable,
+      bodyTemplate:
+          "You've held {levelName} for the past {weeks} weeks. Stable trend.",
+      requiredFacts: [
+        'levelName',
+        'weeks',
+      ],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'glucotype_trend_changed_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeTrend,
+      type: InsightTypeCode.glucotypeTrendChanged,
+      bodyTemplate:
+          "You've held {levelName} for the past {weeks} weeks, {direction} from {priorLevelName}.",
+      requiredFacts: [
+        'levelName',
+        'weeks',
+        'direction',
+        'priorLevelName',
+      ],
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'glucotype_trend_not_enough_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeTrend,
+      type: InsightTypeCode.glucotypeNoData,
+      bodyTemplate: 'Not enough recent data to summarize the trend yet.',
+      requiredFacts: ['notEnoughData'],
+      priority: 90,
+    ),
+    InsightTemplate(
+      code: 'glucotype_factor_note_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeFactorNote,
+      type: InsightTypeCode.glucotypeFactorNote,
+      bodyTemplate: 'Correlation only - based on observed CGM patterns',
+      priority: 10,
+    ),
+    InsightTemplate(
+      code: 'glucotype_empty_state_v1',
+      module: AnalysisModuleCode.insights,
+      slot: InsightSlotCode.glucotypeEmptyState,
+      type: InsightTypeCode.glucotypeNoData,
+      bodyTemplate:
+          'No CGM readings were found for glucotype analysis. Connect xDrip+ Local or Nightscout API to view your glucose variability type.',
+      priority: 10,
+    ),
+    InsightTemplate(
       code: 'glucose_events_count_v1',
       module: AnalysisModuleCode.insights,
       slot: InsightSlotCode.glucoseEventsCountSummary,

@@ -1,440 +1,52 @@
-import 'package:flutter/material.dart';
-import 'package:smart_xdrip/application/analysis/analysis_facade.dart';
-import 'package:smart_xdrip/application/glucose_unit/glucose_threshold_format_service.dart';
-import 'package:smart_xdrip/application/glucose_unit/glucose_unit_format_service.dart';
-import 'package:smart_xdrip/domain/entities/app_settings.dart';
-import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
-import 'package:smart_xdrip/engine/detection/dawn_phenomenon_detector.dart';
-import 'package:smart_xdrip/foundation/theme/app_colors.dart';
-import 'package:smart_xdrip/presentation/common/widgets/charts/agp_chart.dart';
-import '../analysis/statistics_agp_text_renderer.dart';
-import '../application/statistics_window_reader.dart';
-import '../domain/statistics_analysis_window.dart';
-import '../domain/statistics_analysis_window_catalog.dart';
-import '../domain/statistics_analysis_window_id.dart';
+import '../engine/statistics_engine_output.dart';
 import '../models/statistics_view_model.dart';
+import 'statistics_agp_view_model_mapper.dart';
+import 'statistics_heatmap_view_model_mapper.dart';
+import 'statistics_metrics_view_model_mapper.dart';
+import 'statistics_tir_view_model_mapper.dart';
 
 class StatisticsViewModelMapper {
-  static const _veryHighColor = Color(0xFFA03030);
-  final GlucoseUnitFormatService glucoseFormatter;
-  final GlucoseThresholdFormatService thresholdFormatter;
-  final StatisticsAgpTextRenderer agpTextRenderer;
-  final StatisticsWindowReader windowReader;
+  final StatisticsMetricsViewModelMapper metricsMapper;
+  final StatisticsTirViewModelMapper tirMapper;
+  final StatisticsAgpViewModelMapper agpMapper;
+  final StatisticsHeatmapViewModelMapper heatmapMapper;
 
   const StatisticsViewModelMapper({
-    this.glucoseFormatter = const GlucoseUnitFormatService(),
-    this.thresholdFormatter = const GlucoseThresholdFormatService(),
-    this.agpTextRenderer = const StatisticsAgpTextRenderer(),
-    this.windowReader = const StatisticsWindowReader(),
+    this.metricsMapper = const StatisticsMetricsViewModelMapper(),
+    this.tirMapper = const StatisticsTirViewModelMapper(),
+    this.agpMapper = const StatisticsAgpViewModelMapper(),
+    this.heatmapMapper = const StatisticsHeatmapViewModelMapper(),
   });
 
-  StatisticsViewModel map({
-    required AnalysisFacade facade,
-    required StatisticsAnalysisWindowId selectedWindowId,
-  }) {
-    final selectedWindow =
-        StatisticsAnalysisWindowCatalog.byId(selectedWindowId);
-    final readings = windowReader.readingsForWindow(facade, selectedWindow);
-    final previousReadings =
-        windowReader.previousReadingsForWindow(facade, selectedWindow);
-    final tir = facade.tirForReadings(readings);
-    final previousTir = facade.tirForReadings(previousReadings);
-    final agpSlots = facade.agpForReadings(readings);
-    final hourlyTir = facade.hourlyTirForReadings(readings);
-    final settings = facade.settings;
-
+  StatisticsViewModel map(StatisticsEngineOutput output) {
+    final period = output.periodSection;
+    final windowLabel = period.selectedWindow.label;
     return StatisticsViewModel(
-      selectedWindowId: selectedWindow.id,
-      periodOptions: StatisticsAnalysisWindowCatalog.all
+      selectedWindowId: period.selectedWindow.id,
+      periodOptions: period.options
           .map(
-            (window) => StatisticsPeriodOptionViewModel(
-              id: window.id,
-              label: window.label,
-              selected: window.id == selectedWindow.id,
+            (option) => StatisticsPeriodOptionViewModel(
+              id: option.id,
+              label: option.label,
+              selected: option.selected,
             ),
           )
-          .toList(),
-      metricsHeader: 'KEY METRICS - ${selectedWindow.headerLabel}',
-      metrics: _metrics(tir, previousTir, selectedWindow, settings),
-      tirBreakdown: _tirBreakdown(tir, settings),
-      agp: _agp(
-        window: selectedWindow,
-        readings: readings,
-        slots: agpSlots,
-        facade: facade,
-        settings: settings,
+          .toList(growable: false),
+      metricsHeader: metricsMapper.header(period.selectedWindow.headerLabel),
+      metrics: metricsMapper.map(
+        section: output.metricsSection,
+        settings: output.settings,
+        previousWindowLabel: windowLabel,
       ),
-      heatmap: _heatmap(hourlyTir),
+      tirBreakdown: tirMapper.map(
+        section: output.tirBreakdownSection,
+        settings: output.settings,
+      ),
+      agp: agpMapper.map(
+        section: output.agpSection,
+        settings: output.settings,
+      ),
+      heatmap: heatmapMapper.map(output.heatmapSection),
     );
-  }
-
-  List<StatisticsMetricCardViewModel> _metrics(
-    AnalysisTirResult current,
-    AnalysisTirResult previous,
-    StatisticsAnalysisWindow window,
-    AppSettings settings,
-  ) {
-    final tirColor = current.tir >= 70
-        ? AppColors.green
-        : current.tir >= 50
-            ? AppColors.amber
-            : AppColors.rose;
-    final cvColor = current.cv < 36 ? AppColors.green : AppColors.amber;
-
-    final unit = settings.unit;
-    final mean = glucoseFormatter.value(current.mean, unit);
-    final previousMean = glucoseFormatter.value(previous.mean, unit);
-    final sd = glucoseFormatter.value(current.sd, unit);
-    final previousSd = glucoseFormatter.value(previous.sd, unit);
-    final meanDelta = mean.value - previousMean.value;
-    final sdDelta = sd.value - previousSd.value;
-
-    return [
-      StatisticsMetricCardViewModel(
-        label: 'Time in Range',
-        value: current.tir.toStringAsFixed(0),
-        valueColor: tirColor,
-        suffix: '%',
-        unit: thresholdFormatter.targetRange(settings),
-        deltaText: _deltaText(
-          current.tir - previous.tir,
-          suffix: '% vs prev ${window.label}',
-        ),
-        deltaTone: _tone(current.tir - previous.tir, higherIsBetter: true),
-      ),
-      StatisticsMetricCardViewModel(
-        label: 'Avg Glucose',
-        value: mean.valueLabel,
-        valueColor: AppColors.text,
-        unit: '${mean.unitLabel} - GMI ${current.gmi.toStringAsFixed(1)}%',
-        deltaText: _deltaText(meanDelta, suffix: ' ${mean.unitLabel}'),
-        deltaTone: _tone(current.mean - previous.mean, higherIsBetter: false),
-      ),
-      StatisticsMetricCardViewModel(
-        label: 'Variability CV',
-        value: current.cv.toStringAsFixed(0),
-        valueColor: cvColor,
-        suffix: '%',
-        unit: current.cv < 36 ? 'stable (<36%)' : 'elevated',
-        deltaText: _deltaText(current.cv - previous.cv, suffix: '%'),
-        deltaTone: _tone(current.cv - previous.cv, higherIsBetter: false),
-      ),
-      StatisticsMetricCardViewModel(
-        label: 'Std Deviation',
-        value: sd.valueLabel,
-        valueColor: AppColors.text,
-        unit: sd.unitLabel,
-        deltaText: _deltaText(sdDelta, suffix: ' ${sd.unitLabel}'),
-        deltaTone: _tone(current.sd - previous.sd, higherIsBetter: false),
-      ),
-    ];
-  }
-
-  StatisticsTirBreakdownViewModel _tirBreakdown(
-    AnalysisTirResult tir,
-    AppSettings settings,
-  ) {
-    final lowPct = tir.tbr;
-    final inRangePct = tir.tir;
-    final highOnlyPct = (tir.tar - tir.tarVeryHigh).clamp(0, 100).toDouble();
-    final veryHighPct = tir.tarVeryHigh;
-    final veryLowMin = (tir.tbrVeryLow / 100 * 1440).round();
-    final veryHighMin = (veryHighPct / 100 * 1440).round();
-    final veryLowLabel =
-        '<${glucoseFormatter.value(3.0, settings.unit).valueLabel}';
-    final veryHighLabel = thresholdFormatter.veryHighLabel(settings);
-
-    final segments = [
-      StatisticsTirSegmentViewModel(color: AppColors.blue, fraction: lowPct),
-      StatisticsTirSegmentViewModel(
-          color: AppColors.green, fraction: inRangePct),
-      StatisticsTirSegmentViewModel(
-          color: AppColors.rose, fraction: highOnlyPct),
-      StatisticsTirSegmentViewModel(
-          color: _veryHighColor, fraction: veryHighPct),
-    ].where((segment) => segment.fraction > 0).toList();
-
-    return StatisticsTirBreakdownViewModel(
-      segments: segments,
-      legends: [
-        StatisticsLegendItemViewModel(
-          color: AppColors.blue,
-          text: 'Low ${lowPct.toStringAsFixed(0)}%',
-        ),
-        StatisticsLegendItemViewModel(
-          color: AppColors.green,
-          text: 'In range ${inRangePct.toStringAsFixed(0)}%',
-        ),
-        StatisticsLegendItemViewModel(
-          color: AppColors.rose,
-          text: 'High ${highOnlyPct.toStringAsFixed(0)}%',
-        ),
-        StatisticsLegendItemViewModel(
-          color: _veryHighColor,
-          text: 'Very high ${veryHighPct.toStringAsFixed(0)}%',
-        ),
-      ],
-      extremes: [
-        StatisticsExtremeCellViewModel(
-          label: 'Very Low $veryLowLabel',
-          value: '${tir.tbrVeryLow.toStringAsFixed(1)}%',
-          subtitle: '~$veryLowMin min/day',
-        ),
-        StatisticsExtremeCellViewModel(
-          label: 'Very High $veryHighLabel',
-          value: '${veryHighPct.toStringAsFixed(0)}%',
-          subtitle: '~$veryHighMin min/day',
-        ),
-      ],
-    );
-  }
-
-  StatisticsAgpViewModel _agp({
-    required StatisticsAnalysisWindow window,
-    required List<GlucoseReading> readings,
-    required List<AnalysisAgpSlot> slots,
-    required AnalysisFacade facade,
-    required AppSettings settings,
-  }) {
-    final dawn = _dawnAnalysis(readings);
-    return StatisticsAgpViewModel(
-      title: 'AGP - Ambulatory Glucose Profile - ${window.label} pattern',
-      guidanceText: window.isAgpRecommended
-          ? ''
-          : 'AGP is more meaningful with 7+ days of data.',
-      slots: slots,
-      unit: settings.unit,
-      lowThreshold: settings.lowThreshold,
-      highThreshold: settings.highThreshold,
-      annotations: dawn.consistent
-          ? const [
-              AgpAnnotation(
-                minuteOfDay: 300,
-                labels: ['Dawn', 'phenomenon'],
-                color: AppColors.amber,
-                opacity: 0.5,
-              ),
-            ]
-          : const [],
-      note: _agpNote(
-        readings: readings,
-        slots: slots,
-        dawn: dawn,
-        facade: facade,
-        settings: settings,
-      ),
-    );
-  }
-
-  ({
-    bool consistent,
-    double averageRise,
-    int significantDays,
-    int observedDays,
-  }) _dawnAnalysis(List<GlucoseReading> readings) {
-    final rises = DawnPhenomenonDetector.detectDailyRises(readings);
-    if (rises.isEmpty) {
-      return (
-        consistent: false,
-        averageRise: 0.0,
-        significantDays: 0,
-        observedDays: 0,
-      );
-    }
-
-    final significantDays = rises
-        .where((rise) => rise >= DawnPhenomenonDetector.significantRiseMmol)
-        .length;
-    final requiredDays = (rises.length * 0.65).ceil().clamp(2, 10).toInt();
-    final averageRise =
-        rises.reduce((value, element) => value + element) / rises.length;
-
-    return (
-      consistent: significantDays >= requiredDays,
-      averageRise: averageRise,
-      significantDays: significantDays,
-      observedDays: rises.length,
-    );
-  }
-
-  String _agpNote({
-    required List<GlucoseReading> readings,
-    required List<AnalysisAgpSlot> slots,
-    required ({
-      bool consistent,
-      double averageRise,
-      int significantDays,
-      int observedDays,
-    }) dawn,
-    required AnalysisFacade facade,
-    required AppSettings settings,
-  }) {
-    if (readings.isEmpty || slots.isEmpty) {
-      return agpTextRenderer.renderEmpty();
-    }
-
-    final variablePeriods = _periodVariability(facade, readings);
-    final topPeriod = variablePeriods.isEmpty ? null : variablePeriods.first;
-    final secondPeriod = variablePeriods.length > 1 ? variablePeriods[1] : null;
-    final peak = _medianPeak(slots);
-    final peakTime = _formatMinute(peak.minuteOfDay);
-    final unit = settings.unit;
-    final riseThreshold = glucoseFormatter.value(
-        DawnPhenomenonDetector.significantRiseMmol, unit);
-
-    final parts = <String>[];
-    if (dawn.consistent) {
-      final rise = glucoseFormatter.value(dawn.averageRise, unit);
-      parts.add(agpTextRenderer.renderDawn({
-        'dawnConsistent': true,
-        'windowLabel': DawnPhenomenonDetector.windowLabel,
-        'significantDays': dawn.significantDays,
-        'observedDays': dawn.observedDays,
-        'averageRise': rise.valueLabel,
-        'glucoseUnit': rise.unitLabel,
-      }));
-    } else if (dawn.observedDays == 0) {
-      parts.add(agpTextRenderer.renderDawn({
-        'dawnNotEnough': true,
-        'windowLabel': DawnPhenomenonDetector.windowLabel,
-      }));
-    } else {
-      parts.add(agpTextRenderer.renderDawn({
-        'dawnObserved': true,
-        'significantDays': dawn.significantDays,
-        'observedDays': dawn.observedDays,
-        'riseThreshold': riseThreshold.valueLabel,
-        'glucoseUnit': riseThreshold.unitLabel,
-      }));
-    }
-
-    final peakValue = glucoseFormatter.value(peak.value, unit);
-    parts.add(agpTextRenderer.renderPeak({
-      'peakValue': peakValue.valueLabel,
-      'glucoseUnit': peakValue.unitLabel,
-      'peakTime': peakTime,
-    }));
-
-    if (topPeriod != null && secondPeriod != null) {
-      parts.add(agpTextRenderer.renderVariability({
-        'topPeriod': topPeriod.label,
-        'topCv': topPeriod.cv.toStringAsFixed(0),
-        'secondPeriod': secondPeriod.label.toLowerCase(),
-        'secondCv': secondPeriod.cv.toStringAsFixed(0),
-      }));
-    } else if (topPeriod != null) {
-      parts.add(agpTextRenderer.renderVariability({
-        'topPeriod': topPeriod.label,
-        'topCv': topPeriod.cv.toStringAsFixed(0),
-      }));
-    } else {
-      parts.add(
-        agpTextRenderer.renderVariability({'notEnoughData': true}),
-      );
-    }
-
-    return parts.join(' ');
-  }
-
-  ({int minuteOfDay, double value}) _medianPeak(List<AnalysisAgpSlot> slots) {
-    var best = slots.first;
-    for (final slot in slots.skip(1)) {
-      if (slot.p50 > best.p50) best = slot;
-    }
-    return (minuteOfDay: best.minuteOfDay, value: best.p50);
-  }
-
-  List<({String label, double cv})> _periodVariability(
-    AnalysisFacade facade,
-    List<GlucoseReading> readings,
-  ) {
-    final periods = [
-      (label: 'Night', start: 0, end: 6),
-      (label: 'Morning', start: 6, end: 12),
-      (label: 'Afternoon', start: 12, end: 18),
-      (label: 'Evening', start: 18, end: 24),
-    ];
-    final rows = <({String label, double cv})>[];
-    for (final period in periods) {
-      final periodReadings = readings
-          .where((reading) =>
-              reading.timestamp.hour >= period.start &&
-              reading.timestamp.hour < period.end)
-          .toList();
-      if (periodReadings.isEmpty) continue;
-      rows.add((
-        label: period.label,
-        cv: facade.tirForReadings(periodReadings).cv,
-      ));
-    }
-    rows.sort((a, b) => b.cv.compareTo(a.cv));
-    return rows;
-  }
-
-  StatisticsHeatmapViewModel _heatmap(List<double> hourlyTir) {
-    return StatisticsHeatmapViewModel(
-      title: 'Hourly TIR heatmap',
-      cells: List.generate(24, (hour) {
-        final value = hourlyTir.isNotEmpty ? hourlyTir[hour] : 0.0;
-        final tag = _heatmapTag(value);
-        return StatisticsHeatmapCellViewModel(
-          hour: hour,
-          tirPct: value,
-          color: _cellColor(value),
-          timeLabel: '${hour.toString().padLeft(2, '0')}:00',
-          tirLabel: '${value.toStringAsFixed(0)}%',
-          tagLabel: tag.label,
-          tagColor: tag.color,
-        );
-      }),
-      labels: const ['00:00', '06:00', '12:00', '18:00', '24:00'],
-    );
-  }
-
-  ({String label, Color color}) _heatmapTag(double tirPct) {
-    if (tirPct >= 70) {
-      return (label: 'in target', color: AppColors.green);
-    }
-    if (tirPct >= 55) {
-      return (label: 'below target', color: AppColors.amber);
-    }
-    return (label: 'needs attention', color: AppColors.rose);
-  }
-
-  Color _cellColor(double tirPct) {
-    final normalized = ((tirPct - 40) / 42).clamp(0.0, 1.0);
-    int r;
-    int g;
-    int b;
-    if (normalized < 0.45) {
-      final f = normalized / 0.45;
-      r = (240 + (110 - 240) * f).round();
-      g = (180 + (232 - 180) * f).round();
-      b = (78 + (158 - 78) * f).round();
-    } else {
-      r = 110;
-      g = 232;
-      b = 158;
-    }
-    final alpha = (0.15 + normalized * 0.68).clamp(0.0, 1.0);
-    return Color.fromRGBO(r, g, b, alpha);
-  }
-
-  String _deltaText(double delta, {required String suffix}) {
-    if (delta.abs() < 0.05) return 'same';
-    final sign = delta > 0 ? '+' : '';
-    return '$sign${delta.toStringAsFixed(1)}$suffix';
-  }
-
-  StatisticsDeltaTone _tone(double delta, {required bool higherIsBetter}) {
-    if (delta.abs() < 0.05) return StatisticsDeltaTone.flat;
-    final improved = higherIsBetter ? delta > 0 : delta < 0;
-    return improved ? StatisticsDeltaTone.up : StatisticsDeltaTone.down;
-  }
-
-  String _formatMinute(int minuteOfDay) {
-    final hour = minuteOfDay ~/ 60;
-    final minute = minuteOfDay % 60;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 }

@@ -1,6 +1,7 @@
 class AlertInputOrigin {
   static const im = AlertInputOrigin('im');
   static const localAnalysis = AlertInputOrigin('local_analysis');
+  static const cloud = AlertInputOrigin('cloud');
   static const system = AlertInputOrigin('system');
 
   final String code;

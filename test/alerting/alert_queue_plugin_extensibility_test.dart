@@ -12,8 +12,7 @@ import 'package:smart_xdrip/alerting/domain/queue/alert_queue_source.dart';
 import '../_support/test_database.dart';
 
 void main() {
-  test(
-      'alert queue accepts plugin handlers without feature-specific dependencies',
+  test('alert queue accepts plugin handlers without Follow dependencies',
       () async {
     final database = await TestDatabase.createWithAlerting();
     final queueRepository = SqliteAlertQueueRepository(

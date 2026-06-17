@@ -33,8 +33,11 @@ class GlucoseRapidFallRuleEvaluator extends AlertRuleEvaluator {
       level: rule.level,
       type: 'rapidFall',
       title: 'Rapid fall',
-      body: 'Glucose is falling quickly.',
+      body: '',
       value: latest.value,
+      valueMmol: latest.value,
+      rateMmolPerMin: rate,
+      thresholdRateMmolPerMin: threshold,
       occurredAt: latest.timestamp,
     );
   }

@@ -831,12 +831,17 @@ class GlucoseDatabase {
   }) =>
       readings.latest(subjectId: subjectId);
 
+  Future<GlucoseReading?> latestAnySubject() => readings.latestAnySubject();
+
   Future<List<GlucoseReading>> range(
     DateTime from,
     DateTime to, {
     String subjectId = GlucoseSubject.selfId,
   }) =>
       readings.range(from, to, subjectId: subjectId);
+
+  Future<List<GlucoseReading>> rangeAnySubject(DateTime from, DateTime to) =>
+      readings.rangeAnySubject(from, to);
 
   Future<int> count({
     String subjectId = GlucoseSubject.selfId,

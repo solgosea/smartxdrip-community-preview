@@ -8,11 +8,14 @@ import 'history_events_list.dart';
 import 'history_page_title.dart';
 import 'history_stats_grid.dart';
 import 'history_summary_chips.dart';
+import 'history_time_filter_banner.dart';
 
 class HistoryBody extends StatelessWidget {
   final HistoryViewModel viewModel;
   final VoidCallback onPreviousDay;
   final VoidCallback onNextDay;
+  final ValueChanged<DateTime> onTimeSelected;
+  final VoidCallback onClearTimeFilter;
   final ValueChanged<String> onRouteSelected;
 
   const HistoryBody({
@@ -20,6 +23,8 @@ class HistoryBody extends StatelessWidget {
     required this.viewModel,
     required this.onPreviousDay,
     required this.onNextDay,
+    required this.onTimeSelected,
+    required this.onClearTimeFilter,
     required this.onRouteSelected,
   });
 
@@ -40,7 +45,15 @@ class HistoryBody extends StatelessWidget {
             const SizedBox(height: 4),
             HistorySummaryChips(chips: viewModel.summaryChips),
             const SizedBox(height: 4),
-            HistoryCurveCard(viewModel: viewModel.curve),
+            HistoryCurveCard(
+              viewModel: viewModel.curve,
+              onTimeSelected: onTimeSelected,
+            ),
+            if (viewModel.timeFilter != null)
+              HistoryTimeFilterBanner(
+                viewModel: viewModel.timeFilter!,
+                onClear: onClearTimeFilter,
+              ),
             HistoryStatsGrid(stats: viewModel.stats),
             HistoryEpisodeCallouts(
               callouts: viewModel.episodeCallouts,

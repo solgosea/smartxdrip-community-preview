@@ -1,3 +1,5 @@
+import 'package:smart_xdrip/core/app_metadata.dart';
+
 import '../analyzers/settings_storage_analyzer.dart';
 import '../mappers/settings_view_model_mapper.dart';
 import '../runtime/settings_runtime_cache.dart';
@@ -18,6 +20,7 @@ class SettingsSnapshotPreheater {
 
   Future<SettingsRuntimeSnapshot> preheat() async {
     final settings = hostServices.settingsProvider();
+    final appMetadata = await AppMetadata.fromPlatform();
     final analysis = await storageAnalyzer.analyze(
       settings: settings,
       databaseFileSizeBytes: hostServices.databaseFileSizeBytes,
@@ -27,6 +30,7 @@ class SettingsSnapshotPreheater {
       viewModel: mapper.map(
         analysis: analysis,
         saving: false,
+        appMetadata: appMetadata,
       ),
       analysis: analysis,
       updatedAt: now(),

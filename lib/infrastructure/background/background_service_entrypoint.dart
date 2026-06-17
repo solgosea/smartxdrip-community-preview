@@ -146,5 +146,15 @@ void smartXdripBackgroundServiceOnStart(ServiceInstance service) async {
     handleAlertActuatorCommand(event);
   });
 
+  service.on(BackgroundServiceCommands.stopFollowAlertSound).listen((event) {
+    final personId = event?['personId']?.toString().trim();
+    final type = event?['type']?.toString().trim();
+    handleAlertActuatorCommand({
+      'commandType': AlertActuatorCommandType.stopTarget.code,
+      'targetId': personId,
+      'type': type,
+    });
+  });
+
   await runOnce('start');
 }

@@ -2,8 +2,8 @@ package com.metaguru.smartxdrip.floating
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
+import com.metaguru.smartxdrip.platform.OverlayPermissionIntentLauncher
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -17,11 +17,7 @@ object FloatingSurfaceBridge {
                 when (call.method) {
                     "hasOverlayPermission" -> result.success(Settings.canDrawOverlays(context))
                     "requestOverlayPermission" -> {
-                        val intent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:${context.packageName}")
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
+                        OverlayPermissionIntentLauncher.openAppOverlaySettings(context)
                         result.success(true)
                     }
                     "update" -> {

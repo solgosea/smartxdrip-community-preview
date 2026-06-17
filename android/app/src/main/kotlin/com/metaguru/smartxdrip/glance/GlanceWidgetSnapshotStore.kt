@@ -10,6 +10,10 @@ data class GlanceWidgetSnapshot(
     val deltaLabel: String,
     val trendArrow: String,
     val freshnessLabel: String,
+    val tir24hLabel: String,
+    val tir24hCompactLabel: String,
+    val tir24hPercent: Float?,
+    val tir24hReadingCount: Int,
     val sourceLabel: String,
     val rangeState: String,
     val targetLowMmol: Float,
@@ -42,6 +46,10 @@ class GlanceWidgetSnapshotStore(private val context: Context) {
             .putString("deltaLabel", snapshot["deltaLabel"] as? String ?: "+0.0")
             .putString("trendArrow", snapshot["trendArrow"] as? String ?: "->")
             .putString("freshnessLabel", snapshot["freshnessLabel"] as? String ?: "No recent data")
+            .putString("tir24hLabel", snapshot["tir24hLabel"] as? String ?: "TIR 24H --")
+            .putString("tir24hCompactLabel", snapshot["tir24hCompactLabel"] as? String ?: "TIR --")
+            .putFloat("tir24hPercent", (snapshot["tir24hPercent"] as? Number)?.toFloat() ?: -1f)
+            .putInt("tir24hReadingCount", (snapshot["tir24hReadingCount"] as? Number)?.toInt() ?: 0)
             .putLong(
                 "latestReadingAtMs",
                 (snapshot["latestReadingAtMs"] as? Number)?.toLong() ?: 0L
@@ -82,6 +90,10 @@ class GlanceWidgetSnapshotStore(private val context: Context) {
                 prefs.getLong("latestReadingAtMs", 0L),
                 fallbackFreshness
             ),
+            tir24hLabel = prefs.getString("tir24hLabel", "TIR 24H --") ?: "TIR 24H --",
+            tir24hCompactLabel = prefs.getString("tir24hCompactLabel", "TIR --") ?: "TIR --",
+            tir24hPercent = prefs.getFloat("tir24hPercent", -1f).takeIf { it >= 0f },
+            tir24hReadingCount = prefs.getInt("tir24hReadingCount", 0),
             sourceLabel = prefs.getString("sourceLabel", "Solgo Insight") ?: "Solgo Insight",
             rangeState = prefs.getString("rangeState", "unknown") ?: "unknown",
             targetLowMmol = prefs.getFloat("targetLowMmol", 3.9f),

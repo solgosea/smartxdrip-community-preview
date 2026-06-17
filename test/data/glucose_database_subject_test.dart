@@ -34,7 +34,7 @@ void main() {
   test('readings with the same timestamp are isolated by subject id', () async {
     final db = TestDatabase.create();
     final now = DateTime(2026, 6, 5, 12);
-    const childSubject = 'remote_child_1';
+    const childSubject = 'follow_child_1';
 
     await db.upsertMany([
       GlucoseReading(timestamp: now, value: 6.1),
@@ -58,7 +58,7 @@ void main() {
     final db = TestDatabase.create();
     final now = DateTime(2026, 6, 5, 12);
     final bucket = now.millisecondsSinceEpoch;
-    const childSubject = 'remote_child_1';
+    const childSubject = 'follow_child_1';
 
     await db.upsertRawReadings([
       RawGlucoseReading(
@@ -122,7 +122,7 @@ void main() {
 
   test('source sync state is scoped by subject id', () async {
     final db = TestDatabase.create();
-    const childSubject = 'remote_child_1';
+    const childSubject = 'follow_child_1';
 
     await db.recordSourceSuccess('nightscout', cursor: 'self-cursor');
     await db.recordSourceSuccess(
@@ -195,9 +195,9 @@ void main() {
         timestamp: DateTime(2026, 6, 5, 12),
         value: 4.4,
       ),
-    ], subjectId: 'remote_child_1');
+    ], subjectId: 'follow_child_1');
     expect((await migrated.latest())?.value, 6.7);
-    expect((await migrated.latest(subjectId: 'remote_child_1'))?.value, 4.4);
+    expect((await migrated.latest(subjectId: 'follow_child_1'))?.value, 4.4);
 
     await migrated.close();
     await dir.delete(recursive: true);

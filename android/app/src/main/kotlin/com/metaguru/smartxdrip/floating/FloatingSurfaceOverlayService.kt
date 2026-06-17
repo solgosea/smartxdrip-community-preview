@@ -49,7 +49,7 @@ class FloatingSurfaceOverlayService : Service() {
         }
         removeView()
         val overlayWidth = overlayWidth(snapshot)
-        val overlayHeight = if (snapshot.segments.size > 1) 64.dp else 44.dp
+        val overlayHeight = overlayHeight(snapshot)
         val maxX = (resources.displayMetrics.widthPixels - overlayWidth - 8.dp).coerceAtLeast(0)
         val maxY = (resources.displayMetrics.heightPixels - overlayHeight - 24.dp).coerceAtLeast(0)
         val clampedX = snapshot.x.coerceIn(0, maxX)
@@ -80,11 +80,21 @@ class FloatingSurfaceOverlayService : Service() {
                 windowManager = manager,
                 params = params,
                 onPositionChanged = store::savePosition,
-                onClick = { FloatingSurfaceTapActionHandler.openApp(this) }
+                onClick = { handleClick(snapshot) }
             )
         )
         manager.addView(view, params)
         floatingView = view
+    }
+
+    private fun handleClick(snapshot: FloatingSurfaceSnapshot) {
+        if (snapshot.isSingleGlance()) {
+            val next = if (snapshot.overlayState == "expanded") "compact" else "expanded"
+            store.saveOverlayState(next)
+            render()
+            return
+        }
+        FloatingSurfaceTapActionHandler.openApp(this)
     }
 
     private fun removeView() {
@@ -102,8 +112,26 @@ class FloatingSurfaceOverlayService : Service() {
 
     private fun overlayWidth(snapshot: FloatingSurfaceSnapshot): Int {
         val screenWidth = resources.displayMetrics.widthPixels
-        val desired = if (snapshot.segments.size > 1) 286.dp else 232.dp
+        val desired = when {
+            snapshot.isSingleGlance() && snapshot.overlayState == "expanded" -> 324.dp
+            snapshot.isSingleGlance() -> 244.dp
+            snapshot.segments.size > 1 -> 286.dp
+            else -> 232.dp
+        }
         return desired.coerceAtMost(screenWidth - 32.dp)
+    }
+
+    private fun overlayHeight(snapshot: FloatingSurfaceSnapshot): Int {
+        return when {
+            snapshot.isSingleGlance() && snapshot.overlayState == "expanded" -> 214.dp
+            snapshot.isSingleGlance() -> 54.dp
+            snapshot.segments.size > 1 -> 64.dp
+            else -> 44.dp
+        }
+    }
+
+    private fun FloatingSurfaceSnapshot.isSingleGlance(): Boolean {
+        return segments.size == 1 && segments.firstOrNull()?.id == "glance"
     }
 
     private val Int.dp: Int

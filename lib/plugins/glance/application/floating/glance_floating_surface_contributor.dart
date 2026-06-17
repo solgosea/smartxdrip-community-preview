@@ -41,6 +41,12 @@ class GlanceFloatingSurfaceContributor {
         'rangeState': snapshot.rangeState.code,
         'hasReading': snapshot.hasReading,
         'isStale': snapshot.freshness.isStale,
+        'sourceLabel': snapshot.sourceLabel,
+        'targetLowMmol': snapshot.targetLowMmol,
+        'targetHighMmol': snapshot.targetHighMmol,
+        'sparklinePoints': [
+          for (final point in snapshot.sparklinePoints) point.toMap(),
+        ],
       },
     );
   }

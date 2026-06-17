@@ -271,7 +271,7 @@ class _SoundOptionTile extends StatelessWidget {
 
   String _subtitleFor(AlertSoundRef sound) {
     return switch (sound.source) {
-      AlertSoundSource.asset => 'Bundled with Smart xDrip',
+      AlertSoundSource.asset => 'Bundled with Solgo Insight',
       AlertSoundSource.file => 'Imported into app private storage',
       AlertSoundSource.silent => 'Sound channel stays silent',
     };

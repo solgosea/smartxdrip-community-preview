@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import 'package:smart_xdrip/domain/entities/glucose_reading.dart';
 import 'package:smart_xdrip/presentation/common/widgets/charts/glucose_line_chart.dart';
+import '../domain/history_episode_navigation_target.dart';
 
 class HistoryViewModel {
   final HistoryDateNavViewModel dateNav;
@@ -10,6 +11,7 @@ class HistoryViewModel {
   final List<HistoryStatCardViewModel> stats;
   final List<HistoryEpisodeCalloutViewModel> episodeCallouts;
   final List<HistoryEventRowViewModel> events;
+  final HistoryTimeFilterViewModel? timeFilter;
 
   const HistoryViewModel({
     required this.dateNav,
@@ -18,7 +20,14 @@ class HistoryViewModel {
     required this.stats,
     required this.episodeCallouts,
     required this.events,
+    this.timeFilter,
   });
+}
+
+class HistoryTimeFilterViewModel {
+  final String label;
+
+  const HistoryTimeFilterViewModel({required this.label});
 }
 
 class HistoryDateNavViewModel {
@@ -86,6 +95,7 @@ class HistoryEpisodeCalloutViewModel {
   final String summary;
   final String actionLabel;
   final String route;
+  final HistoryEpisodeNavigationTarget navigationTarget;
 
   const HistoryEpisodeCalloutViewModel({
     required this.color,
@@ -94,6 +104,7 @@ class HistoryEpisodeCalloutViewModel {
     required this.summary,
     required this.actionLabel,
     required this.route,
+    required this.navigationTarget,
   });
 }
 

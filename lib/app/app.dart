@@ -63,6 +63,8 @@ class _SmartXDripAppState extends State<SmartXDripApp>
       statusBarColor: Colors.transparent,
       statusBarBrightness: Brightness.dark,
       statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF0C1410),
+      systemNavigationBarIconBrightness: Brightness.light,
     ));
     return MultiProvider(
       providers: [

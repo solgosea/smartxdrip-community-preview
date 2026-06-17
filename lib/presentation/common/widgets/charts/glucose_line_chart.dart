@@ -56,6 +56,7 @@ class GlucoseLineChart extends StatefulWidget {
   final bool showCurrentDot;
   final bool enableInspection;
   final ValueChanged<bool>? onInspectionChanged;
+  final ValueChanged<GlucoseChartInspectionPoint?>? onInspectionPointChanged;
   final DateTime? timeRangeStart;
   final DateTime? timeRangeEnd;
 
@@ -77,6 +78,7 @@ class GlucoseLineChart extends StatefulWidget {
     this.showCurrentDot = true,
     this.enableInspection = false,
     this.onInspectionChanged,
+    this.onInspectionPointChanged,
     this.timeRangeStart,
     this.timeRangeEnd,
     this.coloringMode = ChartColoringMode.single,
@@ -201,12 +203,14 @@ class _GlucoseLineChartState extends State<GlucoseLineChart> {
     if (point == null) return;
     final wasInspecting = _inspectionPoint != null;
     setState(() => _inspectionPoint = point);
+    widget.onInspectionPointChanged?.call(point);
     if (!wasInspecting) widget.onInspectionChanged?.call(true);
   }
 
   void _clearInspection() {
     if (_inspectionPoint == null) return;
     setState(() => _inspectionPoint = null);
+    widget.onInspectionPointChanged?.call(null);
     widget.onInspectionChanged?.call(false);
   }
 
@@ -215,13 +219,17 @@ class _GlucoseLineChartState extends State<GlucoseLineChart> {
     super.didUpdateWidget(oldWidget);
     if (!widget.enableInspection && _inspectionPoint != null) {
       _inspectionPoint = null;
+      widget.onInspectionPointChanged?.call(null);
       widget.onInspectionChanged?.call(false);
     }
   }
 
   @override
   void dispose() {
-    if (_inspectionPoint != null) widget.onInspectionChanged?.call(false);
+    if (_inspectionPoint != null) {
+      widget.onInspectionPointChanged?.call(null);
+      widget.onInspectionChanged?.call(false);
+    }
     super.dispose();
   }
 }

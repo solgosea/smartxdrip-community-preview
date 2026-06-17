@@ -52,6 +52,7 @@ class ProfileHeaderCard extends StatelessWidget {
                   runSpacing: 4,
                   children: [
                     _Badge(text: viewModel.primaryBadge, green: true),
+                    _Badge(text: viewModel.glucotypeBadge, green: false),
                   ],
                 ),
               ],

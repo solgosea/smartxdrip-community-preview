@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_xdrip/plugins/statistics/domain/statistics_analysis_window_catalog.dart';
 import 'package:smart_xdrip/plugins/statistics/domain/statistics_analysis_window_id.dart';
 import 'package:smart_xdrip/plugins/statistics/models/statistics_view_model.dart';
-import 'package:smart_xdrip/plugins/statistics/widgets/statistics_period_tabs.dart';
+import 'package:smart_xdrip/plugins/statistics/widgets/controls/statistics_period_tabs.dart';
 
 void main() {
   testWidgets('statistics period tabs emit selected window id', (tester) async {

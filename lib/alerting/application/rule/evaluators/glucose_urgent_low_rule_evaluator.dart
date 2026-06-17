@@ -29,8 +29,10 @@ class GlucoseUrgentLowRuleEvaluator extends AlertRuleEvaluator {
       level: rule.level,
       type: 'urgentLow',
       title: 'Urgent low glucose',
-      body: 'Glucose is ${latest.value.toStringAsFixed(1)} mmol/L.',
+      body: '',
       value: latest.value,
+      valueMmol: latest.value,
+      thresholdMmol: threshold,
       occurredAt: latest.timestamp,
     );
   }

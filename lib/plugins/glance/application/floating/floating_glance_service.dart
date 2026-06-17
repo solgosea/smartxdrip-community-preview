@@ -39,6 +39,14 @@ class FloatingGlanceService {
     await update(snapshot);
   }
 
+  Future<void> show(GlanceSnapshot snapshot) {
+    return update(snapshot);
+  }
+
+  Future<void> hide() {
+    return stop();
+  }
+
   Future<void> stop() {
     return surfaceService.removeSegment(
       GlanceFloatingSurfaceContributor.segmentId,

@@ -1,5 +1,6 @@
 import '../../../domain/entities/app_settings.dart';
 import '../../../domain/entities/glucose_reading.dart';
+import 'floating/floating_glance_sparkline_point.dart';
 import 'glance_freshness.dart';
 import 'glance_range_state.dart';
 import 'glance_tir_summary.dart';
@@ -21,6 +22,7 @@ class GlanceSnapshot {
   final double targetLowMmol;
   final double targetHighMmol;
   final GlanceTirSummary tir24h;
+  final List<FloatingGlanceSparklinePoint> sparklinePoints;
 
   const GlanceSnapshot({
     required this.generatedAt,
@@ -39,6 +41,7 @@ class GlanceSnapshot {
     required this.targetLowMmol,
     required this.targetHighMmol,
     this.tir24h = const GlanceTirSummary.unavailable(),
+    this.sparklinePoints = const [],
   });
 
   bool get hasReading => latestReading != null;

@@ -6,6 +6,7 @@ class InsightsViewModel {
   final String dailyBriefFooter;
   final WeeklyReviewViewModel weeklyReview;
   final List<InsightPatternViewModel> patterns;
+  final String patternsEmptyText;
 
   const InsightsViewModel({
     required this.headerDate,
@@ -13,6 +14,7 @@ class InsightsViewModel {
     required this.dailyBriefFooter,
     required this.weeklyReview,
     required this.patterns,
+    required this.patternsEmptyText,
   });
 }
 

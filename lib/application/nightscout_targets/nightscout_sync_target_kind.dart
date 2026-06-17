@@ -1,3 +1,4 @@
 enum NightscoutSyncTargetKind {
   selfDatasource,
+  followStream,
 }

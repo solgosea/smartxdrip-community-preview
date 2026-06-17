@@ -6,10 +6,12 @@ import 'history_curve_legend.dart';
 
 class HistoryCurveCard extends StatefulWidget {
   final HistoryCurveViewModel viewModel;
+  final ValueChanged<DateTime> onTimeSelected;
 
   const HistoryCurveCard({
     super.key,
     required this.viewModel,
+    required this.onTimeSelected,
   });
 
   @override
@@ -66,6 +68,10 @@ class _HistoryCurveCardState extends State<HistoryCurveCard> {
               height: 180,
               showCurrentDot: false,
               enableInspection: true,
+              onInspectionPointChanged: (point) {
+                if (point == null) return;
+                widget.onTimeSelected(point.reading.timestamp);
+              },
               onInspectionChanged: (value) {
                 if (_inspecting == value || !mounted) return;
                 setState(() => _inspecting = value);

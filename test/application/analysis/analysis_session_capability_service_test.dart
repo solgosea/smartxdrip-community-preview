@@ -27,13 +27,13 @@ void main() {
     expect(summary.hasGlucoseData, isFalse);
   });
 
-  test('remote subject with canonical snapshot is treated as sourced data', () {
+  test('follow subject with canonical snapshot is treated as sourced data', () {
     final store = AnalysisSessionStore.instance;
     const subject = AnalysisSubject(
-      id: 'remote:child-a',
+      id: 'follow:child-a',
       displayName: 'Child A',
-      sourceLabel: 'Remote Nightscout',
-      origin: AnalysisSubjectOrigin('remote'),
+      sourceLabel: 'Follow Nightscout',
+      origin: AnalysisSubjectOrigin('follow'),
     );
     final now = DateTime(2026, 6, 6, 8);
     store.update(

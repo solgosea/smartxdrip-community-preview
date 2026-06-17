@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../domain/statistics_analysis_window_id.dart';
 import '../models/statistics_view_model.dart';
-import 'statistics_agp_card.dart';
-import 'statistics_header.dart';
-import 'statistics_heatmap_card.dart';
-import 'statistics_metric_grid.dart';
-import 'statistics_metrics_header.dart';
-import 'statistics_period_tabs.dart';
-import 'statistics_tir_breakdown_card.dart';
+import 'agp/statistics_agp_card.dart';
+import 'controls/statistics_period_tabs.dart';
+import 'header/statistics_header.dart';
+import 'heatmap/statistics_heatmap_card.dart';
+import 'metrics/statistics_metric_grid.dart';
+import 'metrics/statistics_metrics_header.dart';
+import 'tir/statistics_tir_breakdown_card.dart';
 
 class StatisticsBody extends StatelessWidget {
   final StatisticsViewModel viewModel;

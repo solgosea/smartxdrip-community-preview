@@ -2,6 +2,7 @@ import '../../domain/analysis/analysis_module_code.dart';
 import '../../domain/analysis/analysis_snapshot.dart';
 import '../../domain/analysis/daily_glucose_summary.dart';
 import '../../domain/analysis/period_glucose_summary.dart';
+import '../../domain/entities/analysis_results.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/glucose_event.dart';
 import '../../domain/entities/glucose_reading.dart';
@@ -201,6 +202,53 @@ class AnalysisFacade {
     };
   }
 
+  GlucotypeResult? glucotypeFromDaily({int days = 14, DateTime? now}) {
+    final rows = _dailyForLastDays(days, now: now);
+    if (rows.isEmpty) return null;
+    final dailyPeakAvg =
+        rows.map((d) => d.maxValue).reduce((a, b) => a + b) / rows.length;
+    final cv = rows.map((d) => d.cv).reduce((a, b) => a + b) / rows.length;
+
+    final level = dailyPeakAvg < 8.5 && cv < 25
+        ? GlucotypeLevel.low
+        : dailyPeakAvg > 10.5 || cv > 36
+            ? GlucotypeLevel.severe
+            : GlucotypeLevel.moderate;
+
+    return GlucotypeResult(
+      level: level,
+      dailyPeakAvg: dailyPeakAvg,
+      cv: cv,
+      basedOn: '$days days',
+    );
+  }
+
+  PersonalBaseline? baselineFromDaily({int days = 60, DateTime? now}) {
+    final rows = _dailyForLastDays(days, now: now);
+    if (rows.length < 5) return null;
+
+    final tirs = rows.map((d) => d.tir).toList()..sort();
+    final peaks = rows.map((d) => d.maxValue).toList()..sort();
+    final cvs = rows.map((d) => d.cv).toList()..sort();
+    final firstReadings = rows.map((d) => d.firstReadingValue).toList()..sort();
+    final means = rows.map((d) => d.mean).toList()..sort();
+
+    return PersonalBaseline(
+      tirLow: _percentile(tirs, 25),
+      tirHigh: _percentile(tirs, 75),
+      peakLow: _percentile(peaks, 25),
+      peakHigh: _percentile(peaks, 75),
+      cvLow: _percentile(cvs, 25),
+      cvHigh: _percentile(cvs, 75),
+      fastingLow: _percentile(firstReadings, 25),
+      fastingHigh: _percentile(firstReadings, 75),
+      averageMeanLow: _percentile(means, 25),
+      averageMeanHigh: _percentile(means, 75),
+      updatedAt: snapshot?.generatedAt ?? DateTime.now(),
+      daysUsed: rows.length,
+    );
+  }
+
   List<GlucoseEvent> eventsForLastDays(int days, {DateTime? now}) {
     final current = now ?? latestReading?.timestamp ?? DateTime.now();
     final from = current.subtract(Duration(days: days));
@@ -240,4 +288,10 @@ class AnalysisFacade {
     return rows.where((d) => !d.day.isBefore(cutoff)).toList();
   }
 
+  double _percentile(List<double> sorted, int percentile) {
+    if (sorted.isEmpty) return 0;
+    final index = ((percentile / 100) * (sorted.length - 1)).round();
+    final clamped = index.clamp(0, sorted.length - 1).toInt();
+    return sorted[clamped];
+  }
 }

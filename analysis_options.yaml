@@ -5,8 +5,15 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "build/**"
+    - "lib/plugins/explore/glucose_music/test/**"
+    - "lib/plugins/explore/glucose_music/tool/**"
+    - "lib/plugins/explore/glucose_music/web/**"
   errors:
     deprecated_member_use: ignore
+    prefer_const_constructors: ignore
+    prefer_const_declarations: ignore
+    prefer_const_literals_to_create_immutables: ignore
+    prefer_final_locals: ignore
 
 linter:
   rules:

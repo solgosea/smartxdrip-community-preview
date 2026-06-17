@@ -19,7 +19,7 @@ class MethodChannelGlanceWidgetBridge implements GlanceWidgetPlatformBridge {
   final TargetPlatform? platform;
 
   const MethodChannelGlanceWidgetBridge({
-    this.channel = const MethodChannel('com.metaguru.Solgo Insight/glance_widget'),
+    this.channel = const MethodChannel('com.metaguru.smartxdrip/glance_widget'),
     this.payloadBuilder = const GlanceRenderPayloadBuilder(),
     this.androidPayloadMapper = const GlanceAndroidWidgetPayloadMapper(),
     this.iosPayloadMapper = const GlanceIosWidgetPayloadMapper(),

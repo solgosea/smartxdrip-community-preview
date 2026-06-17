@@ -87,6 +87,16 @@ class ReadingsDao {
     return rows.isEmpty ? null : _toReading(rows.first);
   }
 
+  Future<GlucoseReading?> latestAnySubject() async {
+    final database = await _db();
+    final rows = await database.query(
+      GlucoseTables.readings,
+      orderBy: 'ts_ms DESC',
+      limit: 1,
+    );
+    return rows.isEmpty ? null : _toReading(rows.first);
+  }
+
   Future<List<GlucoseReading>> range(
     DateTime from,
     DateTime to, {
@@ -98,6 +108,23 @@ class ReadingsDao {
       where: 'subject_id = ? AND ts_ms >= ? AND ts_ms < ?',
       whereArgs: [
         subjectId,
+        from.millisecondsSinceEpoch,
+        to.millisecondsSinceEpoch,
+      ],
+      orderBy: 'ts_ms ASC',
+    );
+    return rows.map(_toReading).toList();
+  }
+
+  Future<List<GlucoseReading>> rangeAnySubject(
+    DateTime from,
+    DateTime to,
+  ) async {
+    final database = await _db();
+    final rows = await database.query(
+      GlucoseTables.readings,
+      where: 'ts_ms >= ? AND ts_ms < ?',
+      whereArgs: [
         from.millisecondsSinceEpoch,
         to.millisecondsSinceEpoch,
       ],

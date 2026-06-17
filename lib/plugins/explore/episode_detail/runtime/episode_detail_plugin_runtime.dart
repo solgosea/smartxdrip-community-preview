@@ -8,6 +8,7 @@ import '../../../../plugin_platform/runtime/events/plugin_runtime_event.dart';
 import '../../../../plugin_platform/runtime/events/plugin_runtime_event_type.dart';
 import '../application/episode_detail_runtime_refresh_policy.dart';
 import '../application/episode_detail_snapshot_preheater.dart';
+import '../application/text/episode_detail_text_template_installer.dart';
 import '../models/episode_kind.dart';
 import 'episode_detail_runtime_cache.dart';
 import 'episode_detail_runtime_snapshot.dart';
@@ -18,6 +19,7 @@ class EpisodeDetailPluginRuntime implements PluginRuntime {
   final EpisodeDetailRuntimeCache cache;
   final EpisodeDetailSnapshotPreheater preheater;
   final EpisodeDetailRuntimeRefreshPolicy refreshPolicy;
+  final EpisodeDetailTextTemplateInstaller? textTemplateInstaller;
   final List<EpisodeKind> defaultKinds;
 
   StreamSubscription<PluginRuntimeEvent>? _subscription;
@@ -27,6 +29,7 @@ class EpisodeDetailPluginRuntime implements PluginRuntime {
   EpisodeDetailPluginRuntime({
     required this.cache,
     required this.preheater,
+    this.textTemplateInstaller,
     this.refreshPolicy = const EpisodeDetailRuntimeRefreshPolicy(),
     this.defaultKinds = const [EpisodeKind.high, EpisodeKind.low],
   });
@@ -39,6 +42,7 @@ class EpisodeDetailPluginRuntime implements PluginRuntime {
 
   @override
   Future<void> start(PluginRuntimeContext context) async {
+    await textTemplateInstaller?.ensureInstalled();
     _subscription ??= context.eventBus.events.listen((event) {
       if (refreshPolicy.shouldRefresh(event.type)) {
         cache.markStale(event.type.name);

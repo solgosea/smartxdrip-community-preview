@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:smart_xdrip/core/app_metadata.dart';
 import 'package:smart_xdrip/domain/entities/app_settings.dart';
 import '../models/settings_analysis_result.dart';
 import '../models/settings_view_model.dart';
@@ -10,6 +11,7 @@ class SettingsViewModelMapper {
   SettingsViewModel map({
     required SettingsAnalysisResult analysis,
     required bool saving,
+    AppMetadata appMetadata = AppMetadata.fallback,
   }) {
     final settings = analysis.settings;
     return SettingsViewModel(
@@ -72,9 +74,9 @@ class SettingsViewModelMapper {
         title: 'Clear all data',
         subtitle: 'Permanently removes all stored readings',
       ),
-      about: const SettingsAboutViewModel(
-        title: 'Smart xDrip v0.1.0 - Local-only - No account required',
-        links: ['Privacy', 'Open source'],
+      about: SettingsAboutViewModel(
+        title: appMetadata.aboutTitle,
+        links: const ['Privacy', 'Open source'],
       ),
       saving: saving,
     );

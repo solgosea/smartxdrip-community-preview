@@ -1,0 +1,34 @@
+import '../../domain/statistics_heatmap_tag.dart';
+import '../../domain/text/statistics_text_slot.dart';
+import '../../domain/text/statistics_text_type.dart';
+import 'statistics_text_renderer.dart';
+
+class StatisticsHeatmapTextBuilder {
+  final StatisticsTextRenderer renderer;
+
+  const StatisticsHeatmapTextBuilder({
+    this.renderer = const StatisticsTextRenderer(),
+  });
+
+  String title() {
+    return renderer.render(
+      slot: StatisticsTextSlot.heatmapTitle,
+      type: StatisticsTextType.defaultText,
+      facts: const {},
+    );
+  }
+
+  String tagLabel(StatisticsHeatmapTag tag) {
+    final type = switch (tag) {
+      StatisticsHeatmapTag.inTarget => StatisticsTextType.heatmapInTarget,
+      StatisticsHeatmapTag.belowTarget => StatisticsTextType.heatmapBelowTarget,
+      StatisticsHeatmapTag.needsAttention =>
+        StatisticsTextType.heatmapNeedsAttention,
+    };
+    return renderer.render(
+      slot: StatisticsTextSlot.heatmapTag,
+      type: type,
+      facts: const {},
+    );
+  }
+}

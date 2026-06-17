@@ -6,9 +6,12 @@ import 'package:smart_xdrip/application/sync_orchestration/glucose_source_sync_o
 import 'package:smart_xdrip/application/sync_target/glucose_sync_target_registry.dart';
 import '../../domain/entities/glucose_reading.dart';
 import '../../domain/entities/glucose_event.dart';
+import '../../domain/entities/analysis_results.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/repositories/i_glucose_repository.dart';
+import '../../engine/statistics/tir_calculator.dart';
 import '../../engine/detection/episode_detector.dart';
+import '../../engine/patterns/glucotype_classifier.dart';
 import '../local/glucose_database.dart';
 
 /// Coordinates between data sources (xDrip+ HTTP/Nightscout), the local
@@ -89,6 +92,75 @@ class GlucoseRepositoryImpl implements IGlucoseRepository {
   @override
   Future<List<GlucoseEvent>> eventsFor(List<GlucoseReading> readings) async {
     return EpisodeDetector.detect(readings);
+  }
+
+  @override
+  Future<GlucotypeResult> glucotype() async {
+    final readings = await lastDays(14);
+    return GlucotypeClassifier.classify(readings);
+  }
+
+  @override
+  Future<PersonalBaseline> baseline() async {
+    final now = DateTime.now();
+    final tirs = <double>[];
+    final peaks = <double>[];
+    final cvs = <double>[];
+    final fastings = <double>[];
+    final means = <double>[];
+
+    for (int d = 0; d < 60; d++) {
+      final day = now.subtract(Duration(days: d));
+      final dayReadings = await forDay(day);
+      if (dayReadings.length < 48) continue;
+      final t = TirCalculator.calculate(dayReadings);
+      tirs.add(t.tir);
+      peaks
+          .add(dayReadings.map((r) => r.value).reduce((a, b) => a > b ? a : b));
+      cvs.add(t.cv);
+      fastings.add(dayReadings.first.value);
+      means.add(t.mean);
+    }
+
+    if (tirs.length < 5) {
+      return PersonalBaseline(
+        tirLow: 65,
+        tirHigh: 75,
+        peakLow: 7.5,
+        peakHigh: 9.5,
+        cvLow: 29,
+        cvHigh: 35,
+        fastingLow: 5.5,
+        fastingHigh: 6.8,
+        averageMeanLow: 6.8,
+        averageMeanHigh: 7.6,
+        updatedAt: DateTime.now(),
+        daysUsed: tirs.length,
+      );
+    }
+
+    tirs.sort();
+    peaks.sort();
+    cvs.sort();
+    fastings.sort();
+    means.sort();
+    double p25(List<double> sorted) => sorted[(sorted.length * 0.25).floor()];
+    double p75(List<double> sorted) => sorted[(sorted.length * 0.75).floor()];
+
+    return PersonalBaseline(
+      tirLow: p25(tirs),
+      tirHigh: p75(tirs),
+      peakLow: p25(peaks),
+      peakHigh: p75(peaks),
+      cvLow: p25(cvs),
+      cvHigh: p75(cvs),
+      fastingLow: p25(fastings),
+      fastingHigh: p75(fastings),
+      averageMeanLow: p25(means),
+      averageMeanHigh: p75(means),
+      updatedAt: DateTime.now(),
+      daysUsed: tirs.length,
+    );
   }
 
   void dispose() {
