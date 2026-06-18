@@ -19,6 +19,15 @@ https://github.com/solgosea/solgo-glucose-insight/releases/download/v0.4.0-commu
 
 Latest preview: **v0.4.0 Community Preview**
 
+## Community
+
+Solgo Insight is shaped by community feedback.
+
+Join the Reddit community to share feedback, report issues, discuss feature
+ideas, and follow updates:
+
+https://www.reddit.com/r/SolgoInsight/
+
 ## What This Update Is About
 
 This update is mainly an **architecture-focused community preview update**.
