@@ -15,9 +15,9 @@ systems, or medical alert workflows.
 ## Download
 
 **Latest packaged Android APK:**  
-https://github.com/solgosea/solgo-glucose-insight/releases/download/v0.4.0-community-preview/solgo-insight-community-preview-v0.4.0-android.apk
+https://github.com/solgosea/solgo-glucose-insight/releases/download/v0.5.0-community-preview/solgo-insight-community-preview-v0.5.0-android.apk
 
-Latest packaged preview: **v0.4.0 Community Preview**
+Latest packaged preview: **v0.5.0 Community Preview**
 
 This repository branch now includes the next community-preview code update,
 focused on multilingual foundations, report architecture, Low / High Episode
@@ -107,17 +107,7 @@ need to be readable, compact, and practical during daily use.
 
 ![Solgo Insight community preview showcase](docs/assets/release/status-monitor-beta/00-release-core-showcase-4up.png)
 
-| Status Monitor beta | Glucose report |
-| --- | --- |
-| <img src="docs/assets/release/status-monitor-beta/01-status-monitor-dashboard-hero.png" alt="Solgo Insight Status Monitor beta dashboard" width="360"> | <img src="docs/assets/release/status-monitor-beta/11-glucose-report-hero.png" alt="Solgo Insight glucose report layer" width="360"> |
-
-| High Episode analysis | Low Episode analysis |
-| --- | --- |
-| <img src="docs/assets/release/status-monitor-beta/06-high-episode-enhanced-hero.png" alt="Solgo Insight high episode analysis" width="360"> | <img src="docs/assets/release/status-monitor-beta/07-low-episode-enhanced-hero.png" alt="Solgo Insight low episode analysis" width="360"> |
-
-| Status Monitor report |
-| --- |
-| <img src="docs/assets/release/status-monitor-beta/10-status-monitor-report-enhanced-hero.png" alt="Solgo Insight Status Monitor report" width="360"> |
+![Solgo Insight Status Monitor beta showcase](docs/assets/release/status-monitor-beta/00-status-monitor-showcase-4up.png)
 
 ## Current Public Preview Scope
 
