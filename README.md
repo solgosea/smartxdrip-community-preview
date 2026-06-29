@@ -4,6 +4,10 @@
 
 Solgo Insight is built as a companion around the glucose data people already collect through tools such as **xDrip+** and **Nightscout**. The community preview focuses on making that data easier to review, explain, and troubleshoot without replacing the collector or existing diabetes workflow.
 
+## Engineering and Safety
+
+Before installing or testing, please read the [Engineering and Safety](docs/engineering-and-safety.md) document. It explains the project scope, safety boundaries, AI-assisted development disclosure, testing approach, known limitations, and how Solgo Insight relates to xDrip+, Nightscout, CGM apps, and AAPS.
+
 ## Download
 
 Latest community preview:
